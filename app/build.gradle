@@ -1,0 +1,78 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace 'com.alaka_ala.florafilm'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.alaka_ala.florafilm"
+        minSdk 28
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
+    // Все 5 библиотек jlibtorrent используются для загрузки торренттов
+    implementation project(':app:TorStream')
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    // Picasso не нуждается в представлении
+    implementation 'com.squareup.picasso:picasso:2.8'
+    // JSOUP для парсинга HTML страниц с сайтов
+    implementation 'org.jsoup:jsoup:1.15.3'
+    // Плеер EXOPlayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    // Дешифратор вроде, может Html расшифровать/ Unicode тоже вроде как, (давно не использовал)
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    // Гугловский Gson, использую только для JsonParser
+    implementation 'com.google.code.gson:gson:2.10.1'
+    // вроде используется для FileUtils
+    implementation 'commons-io:commons-io:2.13.0'
+    // Яндекс метрика
+    implementation 'com.yandex.android:mobmetricalib:5.3.0'
+
+    // Не помню для чего они
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.69'
+
+    // Обновление экрана (потянуть сверху вниз для обновления)
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    // эффект размытия
+    implementation 'jp.wasabeef:blurry:4.0.1'
+
+    // С помощью этой библиотеки создаю локальный сервер Http
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_app"
+    app:startDestination="@id/navHomeFragment">
+
+    <fragment
+        android:id="@+id/navHomeFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.home.HomeFragment"
+        android:label="@string/home_title_fragment"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navHomeFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/navSettingsFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.settings.SettingsFragment"
+        android:label="@string/settings_title_fragment"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/mainFilmFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment"
+        android:label="@string/main_film_title_fragment"
+        tools:layout="@layout/fragment_main_film" />
+    <fragment
+        android:id="@+id/navFavoriteFilmFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.favorites.FavoriteFilmFragment"
+        android:label="@string/fragment_favorite_film"
+        tools:layout="@layout/fragment_favorite_film" />
+</navigation>
