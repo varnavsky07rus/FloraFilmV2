@@ -40,8 +40,7 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
-    // Все 5 библиотек jlibtorrent используются для загрузки торренттов
-    implementation project(':app:TorStream')
+    implementation project(':app:UtilsTorrent')
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
@@ -73,6 +72,9 @@ dependencies {
 
     // С помощью этой библиотеки создаю локальный сервер Http
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
+
+    // Анимации lottie
+    implementation 'com.airbnb.android:lottie:6.6.4'
 
 
 }

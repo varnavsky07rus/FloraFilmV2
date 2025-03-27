@@ -1,11 +1,126 @@
 package com.alaka_ala.florafilm.ui.util.api;
 
+import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EPData {
+public class EPData implements Serializable{
+
+    public static final String TYPE_CONTENT_FILM = "FILM";
+    public static final String TYPE_CONTENT_SERIAL = "SERIAL";
+
+    public EPData(Builder builder) {
+        this.balancer = builder.balancer;
+        this.typeContent = builder.typeContent;
+        this.film = builder.film;
+        this.serial = builder.serial;
+        this.indexTranslation = builder.indexTranslation;
+        this.indexSeason = builder.indexSeason;
+        this.indexEpisode = builder.indexEpisode;
+        this.indexQuality = builder.indexQuality;
+        this.filmInfo = builder.filmInfo;
+    }
+
+    public String getBalancer() {
+        return balancer;
+    }
+
+    public String getTypeContent() {
+        return typeContent;
+    }
+
+    public Film getFilm() {
+        return film;
+    }
+
+    public Serial getSerial() {
+        return serial;
+    }
+
+    public int getIndexTranslation() {
+        return indexTranslation;
+    }
+
+    public int getIndexSeason() {
+        return indexSeason;
+    }
+
+    public int getIndexEpisode() {
+        return indexEpisode;
+    }
+
+    public int getIndexQuality() {
+        return indexQuality;
+    }
+
+    public ItemFilmInfo getFilmInfo() {
+        return filmInfo;
+    }
+
+    private final String balancer;
+    private final String typeContent;
+    private final Film film;
+    private final Serial serial;
+    private final int indexTranslation;
+    private final int indexSeason;
+    private final int indexEpisode;
+    private final int indexQuality;
+    private final ItemFilmInfo filmInfo;
+
+    public static class Builder {
+        private String balancer;
+        private String typeContent;
+        private Film film;
+        private Serial serial;
+        private int indexTranslation;
+        private int indexSeason;
+        private int indexEpisode;
+        private int indexQuality;
+        private ItemFilmInfo filmInfo;
+
+        public void setFilmInfo(ItemFilmInfo filmInfo) {
+            this.filmInfo = filmInfo;
+        }
+
+        public Builder setBalancer(String balancer) {
+            this.balancer = balancer;
+            return this;
+        }
+
+        public Builder setFilm(Film film) {
+            this.typeContent = TYPE_CONTENT_FILM;
+            this.film = film;
+            return this;
+        }
+        public Builder setSerial(Serial serial) {
+            this.typeContent = TYPE_CONTENT_SERIAL;
+            this.serial = serial;
+            return this;
+        }
+        public Builder setIndexTranslation(int indexTranslation) {
+            this.indexTranslation = indexTranslation;
+            return this;
+        }
+        public Builder setIndexSeason(int indexSeason) {
+            this.indexSeason = indexSeason;
+            return this;
+        }
+        public Builder setIndexEpisode(int indexEpisode) {
+            this.indexEpisode = indexEpisode;
+            return this;
+        }
+        public Builder setIndexQuality(int indexQuality) {
+            this.indexQuality = indexQuality;
+            return this;
+        }
+        public EPData build() {
+            return new EPData(this);
+        }
+    }
+
 
     public static class Film implements Serializable {
         private String id = "null";
@@ -32,6 +147,7 @@ public class EPData {
             this.translations = builder.translations;
             this.blockList = builder.blockList;
         }
+
 
         public ArrayList<Block> getBlockList() {
             return blockList;
@@ -71,11 +187,18 @@ public class EPData {
 
         }
 
+
         public static class Builder {
+            private String nameFilm;
             private String id;
             private String poster;
             private ArrayList<Translations> translations;
             private final ArrayList<Block> blockList = new ArrayList<>();
+
+            public Builder setNameFilm(String nameFilm) {
+                this.nameFilm = nameFilm;
+                return this;
+            }
 
             public Builder setId(String id) {
                 this.id = id;
@@ -105,6 +228,8 @@ public class EPData {
 
     public static class Serial implements Serializable {
 
+        private final int kinopoiskId;
+
         private final ArrayList<Season> seasons;
 
         private final ArrayList<Block> blockList;
@@ -116,13 +241,20 @@ public class EPData {
         public Serial(Builder builder) {
             this.seasons = builder.seasons;
             this.blockList = builder.blockList;
+            this.kinopoiskId = builder.kinopoiskId;
         }
 
         public ArrayList<Block> getBlockList() {
             return blockList;
         }
 
+        public int getKinopoiskId() {
+            return kinopoiskId;
+        }
+
+
         public static class Builder {
+            private int kinopoiskId;
             private ArrayList<Season> seasons;
             private final ArrayList<Block> blockList = new ArrayList<>();
             public Builder addBlock(Block block) {
@@ -135,7 +267,12 @@ public class EPData {
             public Serial build() {
                 return new Serial(this);
             }
+            public void setKinopoiskId(int kinopoiskId) {
+                this.kinopoiskId = kinopoiskId;
+            }
         }
+
+
 
         public static class Season implements Serializable {
             private final String title;

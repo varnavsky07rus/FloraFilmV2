@@ -58,6 +58,8 @@ public class HDVB {
     private static final String HDVB_API_DOMAIN = "https://apivb.com";
 
 
+    private int kinopoisk_id = 0;
+
     public HDVB(String apiKey) {
         API_KEY = apiKey;
         createMapHeaders();
@@ -65,6 +67,7 @@ public class HDVB {
 
 
     public void parse(int kinopoiskId, ResultParseCallback rpc) {
+        this.kinopoisk_id = kinopoiskId;
         connectHDVBApi(kinopoiskId, rpc);
     }
 
@@ -179,7 +182,8 @@ public class HDVB {
         Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(@NonNull Message msg) {
-                rpc.film(builder.build());
+                HDVBFilm f = builder.build();
+                rpc.film(f, createEPDataFilm(f));
                 return false;
             }
         });
@@ -216,7 +220,6 @@ public class HDVB {
         }
         return "";
     }
-
 
     // Парсинг сериалов
     private void parseSerial(JSONObject serial, ResultParseCallback rpc) {
@@ -299,7 +302,7 @@ public class HDVB {
                 Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
                     @Override
                     public boolean handleMessage(@NonNull Message msg) {
-                        rpc.serial(hdvbSerial);
+                        rpc.serial(hdvbSerial, createEPDataSerial(hdvbSerial));
                         return false;
                     }
                 });
@@ -356,7 +359,7 @@ public class HDVB {
 
     private static final Queue<String> requestQueue = new LinkedList<>();
     private static boolean isProcessing = false;
-    public static void getFileSerial(String episodeToken, CallbackSerialGetFile cb) {
+    public static void getFileSerial(boolean isSync, String episodeToken, CallbackSerialGetFile cb) {
         // Добавляем запрос в очередь
         requestQueue.add(episodeToken);
 
@@ -447,12 +450,38 @@ public class HDVB {
         thread.start();
     }
 
+    public static String getFileSerial(String episodeToken) {
+        String urlM3u8 = "https://" + HREF + "/playlist/" + episodeToken + ".txt";
+        createMapHeaders();
+        URL createUrl = null;
+        try {
+            createUrl = new URL(urlM3u8);
+            HttpURLConnection myURLConnection = null;
+            myURLConnection = (HttpURLConnection) createUrl.openConnection();
+            for (String headerKey : headers.keySet()) {
+                myURLConnection.setRequestProperty(headerKey, headers.get(headerKey));
+            }
+            myURLConnection.setRequestMethod("GET");
+            myURLConnection.connect();
+            if (myURLConnection.getResponseCode() == 200) {
+                // запись ответа
+                BufferedReader bufferedReader;
+                bufferedReader = new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+                String urlsM3u8 = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
+                return urlsM3u8;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Error: " + e.getMessage();
+        }
+        return "undefined";
+    }
+
     public interface CallbackSerialGetFile {
         void success(String url);
         void error(String error);
         void finish();
     }
-
 
     // Получает HTML страницу и выполняет поиск JSONObject методом extractJson()
     private String parseHtml(String iframe) throws IOException {
@@ -563,13 +592,35 @@ public class HDVB {
     }
 
     public interface ResultParseCallback {
-        void serial(HDVBSerial serial);
+        void serial(HDVBSerial serial, EPData.Serial serialEPData);
 
-        void film(HDVBFilm film);
+        void film(HDVBFilm film, EPData.Film filmEPData);
 
         void error(String err);
 
     }
 
+    public EPData.Film createEPDataFilm(HDVBFilm film) {
+        if (film.getHdvbDataFilm() == null) return null;
+        EPData.Film.Builder epData = new EPData.Film.Builder();
+        for (HDVBFilm.Block block : film.getBlockList()) {
+            EPData.Block blockBuilder = new EPData.Block(block.getCountry());
+            epData.addBlock(blockBuilder);
+        }
+        epData.setPoster(film.getHdvbDataFilm().getPoster());
+        epData.setTranslations(film.getHdvbDataFilm().getTranslations());
+        epData.setId("" + kinopoisk_id);
+        return epData.build();
+    }
+
+    public EPData.Serial createEPDataSerial(HDVBSerial serial) {
+        EPData.Serial.Builder epData = new EPData.Serial.Builder();
+        for (EPData.Block block : serial.getHdvbDataSerial().getBlockList()) {
+            epData.addBlock(block);
+        }
+        epData.setSeasons(serial.getHdvbDataSerial().getSeasons());
+        epData.setKinopoiskId(kinopoisk_id);
+        return epData.build();
+    }
 
 }

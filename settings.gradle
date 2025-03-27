@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "FloraFilm"
 include ':app'
-include ':app:TorStream'
+include ':app:UtilsTorrent'

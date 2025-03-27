@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/linearLayoutTitleClick"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:tint="?attr/IconsTintTheme"
+                app:srcCompat="@drawable/rounded_folder_24" />
+
+            <TextView
+                android:id="@+id/textViewTitleFolder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:lines="2"
+                android:maxLines="2"
+                android:textSize="24sp"
+                tools:text="Профессиональный дублированный" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutFf"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="46dp"
+            android:orientation="vertical"></LinearLayout>
+    </LinearLayout>
+</FrameLayout>

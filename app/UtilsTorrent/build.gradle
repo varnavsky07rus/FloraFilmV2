@@ -1,0 +1,76 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.jetbrains.kotlin.android)
+}
+
+android {
+    namespace 'com.alaka_ala.utilstorrent'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 28
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.core.ktx
+    /*implementation files('libs\\jlibtorrent-1.2.19.0.jar')
+    implementation files('libs\\jlibtorrent-android-arm64-1.2.19.0.jar')
+    implementation files('libs\\jlibtorrent-android-arm-1.2.19.0.jar')
+    implementation files('libs\\jlibtorrent-android-x86-1.2.19.0.jar')
+    implementation files('libs\\jlibtorrent-android-x86_64-1.2.19.0.jar')*/
+
+    /* libtorrent wrapper */
+    def LIBTORRENT4J_VERSION = '2.1.0-35'
+    implementation "org.libtorrent4j:libtorrent4j:$LIBTORRENT4J_VERSION"
+    implementation "org.libtorrent4j:libtorrent4j-android-arm:$LIBTORRENT4J_VERSION"
+    implementation "org.libtorrent4j:libtorrent4j-android-arm64:$LIBTORRENT4J_VERSION"
+    implementation "org.libtorrent4j:libtorrent4j-android-x86:$LIBTORRENT4J_VERSION"
+    implementation "org.libtorrent4j:libtorrent4j-android-x86_64:$LIBTORRENT4J_VERSION"
+    // SSL
+    implementation 'info.guardianproject.netcipher:netcipher:2.1.0'
+    implementation 'org.conscrypt:conscrypt-android:2.5.3'
+
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    // С помощью этой библиотеки создаю локальный сервер Http
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+    // Гугловский Gson, использую только для JsonParser
+    implementation 'com.google.code.gson:gson:2.10.1'
+    // JSOUP для парсинга HTML страниц с сайтов
+    implementation 'org.jsoup:jsoup:1.15.3'
+
+    // multidex
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.palette:palette-ktx:1.0.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.tvprovider:tvprovider:1.0.0'
+
+    // LifeCycle
+    def lifecycleVersion = '2.6.2' // 2.6.2 last api16 compatible
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${lifecycleVersion}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${lifecycleVersion}"
+    implementation "androidx.lifecycle:lifecycle-process:${lifecycleVersion}"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${lifecycleVersion}"
+}

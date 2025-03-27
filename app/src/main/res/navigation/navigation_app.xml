@@ -17,6 +17,20 @@
             app:exitAnim="@anim/exit_anim"
             app:popEnterAnim="@anim/enter_anim"
             app:popExitAnim="@anim/exit_anim" />
+        <action
+            android:id="@+id/action_navHomeFragment_to_searchFragment"
+            app:destination="@id/searchFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+        <action
+            android:id="@+id/action_navHomeFragment_to_navFavoriteFilmFragment"
+            app:destination="@id/navFavoriteFilmFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/navSettingsFragment"
@@ -32,5 +46,53 @@
         android:id="@+id/navFavoriteFilmFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.favorites.FavoriteFilmFragment"
         android:label="@string/fragment_favorite_film"
-        tools:layout="@layout/fragment_favorite_film" />
+        tools:layout="@layout/fragment_favorite_film" >
+        <action
+            android:id="@+id/action_navFavoriteFilmFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.search.SearchFragment"
+        android:label="Поиск"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/collectionFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.collections.CollectionFragment"
+        android:label="fragment_collection"
+        tools:layout="@layout/fragment_collection" />
+    <fragment
+        android:id="@+id/actorsFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.actors.ActorsFragment"
+        tools:layout="@layout/fragment_actors" />
+    <fragment
+        android:id="@+id/descriptionFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.DescriptionFragment"
+        android:label="fragment_description_film"
+        tools:layout="@layout/fragment_description_film" >
+        <action
+            android:id="@+id/action_descriptionFragment_to_actorsFragment"
+            app:destination="@id/actorsFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/donateFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.donate.DonateFragment"
+        android:label="Донат"
+        tools:layout="@layout/fragment_donate" />
 </navigation>

@@ -3,11 +3,16 @@ package com.alaka_ala.florafilm.ui.activities;
 import static android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -23,6 +28,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
 import com.alaka_ala.florafilm.ui.util.local.PermissionManager;
@@ -64,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         drawerLayout = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
 
+
         // Получаем NavController из NavHostFragment
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         navController = navHostFragment.getNavController();
@@ -78,6 +86,17 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
         // Настраиваем NavigationView с NavController
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        View header = navigationView.getHeaderView(0);
+        ImageView donateButton = header.findViewById(R.id.imageViewDonate);
+        // Загружаем анимацию из raw-ресурсов
+
+        donateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                navController.navigate(R.id.donateFragment);
+            }
+        });
 
         permissionManager = new PermissionManager(getApplicationContext(), this, null, this);
         checkPermissionsAndDoSomething();
@@ -121,14 +140,14 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
     @Override
     public void onPermissionsGranted() {
-// Все разрешения предоставлены
+        // Все разрешения предоставлены
         Log.d(PermissionManager.TAG, "onPermissionsGranted: All permissions granted");
         Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onPermissionsDenied(List<String> deniedPermissions) {
-// Некоторые разрешения отклонены
+        // Некоторые разрешения отклонены
         Log.d(PermissionManager.TAG, "onPermissionsDenied: Some permissions denied: " + deniedPermissions);
         Toast.makeText(this, "Some permissions denied", Toast.LENGTH_SHORT).show();
         // Обработать отклоненные разрешения
@@ -158,4 +177,5 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId);
         permissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
 }

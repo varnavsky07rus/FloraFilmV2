@@ -206,7 +206,7 @@ public class Vibix {
 
     // Парсинг страницы если СЕРИАЛ
     private void parseHTMLSerial(Handler handler, String htmlStr) {
-        Pattern pattern = Pattern.compile(",file:.+,poster");
+        Pattern pattern = Pattern.compile("\\[.+]");
         Matcher matcher = pattern.matcher(htmlStr);
         if (!matcher.find()) return;
         String jsonStr = matcher.group(0);
@@ -352,6 +352,7 @@ public class Vibix {
 
     }
 
+    // 13.03.2025 - не помню почему не удалил данный метод) пока что оставлю
     // Extract метод, парсит HTML и возвращает JSONArray ссылок (метод для ФИЛЬМОВ)
     private @NonNull JSONArray getJsonArray(Matcher matcher) throws JSONException {
         JSONArray jsonArrayFilms = new JSONArray();
@@ -364,9 +365,6 @@ public class Vibix {
         }
         return jsonArrayFilms;
     }
-
-
-
 
 
 }

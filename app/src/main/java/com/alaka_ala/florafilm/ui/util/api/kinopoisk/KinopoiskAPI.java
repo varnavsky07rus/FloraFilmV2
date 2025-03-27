@@ -1,33 +1,13 @@
 package com.alaka_ala.florafilm.ui.util.api.kinopoisk;
 
 
-
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_10;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_11;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_12;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_13;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_14;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_17;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_18;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_19;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_24;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_CATEGORY_GENRE_7;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_COMICS_THEME;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_FAMILY;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_NEWS_MEDIA;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_POPULAR_ALL;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_POPULAR_MOVIES;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_SEARCH;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_SIMILAR;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_TOP_250_MOVIES;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_TOP_250_TV_SHOWS;
-import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection.TITLE_VAMPIRE_THEME;
-
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
@@ -48,6 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,7 +186,7 @@ public class KinopoiskAPI {
                 if (ok && codeResponse == 200) {
                     callback.onSuccess(response);
                 } else {
-                    callback.onFailure(new IOException("Код ответа: " + codeResponse + " Ошибка: " + response));
+                    callback.onFailure(new IOException("Код ответа: " + codeResponse + " Ошибка: " + response + " | " + error));
                 }
 
                 requestId = 0;
@@ -273,7 +255,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_POPULAR_ALL, response);
+                            Collection collection = createCollectionClass("Популярные фильмы/сериалы", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -308,7 +290,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_POPULAR_MOVIES, response);
+                            Collection collection = createCollectionClass("Популярные фильмы", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -343,7 +325,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_TOP_250_TV_SHOWS, response);
+                            Collection collection = createCollectionClass("Топ 250 сериалов", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -378,7 +360,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_TOP_250_MOVIES, response);
+                            Collection collection = createCollectionClass("Топ 250 фильмов", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -414,7 +396,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_VAMPIRE_THEME, response);
+                            Collection collection = createCollectionClass("Про вампиров", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -449,7 +431,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_COMICS_THEME, response);
+                            Collection collection = createCollectionClass("По комиксам", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -485,7 +467,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_FAMILY, response);
+                            Collection collection = createCollectionClass("Семейные", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -520,7 +502,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_SIMILAR, response);
+                            Collection collection = createCollectionClass("Похожие фильмы", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -557,7 +539,7 @@ public class KinopoiskAPI {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(TITLE_SEARCH, response);
+                            Collection collection = createCollectionClass("Поиск", response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -582,60 +564,54 @@ public class KinopoiskAPI {
     }
 
     /**
-     * Получение списка фильмов/сериалов по жанру
+     * Получение списка фильмов/сериалов по стране
      */
-    public void getListGenre(String genreTitle, int page, RequestCallbackCollection rcc) {
-        int genre = 0;
-        switch (genreTitle) {
-            case TITLE_CATEGORY_GENRE_19:
-                // Семейные
-                genre = 19;
-                break;
-            case TITLE_CATEGORY_GENRE_18:
-                // Мультфильмы
-                genre = 18;
-                break;
-            case TITLE_CATEGORY_GENRE_17:
-                // Ужасы
-                genre = 17;
-                break;
-            case TITLE_CATEGORY_GENRE_14:
-                // Военные
-                genre = 14;
-                break;
-            case TITLE_CATEGORY_GENRE_13:
-                // Комедии
-                genre = 13;
-                break;
-            case TITLE_CATEGORY_GENRE_12:
-                // Фэнтэзи
-                genre = 12;
-                break;
-            case TITLE_CATEGORY_GENRE_11:
-                // Боеввик
-                genre = 11;
-                break;
-            case TITLE_CATEGORY_GENRE_10:
-                // Вестерн
-                genre = 10;
-                break;
-            case TITLE_CATEGORY_GENRE_7:
-                // Приключения
-                genre = 7;
-                break;
-            case TITLE_CATEGORY_GENRE_24:
-                // Аниме
-                genre = 24;
-                break;
-        }
-        String base_url = "https://kinopoiskapiunofficial.tech/api/v2.2/films?genres=" + genre + "&order=RATING&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&page=" + page;
+    public void getListFromCountries(int page,  int country, RequestCallbackCollection rcc) {
+        String base_url = "https://kinopoiskapiunofficial.tech/api/v2.2/films?countries=" + country + "&order=RATING&type=FILM&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&page=" + page;
         connect(base_url, new ConntectCallback() {
             @Override
             public void onSuccess(String response) {
                 try {
                     if (!response.isEmpty()) {
                         if (JsonParser.parseString(response).isJsonObject()) {
-                            Collection collection = createCollectionClass(genreTitle, response);
+                            Collection collection = createCollectionClass("Поиск по странам", response);
+                            rcc.onSuccess(collection);
+                        }
+                    } else {
+                        onFailure(new IOException("Пустой ответ!"));
+                    }
+
+                } catch (JSONException e) {
+                    onFailure(new IOException("Ошибка JSON"));
+                }
+            }
+
+            @Override
+            public void onFailure(IOException e) {
+                rcc.onFailure(e);
+            }
+
+            @Override
+            public void finish() {
+                rcc.finish();
+            }
+        });
+    }
+
+
+
+    /**
+     * Получение списка фильмов/сериалов по жанру
+     */
+    public void getListFromGenre(@SuppressLint("SupportAnnotationUsage") @GenreConstants.GenreType  int genreId, int page, RequestCallbackCollection rcc) {
+        String base_url = "https://kinopoiskapiunofficial.tech/api/v2.2/films?genres=" + genreId + "&order=RATING&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&page=" + page;
+        connect(base_url, new ConntectCallback() {
+            @Override
+            public void onSuccess(String response) {
+                try {
+                    if (!response.isEmpty()) {
+                        if (JsonParser.parseString(response).isJsonObject()) {
+                            Collection collection = createCollectionClass(GenreConstants.getGenreName(genreId), response);
                             rcc.onSuccess(collection);
                         }
                     } else {
@@ -881,7 +857,7 @@ public class KinopoiskAPI {
             if (item.has("publishedAt")) {
                 publishedAt = item.getString("publishedAt");
             }
-            newsMediaList.add(new NewsMedia(TITLE_NEWS_MEDIA, i, kinopoiskId, imageUrl, title, description, urlPost, publishedAt));
+            newsMediaList.add(new NewsMedia("Новости Медиа", i, kinopoiskId, imageUrl, title, description, urlPost, publishedAt));
         }
 
         return newsMediaList;
@@ -1648,6 +1624,382 @@ public class KinopoiskAPI {
                 has3D,
                 lastSync
         );
+    }
+
+
+    public static class GenreConstants {
+
+        public static final int THRILLER = 1;
+        public static final int DRAMA = 2;
+        public static final int CRIME = 3;
+        public static final int ROMANCE = 4;
+        public static final int DETECTIVE = 5;
+        public static final int SCI_FI = 6;
+        public static final int ADVENTURE = 7;
+        public static final int BIOGRAPHY = 8;
+        public static final int FILM_NOIR = 9;
+        public static final int WESTERN = 10;
+        public static final int ACTION = 11;
+        public static final int FANTASY = 12;
+        public static final int COMEDY = 13;
+        public static final int WAR = 14;
+        public static final int HISTORY = 15;
+        public static final int MUSIC = 16;
+        public static final int HORROR = 17;
+        public static final int ANIMATION = 18;
+        public static final int FAMILY = 19;
+        public static final int MUSICAL = 20;
+        public static final int SPORT = 21;
+        public static final int DOCUMENTARY = 22;
+        public static final int SHORT_FILM = 23;
+        public static final int ANIME = 24;
+        public static final int EMPTY = 25;
+        public static final int NEWS = 26;
+        public static final int CONCERT = 27;
+        public static final int ADULT = 28;
+        public static final int CEREMONY = 29;
+        public static final int REALITY_TV = 30;
+        public static final int GAME = 31;
+        public static final int TALK_SHOW = 32;
+        public static final int KIDS = 33;
+
+        private static final Map<Integer, String> GENRE_MAP = new HashMap<>();
+        private static final Map<String, Integer> GENRE_ID_MAP = new HashMap<>();
+
+        static {
+            GENRE_MAP.put(THRILLER, "Триллер");
+            GENRE_MAP.put(DRAMA, "Драма");
+            GENRE_MAP.put(CRIME, "Криминал");
+            GENRE_MAP.put(ROMANCE, "Мелодрама");
+            GENRE_MAP.put(DETECTIVE, "Детектив");
+            GENRE_MAP.put(SCI_FI, "Фантастика");
+            GENRE_MAP.put(ADVENTURE, "Приключения");
+            GENRE_MAP.put(BIOGRAPHY, "Биография");
+            GENRE_MAP.put(FILM_NOIR, "Фильм-нуар");
+            GENRE_MAP.put(WESTERN, "Вестерн");
+            GENRE_MAP.put(ACTION, "Боевик");
+            GENRE_MAP.put(FANTASY, "Фэнтези");
+            GENRE_MAP.put(COMEDY, "Комедия");
+            GENRE_MAP.put(WAR, "Военный");
+            GENRE_MAP.put(HISTORY, "История");
+            GENRE_MAP.put(MUSIC, "Музыка");
+            GENRE_MAP.put(HORROR, "Ужасы");
+            GENRE_MAP.put(ANIMATION, "Мультфильм");
+            GENRE_MAP.put(FAMILY, "Семейный");
+            GENRE_MAP.put(MUSICAL, "Мюзикл");
+            GENRE_MAP.put(SPORT, "Спорт");
+            GENRE_MAP.put(DOCUMENTARY, "Документальный");
+            GENRE_MAP.put(SHORT_FILM, "Короткометражка");
+            GENRE_MAP.put(ANIME, "Аниме");
+            GENRE_MAP.put(EMPTY, "Неизвестный жанр");
+            GENRE_MAP.put(NEWS, "Новости");
+            GENRE_MAP.put(CONCERT, "Концерт");
+            GENRE_MAP.put(ADULT, "Для взрослых");
+            GENRE_MAP.put(CEREMONY, "Церемония");
+            GENRE_MAP.put(REALITY_TV, "Реальное ТВ");
+            GENRE_MAP.put(GAME, "Игра");
+            GENRE_MAP.put(TALK_SHOW, "Ток-шоу");
+            GENRE_MAP.put(KIDS, "Детский");
+
+            for (Map.Entry<Integer, String> entry : GENRE_MAP.entrySet()) {
+                GENRE_ID_MAP.put(entry.getValue().toLowerCase(), entry.getKey());
+            }
+        }
+
+        @Retention(RetentionPolicy.SOURCE)
+        @IntDef({THRILLER, DRAMA, CRIME, ROMANCE, DETECTIVE, SCI_FI, ADVENTURE, BIOGRAPHY, FILM_NOIR, WESTERN,
+                ACTION, FANTASY, COMEDY, WAR, HISTORY, MUSIC, HORROR, ANIMATION, FAMILY, MUSICAL,
+                SPORT, DOCUMENTARY, SHORT_FILM, ANIME, EMPTY, NEWS, CONCERT, ADULT, CEREMONY, REALITY_TV,
+                GAME, TALK_SHOW, KIDS})
+        public @interface GenreType {}
+
+        public static String getGenreName(@GenreType int genreId) {
+            return GENRE_MAP.getOrDefault(genreId, "Неизвестно");
+        }
+
+        public static int getGenreId(String genreName) {
+            return GENRE_ID_MAP.getOrDefault(genreName.toLowerCase(), EMPTY);
+        }
+    }
+
+    public static class CountryConstants {
+
+        // Мапа для хранения соответствия id и названия страны
+        private static final Map<Integer, String> ID_TO_COUNTRY = new HashMap<>();
+        private static final Map<String, Integer> COUNTRY_TO_ID = new HashMap<>();
+
+        // Инициализация мап
+        static {
+            addCountry(1, "США");
+            addCountry(2, "Швейцария");
+            addCountry(3, "Франция");
+            addCountry(4, "Польша");
+            addCountry(5, "Великобритания");
+            addCountry(6, "Швеция");
+            addCountry(7, "Индия");
+            addCountry(8, "Испания");
+            addCountry(9, "Германия");
+            addCountry(10, "Италия");
+            addCountry(11, "Гонконг");
+            addCountry(12, "Германия (ФРГ)");
+            addCountry(13, "Австралия");
+            addCountry(14, "Канада");
+            addCountry(15, "Мексика");
+            addCountry(16, "Япония");
+            addCountry(17, "Дания");
+            addCountry(18, "Чехия");
+            addCountry(19, "Ирландия");
+            addCountry(20, "Люксембург");
+            addCountry(21, "Китай");
+            addCountry(22, "Норвегия");
+            addCountry(23, "Нидерланды");
+            addCountry(24, "Аргентина");
+            addCountry(25, "Финляндия");
+            addCountry(26, "Босния и Герцеговина");
+            addCountry(27, "Австрия");
+            addCountry(28, "Тайвань");
+            addCountry(29, "Новая Зеландия");
+            addCountry(30, "Бразилия");
+            addCountry(31, "Чехословакия");
+            addCountry(32, "Мальта");
+            addCountry(33, "СССР");
+            addCountry(34, "Россия");
+            addCountry(35, "Югославия");
+            addCountry(36, "Португалия");
+            addCountry(37, "Румыния");
+            addCountry(38, "Хорватия");
+            addCountry(39, "ЮАР");
+            addCountry(40, "Куба");
+            addCountry(41, "Колумбия");
+            addCountry(42, "Израиль");
+            addCountry(43, "Намибия");
+            addCountry(44, "Турция");
+            addCountry(45, "Бельгия");
+            addCountry(46, "Сальвадор");
+            addCountry(47, "Исландия");
+            addCountry(48, "Венгрия");
+            addCountry(49, "Южная Корея");
+            addCountry(50, "Лихтенштейн");
+            addCountry(51, "Болгария");
+            addCountry(52, "Филиппины");
+            addCountry(53, "Доминикана");
+            addCountry(54, "");
+            addCountry(55, "Марокко");
+            addCountry(56, "Таиланд");
+            addCountry(57, "Кения");
+            addCountry(58, "Пакистан");
+            addCountry(59, "Иран");
+            addCountry(60, "Панама");
+            addCountry(61, "Аруба");
+            addCountry(62, "Ямайка");
+            addCountry(63, "Греция");
+            addCountry(64, "Тунис");
+            addCountry(65, "Кыргызстан");
+            addCountry(66, "Пуэрто-Рико");
+            addCountry(67, "Казахстан");
+            addCountry(68, "Югославия (ФР)");
+            addCountry(69, "Алжир");
+            addCountry(70, "Германия (ГДР)");
+            addCountry(71, "Сингапур");
+            addCountry(72, "Словакия");
+            addCountry(73, "Афганистан");
+            addCountry(74, "Индонезия");
+            addCountry(75, "Перу");
+            addCountry(76, "Бермуды");
+            addCountry(77, "Монако");
+            addCountry(78, "Зимбабве");
+            addCountry(79, "Вьетнам");
+            addCountry(80, "Антильские острова");
+            addCountry(81, "Саудовская Аравия");
+            addCountry(82, "Танзания");
+            addCountry(83, "Ливия");
+            addCountry(84, "Ливан");
+            addCountry(85, "Кувейт");
+            addCountry(86, "Египет");
+            addCountry(87, "Литва");
+            addCountry(88, "Венесуэла");
+            addCountry(89, "Словения");
+            addCountry(90, "Чили");
+            addCountry(91, "Багамы");
+            addCountry(92, "Эквадор");
+            addCountry(93, "Коста-Рика");
+            addCountry(94, "Кипр");
+            addCountry(95, "Уругвай");
+            addCountry(96, "Ирак");
+            addCountry(97, "Мартиника");
+            addCountry(98, "Эстония");
+            addCountry(99, "ОАЭ");
+            addCountry(100, "Бангладеш");
+            addCountry(101, "Македония");
+            addCountry(102, "Гвинея");
+            addCountry(103, "Иордания");
+            addCountry(104, "Латвия");
+            addCountry(105, "Армения");
+            addCountry(106, "Украина");
+            addCountry(107, "Сирия");
+            addCountry(108, "Шри-Ланка");
+            addCountry(109, "Нигерия");
+            addCountry(110, "Берег Слоновой Кости");
+            addCountry(111, "Грузия");
+            addCountry(112, "Сенегал");
+            addCountry(113, "Монголия");
+            addCountry(114, "Габон");
+            addCountry(115, "Замбия");
+            addCountry(116, "Албания");
+            addCountry(117, "Камерун");
+            addCountry(118, "Буркина-Фасо");
+            addCountry(119, "Узбекистан");
+            addCountry(120, "Малайзия");
+            addCountry(121, "Сербия");
+            addCountry(122, "Гана");
+            addCountry(123, "Таджикистан");
+            addCountry(124, "Гаити");
+            addCountry(125, "Конго (ДРК)");
+            addCountry(126, "Гватемала");
+            addCountry(127, "Российская империя");
+            addCountry(128, "Беларусь");
+            addCountry(129, "Молдавия");
+            addCountry(130, "Азербайджан");
+            addCountry(131, "Палестина");
+            addCountry(132, "Оккупированная Палестинская территория");
+            addCountry(133, "Северная Корея");
+            addCountry(134, "Никарагуа");
+            addCountry(135, "Камбоджа");
+            addCountry(136, "Ангола");
+            addCountry(137, "Сербия и Черногория");
+            addCountry(138, "Непал");
+            addCountry(139, "Бенин");
+            addCountry(140, "Гваделупа");
+            addCountry(141, "Гренландия");
+            addCountry(142, "Гвинея-Бисау");
+            addCountry(143, "Макао");
+            addCountry(144, "Парагвай");
+            addCountry(145, "Мавритания");
+            addCountry(146, "Руанда");
+            addCountry(147, "Фарерские острова");
+            addCountry(148, "Кот-д’Ивуар");
+            addCountry(149, "Гибралтар");
+            addCountry(150, "Ботсвана");
+            addCountry(151, "Боливия");
+            addCountry(152, "Мадагаскар");
+            addCountry(153, "Кабо-Верде");
+            addCountry(154, "Чад");
+            addCountry(155, "Мали");
+            addCountry(156, "Фиджи");
+            addCountry(157, "Бутан");
+            addCountry(158, "Барбадос");
+            addCountry(159, "Тринидад и Тобаго");
+            addCountry(160, "Мозамбик");
+            addCountry(161, "Заир");
+            addCountry(162, "Андорра");
+            addCountry(163, "Туркменистан");
+            addCountry(164, "Гайана");
+            addCountry(165, "Корея");
+            addCountry(166, "Нигер");
+            addCountry(167, "Конго");
+            addCountry(168, "Того");
+            addCountry(169, "Ватикан");
+            addCountry(170, "Черногория");
+            addCountry(171, "Бурунди");
+            addCountry(172, "Папуа — Новая Гвинея");
+            addCountry(173, "Бахрейн");
+            addCountry(174, "Гондурас");
+            addCountry(175, "Судан");
+            addCountry(176, "Эфиопия");
+            addCountry(177, "Йемен");
+            addCountry(178, "Северный Вьетнам");
+            addCountry(179, "Суринам");
+            addCountry(180, "Маврикий");
+            addCountry(181, "Белиз");
+            addCountry(182, "Либерия");
+            addCountry(183, "Лесото");
+            addCountry(184, "Уганда");
+            addCountry(185, "Каймановы острова");
+            addCountry(186, "Антигуа и Барбуда");
+            addCountry(187, "Западная Сахара");
+            addCountry(188, "Сан-Марино");
+            addCountry(189, "Гуам");
+            addCountry(190, "Косово");
+            addCountry(191, "Лаос");
+            addCountry(192, "Катар");
+            addCountry(193, "Оман");
+            addCountry(194, "Американские Виргинские острова");
+            addCountry(195, "Сиам");
+            addCountry(196, "Сьерра-Леоне");
+            addCountry(197, "Эритрея");
+            addCountry(198, "Сомали");
+            addCountry(199, "Доминика");
+            addCountry(200, "Бирма");
+            addCountry(201, "Реюньон");
+            addCountry(202, "Федеративные Штаты Микронезии");
+            addCountry(203, "Самоа");
+            addCountry(204, "Американское Самоа");
+            addCountry(205, "Свазиленд");
+            addCountry(206, "Французская Полинезия");
+            addCountry(207, "Мьянма");
+            addCountry(208, "Новая Каледония");
+            addCountry(209, "Французская Гвиана");
+            addCountry(210, "Сент-Винсент и Гренадины");
+            addCountry(211, "Малави");
+            addCountry(212, "Экваториальная Гвинея");
+            addCountry(213, "Коморские острова");
+            addCountry(214, "Кирибати");
+            addCountry(215, "Тувалу");
+            addCountry(216, "Тимор-Лешти");
+            addCountry(217, "ЦАР");
+            addCountry(218, "Тонга");
+            addCountry(219, "Гренада");
+            addCountry(220, "Гамбия");
+            addCountry(221, "Антарктида");
+            addCountry(222, "Острова Кука");
+            addCountry(223, "Остров Мэн");
+            addCountry(224, "Внешние малые острова США");
+            addCountry(225, "Монтсеррат");
+            addCountry(226, "Маршалловы острова");
+            addCountry(227, "Бруней-Даруссалам");
+            addCountry(228, "Сейшельские острова");
+            addCountry(229, "Палау");
+            addCountry(230, "Сент-Люсия");
+            addCountry(231, "Вануату");
+            addCountry(232, "Мальдивы");
+            addCountry(233, "Босния");
+            addCountry(234, "Уоллис и Футуна");
+            addCountry(235, "Белоруссия");
+            addCountry(236, "Киргизия");
+            addCountry(239, "Джибути");
+            addCountry(240, "Виргинские острова (США)");
+            addCountry(241, "Северная Македония");
+            addCountry(242, "Виргинские острова (Великобритания)");
+            addCountry(3545269, "Сент-Люсия ");
+            addCountry(3781461, "Сент-Китс и Невис");
+            addCountry(3985922, "Соломоновы Острова");
+            addCountry(4336645, "Виргинские острова");
+            addCountry(7801402, "Фолклендские острова");
+            addCountry(10842163, "Остров Святой Елены");
+            addCountry(32518739, "острова Теркс и Кайкос");
+            addCountry(47738117, "Мелкие отдаленные острова США");
+            addCountry(65870322, "Сан-Томе и Принсипи");
+            addCountry(100999433, "Эсватини");
+        }
+
+        // Метод для добавления страны в мапы
+        private static void addCountry(int id, String country) {
+            ID_TO_COUNTRY.put(id, country);
+            COUNTRY_TO_ID.put(country, id);
+        }
+
+
+
+        public static final int EMPTY = -1;
+
+        public static String getGenreName(int genreId) {
+            return ID_TO_COUNTRY.getOrDefault(genreId, "Неизвестно");
+        }
+
+        public static int getCountryId(String countryName) {
+            return COUNTRY_TO_ID.getOrDefault(countryName.toLowerCase(), EMPTY);
+        }
+
     }
 
 }

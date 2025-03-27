@@ -1,7 +1,7 @@
 package com.alaka_ala.florafilm.ui.fragments.film.vp_fragments;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,12 +24,11 @@ import android.widget.Toast;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentTorrentFilmBinding;
-import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.util.api.jacred.JacredTor;
-import com.alaka_ala.torstream.torrent.LocalHttpServer;
-import com.alaka_ala.torstream.torrent.TorrentStreamer;
+import com.alaka_ala.florafilm.ui.util.local.TorrentHelper;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +49,8 @@ public class TorrentFilmFragment extends Fragment {
     private List<JacredTor.JacredData> dataFinal;
     private SearchView searchView;
     private boolean isCreateMenu = false;
+    private long seekPosition = 0;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +63,7 @@ public class TorrentFilmFragment extends Fragment {
                 isCreateMenu = currentPage == 2;
             }
         });
+
 
         searchView = binding.svTorrents;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -90,7 +93,6 @@ public class TorrentFilmFragment extends Fragment {
 
         rvTorrentFilm = binding.rvTorrentFilm;
         rvTorrentFilm.setLayoutManager(new LinearLayoutManager(getContext()));
-
 
 
         jacredTor.query("kp" + kinopoisk_id, new JacredTor.SearchCallback() {
@@ -124,7 +126,7 @@ public class TorrentFilmFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private static class AdapterTorrentFilm extends RecyclerView.Adapter<AdapterTorrentFilm.MyViewHolder> {
+    private class AdapterTorrentFilm extends RecyclerView.Adapter<AdapterTorrentFilm.MyViewHolder> {
         public AdapterTorrentFilm(List<JacredTor.JacredData> data) {
             this.data = data;
         }
@@ -141,6 +143,7 @@ public class TorrentFilmFragment extends Fragment {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_torrent_film, parent, false);
             return new MyViewHolder(view);
         }
+
 
         @SuppressLint("SetTextI18n")
         @Override
@@ -159,41 +162,19 @@ public class TorrentFilmFragment extends Fragment {
             holder.itemView.findViewById(R.id.materialCardViewItem).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //TorrentHelper.openMagnetLink(view.getContext(), jacredData.getMagnet());
-                    TorrentStreamer torrentStreamer = new TorrentStreamer();
                     //String magnet = "magnet:?xt=urn:btih:9C38D68035F190F1953F758E5527DDE1C7563B72&tr=http%3A%2F%2Fbt2.t-ru.org%2Fann%3Fmagnet";
-                    torrentStreamer.download(holder.itemView.getContext(), jacredData.getMagnet(), true, new TorrentStreamer.DownloadListener() {
-                        @Override
-                        public void onStartDownload(File filePath) {
-
-                        }
-
-                        @Override
-                        public void onDProgress(int indexPiece, int progress, File filePath) {
-                            if (filePath.exists() && indexPiece > 5) {
-                                LocalHttpServer httpServer = new LocalHttpServer(8080, filePath.getAbsolutePath());
-                                try {
-                                    httpServer.startServer();
-                                    Intent intent = new Intent(holder.itemView.getContext(), PlayerExoActivity.class);
-                                    holder.itemView.getContext().startActivity(intent);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-
+                    new MaterialAlertDialogBuilder(getContext())
+                            .setTitle("Выберите действие")
+                            .setItems(new String[]{"Скачать", "Открыть с помощью"}, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if (i == 0) {
+                                        Toast.makeText(getContext(), "Временно не работает!", Toast.LENGTH_SHORT).show();
+                                    } else if (i == 1) {
+                                        TorrentHelper.openMagnetLink(view.getContext(), jacredData.getMagnet());
+                                    }
                                 }
-                            }
-                        }
-
-                        @Override
-                        public void onDownloadFinished(File filePath) {
-
-                        }
-
-                        @Override
-                        public void onError(String e) {
-                            Context context = holder.itemView.getContext();
-                            Toast.makeText(context, e, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                            }).show();
                 }
             });
         }
@@ -203,7 +184,7 @@ public class TorrentFilmFragment extends Fragment {
             return data.size();
         }
 
-        private static class MyViewHolder extends RecyclerView.ViewHolder {
+        private class MyViewHolder extends RecyclerView.ViewHolder {
             private final TextView textViewTitleTorrent;
             private final TextView textViewInformationTorrent;
             private final TextView textViewSiders;

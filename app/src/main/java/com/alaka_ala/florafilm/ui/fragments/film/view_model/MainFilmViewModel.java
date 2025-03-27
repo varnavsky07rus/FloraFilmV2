@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
 
 import java.io.File;
@@ -128,4 +129,29 @@ public class MainFilmViewModel extends ViewModel {
             itemFilmInfoMap  = new MutableLiveData<>();
         }
     }
+
+
+    // HDVB
+    private final MutableLiveData<EPData.Film> filmMutableLiveDataHDVB = new MutableLiveData<>();
+
+    private final MutableLiveData<EPData.Serial> serialMutableLiveDataHDVB = new MutableLiveData<>();
+
+    public MutableLiveData<EPData.Serial> getSerialMutableLiveDataHDVB() {
+        return serialMutableLiveDataHDVB;
+    }
+
+    public MutableLiveData<EPData.Film> getFilmMutableLiveDataHDVB() {
+        return filmMutableLiveDataHDVB;
+    }
+
+    // VIBIX
+    private final MutableLiveData<EPData.Film> filmMutableLiveDataVibix = new MutableLiveData<>();
+    private final MutableLiveData<EPData.Serial> serialMutableLiveDataVibix = new MutableLiveData<>();
+    public MutableLiveData<EPData.Serial> getSerialMutableLiveDataVibix() {
+        return serialMutableLiveDataVibix;
+    }
+    public MutableLiveData<EPData.Film> getFilmMutableLiveDataVibix() {
+        return filmMutableLiveDataVibix;
+    }
+
 }

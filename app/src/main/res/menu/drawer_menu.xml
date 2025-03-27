@@ -12,8 +12,12 @@
                     android:title="@string/home_title_fragment" />
                 <item
                     android:id="@+id/navFavoriteFilmFragment"
-                    android:icon="@drawable/round_favorite_24"
+                    android:icon="@drawable/round_favorite_border_24"
                     android:title="Избранное" />
+                <item
+                    android:id="@+id/searchFragment"
+                    android:icon="@drawable/rounded_search_24"
+                    android:title="Поиск" />
             </menu>
         </item>
         <item android:title="Другое" >

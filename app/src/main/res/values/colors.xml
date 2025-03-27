@@ -8,7 +8,7 @@
     <color name="colorPrimaryDark">#141414</color>
     <color name="helperText">#565656</color>
 
-    <color name="iconsTintLight">#454545</color>
-    <color name="iconsTintDark">#7C7C7C</color>
+    <color name="iconsTintLight">#000000</color>
+    <color name="iconsTintDark">#FFFFFF</color>
 
 </resources>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +26,7 @@ import android.widget.SearchView;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentFavoriteFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.favorites.adapter.FavoriteRecyclerViewAdapter;
+import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -82,6 +84,20 @@ public class FavoriteFilmFragment extends Fragment {
             }
         });
 
+        rvFavoriteFilm.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), rvFavoriteFilm, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+                Bundle bundle = new Bundle();
+                if (position <= -1) return;
+                bundle.putInt("kinopoisk_id", favoriteMoviesManager.getFavoriteMovies().get(position).getKinopoiskId());
+                Navigation.findNavController(view).navigate(R.id.action_navFavoriteFilmFragment_to_mainFilmFragment, bundle);
+            }
+
+            @Override
+            public void onLongItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+
+            }
+        }));
 
         return binding.getRoot();
     }

@@ -32,7 +32,7 @@ public class FavoriteMoviesManager {
     }
 
     public void addFavorite(int movieId, String url, String name) {
-        MovieData movieData = new MovieData(url, name, true);
+        MovieData movieData = new MovieData(movieId, url, name, true);
         favoriteMovies.put(movieId, movieData);
         saveFavorites();
     }
@@ -40,7 +40,7 @@ public class FavoriteMoviesManager {
     public void removeFavorite(int movieId) {
         if (favoriteMovies.containsKey(movieId)) {
             MovieData movieData = favoriteMovies.get(movieId);
-            MovieData newMovieData = new MovieData(movieData.getUrl(), movieData.getName(), false);
+            MovieData newMovieData = new MovieData(movieId, movieData.getUrl(), movieData.getName(), false);
             favoriteMovies.put(movieId, newMovieData);
             saveFavorites();
         }
@@ -115,11 +115,13 @@ public class FavoriteMoviesManager {
 
 
     public static class MovieData implements Serializable {
+        private final int kinopoiskId;
         private final String url;
         private final String name;
         private final boolean isFavorite;
 
-        public MovieData(String url, String name, boolean isFavorite) {
+        public MovieData(int kinopoiskId, String url, String name, boolean isFavorite) {
+            this.kinopoiskId = kinopoiskId;
             this.url = url;
             this.name = name;
             this.isFavorite = isFavorite;
@@ -135,6 +137,10 @@ public class FavoriteMoviesManager {
 
         public boolean isFavorite() {
             return isFavorite;
+        }
+
+        public int getKinopoiskId() {
+            return kinopoiskId;
         }
     }
 }

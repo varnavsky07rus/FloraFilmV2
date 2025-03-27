@@ -97,6 +97,17 @@
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonResumeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#345071"
+                android:text="Продолжить"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                app:cornerRadius="8dp"
+                tools:visibility="visible" />
+
             <TextView
                 android:id="@+id/textVieSloganFilm"
                 android:layout_width="match_parent"

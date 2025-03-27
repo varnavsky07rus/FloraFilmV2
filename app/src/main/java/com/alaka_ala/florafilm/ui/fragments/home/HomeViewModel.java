@@ -10,29 +10,84 @@ import java.util.Objects;
 public class HomeViewModel extends ViewModel {
 
 
-    private final MutableLiveData<Collection> collectionMutableLiveData;
+    // Фильмы-сериалы
+    private final MutableLiveData<Collection> collectionMutableLiveDataPopularAll;
     private final MutableLiveData<Integer> pagePopularAllMutableLiveData;
 
+    // Фильмы
+    private final MutableLiveData<Collection> collectionMutableLiveDataMovie;
+    private final MutableLiveData<Integer> pageMovieMutableLiveData;
+
+    // Сериалы
+    private final MutableLiveData<Collection> collectionMutableLiveDataSerial;
+    private final MutableLiveData<Integer> pageSerialMutableLiveData;
 
 
     public HomeViewModel() {
-        this.collectionMutableLiveData = new MutableLiveData<>();
+        // Фильмы-сериалы
+        this.collectionMutableLiveDataPopularAll = new MutableLiveData<>();
         this.pagePopularAllMutableLiveData = new MutableLiveData<>();
+        // Фильмы
+        this.collectionMutableLiveDataMovie = new MutableLiveData<>();
+        this.pageMovieMutableLiveData = new MutableLiveData<>();
+        // Сериалы
+        this.pageSerialMutableLiveData = new MutableLiveData<>();
+        this.collectionMutableLiveDataSerial = new MutableLiveData<>();
     }
 
-    public void addDataCollectionPopularAll(Collection collection) {
-        if (collectionMutableLiveData.getValue() == null){
-            collectionMutableLiveData.setValue(collection);
+
+    // Фильмы - Movie
+    public void addDataCollectionMovie(Collection collection) {
+        if (collectionMutableLiveDataMovie.getValue() == null) {
+            collectionMutableLiveDataMovie.setValue(collection);
         } else {
-            Objects.requireNonNull(collectionMutableLiveData.getValue()).getItems().addAll(collection.getItems());
+            Objects.requireNonNull(collectionMutableLiveDataMovie.getValue()).getItems().addAll(collection.getItems());
         }
     }
 
-    public MutableLiveData<Collection> getCollectionMutableLiveData() {
-        return collectionMutableLiveData;
+    public MutableLiveData<Collection> getCollectionMutableLiveDataMovie() {
+        return collectionMutableLiveDataMovie;
+    }
+
+    public MutableLiveData<Integer> getPageMovieMutableLiveData() {
+        return pageMovieMutableLiveData;
+    }
+
+
+    // PopularAll (Фильмы/Сериалы)
+    public void addDataCollectionPopularAll(Collection collection) {
+        if (collectionMutableLiveDataPopularAll.getValue() == null) {
+            collectionMutableLiveDataPopularAll.setValue(collection);
+        } else {
+            Objects.requireNonNull(collectionMutableLiveDataPopularAll.getValue()).getItems().addAll(collection.getItems());
+        }
+    }
+
+    public MutableLiveData<Collection> getCollectionMutableLiveDataPopularAll() {
+        return collectionMutableLiveDataPopularAll;
     }
 
     public MutableLiveData<Integer> getPagePopularAllMutableLiveData() {
         return pagePopularAllMutableLiveData;
     }
+
+
+    // Сериалы (Сериалы)
+    public void addDataCollectionSerial(Collection collection) {
+        if (collectionMutableLiveDataSerial.getValue() == null) {
+            collectionMutableLiveDataSerial.setValue(collection);
+        } else {
+            Objects.requireNonNull(collectionMutableLiveDataSerial.getValue()).getItems().addAll(collection.getItems());
+        }
+    }
+
+    public MutableLiveData<Collection> getCollectionMutableLiveDataSerial() {
+        return collectionMutableLiveDataSerial;
+    }
+
+    public MutableLiveData<Integer> getPageSerialMutableLiveData() {
+        return pageSerialMutableLiveData;
+    }
+
+
 }
