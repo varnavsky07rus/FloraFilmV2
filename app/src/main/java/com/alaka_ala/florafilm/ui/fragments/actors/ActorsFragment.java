@@ -7,6 +7,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,9 +19,11 @@ import android.view.ViewGroup;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentActorsBinding;
+import com.alaka_ala.florafilm.ui.fragments.actors.films.ActorFilmsFragment;
 import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewActors;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ListStaffItem;
+import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,15 +60,16 @@ public class ActorsFragment extends Fragment {
         listStaffItem = viewModel.getListStaffItem(getContext(), kinopoisk_id);
 
         rvActors = binding.rvActors;
-        rvActors.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        rvActors.setAdapter(adapter = new AdapterRecyclerViewActors(getLayoutInflater()));
+        rvActors.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext(), LinearLayoutManager.VERTICAL, false));
+        rvActors.setAdapter(adapter = new AdapterRecyclerViewActors(inflater));
 
         if (listStaffItem != null) {
             adapter.setListActors(listStaffItem);
         } else {
             kinopoiskAPI.getListStaff(kinopoisk_id, new KinopoiskAPI.RequestCallbackStaffList() {
                 @Override
-                public void onSuccessStaffList(ArrayList<ListStaffItem> listStaffItem) {
+                public void onSuccessStaffList(ArrayList<ListStaffItem> listStaffItems) {
+                    listStaffItem = listStaffItems;
                     viewModel.addItemFilmInfoMap(getContext(),kinopoisk_id, listStaffItem);
                     adapter.setListActors(listStaffItem);
                 }
@@ -82,6 +86,21 @@ public class ActorsFragment extends Fragment {
             });
         }
 
+        rvActors.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), rvActors, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+                if (listStaffItem == null) return;
+                int staffId = listStaffItem.get(position).getStaffId();
+                Bundle bundle = new Bundle();
+                bundle.putInt("staffId", staffId);
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_actorsFragment_to_actorFilmsFragment, bundle);
+            }
+
+            @Override
+            public void onLongItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+
+            }
+        }));
 
 
 

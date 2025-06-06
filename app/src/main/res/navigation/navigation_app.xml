@@ -76,7 +76,15 @@
     <fragment
         android:id="@+id/actorsFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.actors.ActorsFragment"
-        tools:layout="@layout/fragment_actors" />
+        tools:layout="@layout/fragment_actors" >
+        <action
+            android:id="@+id/action_actorsFragment_to_actorFilmsFragment"
+            app:destination="@id/actorFilmsFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/descriptionFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.DescriptionFragment"
@@ -95,4 +103,16 @@
         android:name="com.alaka_ala.florafilm.ui.fragments.donate.DonateFragment"
         android:label="Донат"
         tools:layout="@layout/fragment_donate" />
+    <fragment
+        android:id="@+id/actorFilmsFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.actors.films.ActorFilmsFragment"
+        android:label="Фильмы актёра" >
+        <action
+            android:id="@+id/action_actorFilmsFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
 </navigation>

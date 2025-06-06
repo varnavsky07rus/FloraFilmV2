@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentVideoFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVBSelector;
@@ -50,9 +51,13 @@ public class VideoFilmFragment extends Fragment {
         binding = FragmentVideoFilmBinding.inflate(inflater, container, false);
         mainFilmViewModel = new ViewModelProvider(getActivity()).get(MainFilmViewModel.class);
 
-        parseVibix();
+        if (SettingsUtils.getParamSearchVIBIX(getContext())) {
+            parseVibix();
+        }
 
-        parseHdvb();
+        if (SettingsUtils.getParamSeeachHDVB(getContext())) {
+            parseHdvb();
+        }
 
 
         return binding.getRoot();
