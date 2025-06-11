@@ -237,30 +237,40 @@ public class Vibix {
 
                 JSONObject episodeJsonObj = episodesJarray.getJSONObject(episodeIndex);
                 String episodeTitle = episodeJsonObj.getString("title");
-                JSONArray translationsJsonObj = episodeJsonObj.getJSONArray("folder");
-                int countTranslations = translationsJsonObj.length();
-                for (int translationIndex = 0; translationIndex < countTranslations; translationIndex++) {
+                String file = episodeJsonObj.getString("file"); // title & file
 
-                    JSONObject translationJsonObj = translationsJsonObj.getJSONObject(translationIndex);
-                    String translationTitle = translationJsonObj.getString("title");
-                    String file = translationJsonObj.getString("file").replace(" ", "");
-                    String[] entries = file.split(",");
+
+
+                // Разделяем по блокам с качеством, используя lookahead, чтобы сохранить разделитель
+                String[] parts = file.split("(?=\\[\\d+p])");
+
+                Pattern qualityPattern = Pattern.compile("\\[(\\d+p)]");
+                Pattern sourcePattern = Pattern.compile("\\{([^}]+)\\}(https?://[^;,]+/?)(?:;)?");
+
+                for (String part : parts) {
+                    if (part.isBlank()) continue;
+
                     List<Map.Entry<String, String>> videoData = new ArrayList<>();
-                    for (String entry : entries) {
 
-                        String[] parts = entry.split("]");
-                        if (parts.length == 2) {
-                            String quality = parts[0].substring(1); // Remove the opening bracket
-                            String url = parts[1];
-                            videoData.add(new AbstractMap.SimpleEntry<>(quality, url));
-                        }
+                    Matcher qualityMatcher = qualityPattern.matcher(part);
+                    String quality = qualityMatcher.find() ? qualityMatcher.group(1) : "unknown";
+                    EPData.Serial.Translations.Builder builderTranslations = new EPData.Serial.Translations.Builder();
+                    Matcher sourceMatcher = sourcePattern.matcher(part);
+                    while (sourceMatcher.find()) {
+                        String voice = sourceMatcher.group(1);
+                        String url = sourceMatcher.group(2);
+                        videoData.add(new AbstractMap.SimpleEntry<>(quality + " | " + voice, url));
+                        builderTranslations.setTitle(voice);
                     }
 
-                    EPData.Serial.Translations.Builder builderTranslations = new EPData.Serial.Translations.Builder();
-                    builderTranslations.setTitle(translationTitle);
+
                     builderTranslations.setVideoData(videoData);
                     translations.add(builderTranslations.build());
+
                 }
+
+
+
 
                 EPData.Serial.Episode.Builder builderEpisode = new EPData.Serial.Episode.Builder();
                 builderEpisode.setTitle(episodeTitle);
