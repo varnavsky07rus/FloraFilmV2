@@ -49,10 +49,10 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
 
     private PermissionManager permissionManager;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
