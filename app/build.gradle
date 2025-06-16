@@ -78,5 +78,7 @@ dependencies {
     // Анимации lottie
     implementation 'com.airbnb.android:lottie:6.6.4'
 
+    // Увеличение изображений
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
 }

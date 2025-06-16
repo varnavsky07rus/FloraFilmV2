@@ -1982,6 +1982,11 @@ public class KinopoiskAPI {
             addCountry(100999433, "Эсватини");
         }
 
+        // Сюда надо добавить константы для легкого выбора стран
+        @IntDef({})
+        public @interface Countries {}
+
+
         // Метод для добавления страны в мапы
         private static void addCountry(int id, String country) {
             ID_TO_COUNTRY.put(id, country);
@@ -1992,8 +1997,8 @@ public class KinopoiskAPI {
 
         public static final int EMPTY = -1;
 
-        public static String getGenreName(int genreId) {
-            return ID_TO_COUNTRY.getOrDefault(genreId, "Неизвестно");
+        public static String getCountryName(int cId) {
+            return ID_TO_COUNTRY.getOrDefault(cId, "Неизвестно");
         }
 
         public static int getCountryId(String countryName) {

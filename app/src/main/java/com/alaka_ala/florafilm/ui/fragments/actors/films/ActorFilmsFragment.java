@@ -115,6 +115,15 @@ public class ActorFilmsFragment extends Fragment {
             ImageView actorImg = binding.actorInfo.imageViewActor;
             Picasso.get().load(staffInfo.getPosterUrl()).into(actorImg);
 
+            actorImg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("url", staffInfo.getPosterUrl());
+                    Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
+                }
+            });
+
             TextView textViewNameActor = binding.actorInfo.textViewNameActor;
             textViewNameActor.setText((staffInfo.getNameRu().isEmpty() ? staffInfo.getNameEn() : staffInfo.getNameRu()));
 

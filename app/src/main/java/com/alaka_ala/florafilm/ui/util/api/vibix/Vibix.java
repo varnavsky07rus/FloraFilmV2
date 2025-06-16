@@ -225,67 +225,89 @@ public class Vibix {
         EPData.Serial vibixSerial;
         ArrayList<EPData.Serial.Season> seasons = new ArrayList<>();
 
+        // Проходим по всем сезонам
         for (int seasonIndex = 0; seasonIndex < jsonArray.length(); seasonIndex++) {
+            JSONObject seasonJsonObj = jsonArray.getJSONObject(seasonIndex);
+            String title = seasonJsonObj.getString("title"); // "Сезон 1"
+            JSONArray folder = seasonJsonObj.getJSONArray("folder");
             ArrayList<EPData.Serial.Episode> episodes = new ArrayList<>();
 
-            JSONObject seasonJsonObj = jsonArray.getJSONObject(seasonIndex);
-            String seasonTitle = seasonJsonObj.getString("title");
-            JSONArray episodesJarray = seasonJsonObj.getJSONArray("folder");
-            int countEpisodes = episodesJarray.length();
-            for (int episodeIndex = 0; episodeIndex < countEpisodes; episodeIndex++) {
-                ArrayList<EPData.Serial.Translations> translations = new ArrayList<>();
+            // Проходим по всем сериям в сезоне
+            for (int episodeIndex = 0; episodeIndex < folder.length(); episodeIndex++) {
+                JSONObject episodeJsonObj = folder.getJSONObject(episodeIndex);
+                String episodeTitle = episodeJsonObj.getString("title"); // "Серия 1"
+                String file = episodeJsonObj.getString("file");
 
-                JSONObject episodeJsonObj = episodesJarray.getJSONObject(episodeIndex);
-                String episodeTitle = episodeJsonObj.getString("title");
-                String file = episodeJsonObj.getString("file"); // title & file
+                // Сначала разбиваем на блоки по качеству (480p, 720p, 1080p)
+                String[] qualityBlocks = file.split("(?=\\[\\d+p])");
 
+                // Мапа для группировки: Озвучка -> (Качество -> Ссылка)
+                Map<String, Map<String, String>> voiceToQualityMap = new HashMap<>();
 
+                for (String block : qualityBlocks) {
+                    if (block.isBlank()) continue;
 
-                // Разделяем по блокам с качеством, используя lookahead, чтобы сохранить разделитель
-                String[] parts = file.split("(?=\\[\\d+p])");
-
-                Pattern qualityPattern = Pattern.compile("\\[(\\d+p)]");
-                Pattern sourcePattern = Pattern.compile("\\{([^}]+)\\}(https?://[^;,]+/?)(?:;)?");
-
-                for (String part : parts) {
-                    if (part.isBlank()) continue;
-
-                    List<Map.Entry<String, String>> videoData = new ArrayList<>();
-
-                    Matcher qualityMatcher = qualityPattern.matcher(part);
+                    // Извлекаем качество (480p, 720p, 1080p)
+                    Pattern qualityPattern = Pattern.compile("\\[(\\d+p)]");
+                    Matcher qualityMatcher = qualityPattern.matcher(block);
                     String quality = qualityMatcher.find() ? qualityMatcher.group(1) : "unknown";
-                    EPData.Serial.Translations.Builder builderTranslations = new EPData.Serial.Translations.Builder();
-                    Matcher sourceMatcher = sourcePattern.matcher(part);
-                    while (sourceMatcher.find()) {
-                        String voice = sourceMatcher.group(1);
-                        String url = sourceMatcher.group(2);
-                        videoData.add(new AbstractMap.SimpleEntry<>(quality + " | " + voice, url));
-                        builderTranslations.setTitle(voice);
+
+                    // Извлекаем все озвучки и ссылки в этом блоке качества
+                    Pattern voicePattern = Pattern.compile("\\{([^}]+)\\}(https?://[^;,]+)");
+                    Matcher voiceMatcher = voicePattern.matcher(block);
+
+                    while (voiceMatcher.find()) {
+                        String voice = voiceMatcher.group(1); // "Кравец", "LostFilm"
+                        String url = voiceMatcher.group(2).replaceFirst("http", "https");
+
+                        // Добавляем в мапу: если озвучки нет — создаем запись, иначе обновляем
+                        if (!voiceToQualityMap.containsKey(voice)) {
+                            voiceToQualityMap.put(voice, new HashMap<>());
+                        }
+                        voiceToQualityMap.get(voice).put(quality, url);
                     }
-
-
-                    builderTranslations.setVideoData(videoData);
-                    translations.add(builderTranslations.build());
-
                 }
 
+                // Преобразуем мапу в список Translations
+                ArrayList<EPData.Serial.Translations> translations = new ArrayList<>();
+                for (Map.Entry<String, Map<String, String>> entry : voiceToQualityMap.entrySet()) {
+                    String voice = entry.getKey();
+                    Map<String, String> qualityToUrl = entry.getValue();
 
+                    // Создаем список videoData для текущей озвучки
+                    List<Map.Entry<String, String>> videoData = new ArrayList<>();
+                    for (Map.Entry<String, String> qualityEntry : qualityToUrl.entrySet()) {
+                        videoData.add(new AbstractMap.SimpleEntry<>(
+                                qualityEntry.getKey(), // "480p", "720p", "1080p"
+                                qualityEntry.getValue() // URL
+                        ));
+                    }
 
+                    // Добавляем озвучку в translations
+                    EPData.Serial.Translations.Builder builder = new EPData.Serial.Translations.Builder();
+                    builder.setTitle(voice);
+                    builder.setVideoData(videoData);
+                    translations.add(builder.build());
+                }
 
-                EPData.Serial.Episode.Builder builderEpisode = new EPData.Serial.Episode.Builder();
-                builderEpisode.setTitle(episodeTitle);
-                builderEpisode.setTranslations(translations);
-                episodes.add(builderEpisode.build());
-
+                // Создаем серию и добавляем в episodes
+                EPData.Serial.Episode.Builder episodeBuilder = new EPData.Serial.Episode.Builder();
+                episodeBuilder.setTitle(episodeTitle);
+                episodeBuilder.setTranslations(translations);
+                episodes.add(episodeBuilder.build());
             }
-            EPData.Serial.Season.Builder builderSeason = new EPData.Serial.Season.Builder();
-            builderSeason.setTitle(seasonTitle);
-            builderSeason.setEpisodes(episodes);
-            seasons.add(builderSeason.build());
+
+            // Добавляем сезон в seasons
+            EPData.Serial.Season.Builder seasonBuilder = new EPData.Serial.Season.Builder();
+            seasonBuilder.setTitle(title);
+            seasonBuilder.setEpisodes(episodes);
+            seasons.add(seasonBuilder.build());
         }
-        EPData.Serial.Builder builder = new EPData.Serial.Builder();
-        builder.setSeasons(seasons);
-        vibixSerial = builder.build();
+
+        // Собираем финальный объект Serial и отправляем через Handler
+        EPData.Serial.Builder serialBuilder = new EPData.Serial.Builder();
+        serialBuilder.setSeasons(seasons);
+        vibixSerial = serialBuilder.build();
 
         Bundle bundle = new Bundle();
         bundle.putBoolean("ok", true);
@@ -295,7 +317,6 @@ public class Vibix {
         message.setData(bundle);
         handler.sendMessage(message);
     }
-
 
     // Парсинг страницы если ФИЛЬМ
     private void parseHTMLFilm(Handler handler, String htmlStr) throws JSONException {
@@ -322,7 +343,7 @@ public class Vibix {
                     String[] parts = entry.split("]");
                     if (parts.length == 2) {
                         String quality = parts[0].substring(1); // Remove the opening bracket
-                        String url = parts[1];
+                        String url = parts[1].replaceFirst("http", "https");
                         videoData.add(new AbstractMap.SimpleEntry<>(quality, url));
                     }
                 }

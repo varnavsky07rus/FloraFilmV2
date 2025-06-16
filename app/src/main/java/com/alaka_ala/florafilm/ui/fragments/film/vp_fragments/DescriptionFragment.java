@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -173,6 +174,15 @@ public class DescriptionFragment extends Fragment {
                     textVieSloganFilm.setText(slogan);
                     itemFilmInfo.getSlogan();
                     Picasso.get().load(itemFilmInfo.getPosterUrl()).into(imageViewPosterFilm);
+                    CardView cardViewPosterimg = binding.cardViewPosterimg;
+                    cardViewPosterimg.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("url", itemFilmInfo.getPosterUrl());
+                            Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
+                        }
+                    });
                     setHasOptionsMenu(true);
 
                     resumeButtonLogic();
@@ -211,6 +221,15 @@ public class DescriptionFragment extends Fragment {
             textViewCountryFilm.setText(counries);
             textVieSloganFilm.setText(itemFilmInfo.getSlogan().equals("null") ? "" : itemFilmInfo.getSlogan());
             Picasso.get().load(itemFilmInfo.getPosterUrl()).into(imageViewPosterFilm);
+            CardView cardViewPosterimg = binding.cardViewPosterimg;
+            cardViewPosterimg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("url", itemFilmInfo.getPosterUrl());
+                    Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
+                }
+            });
             setHasOptionsMenu(true);
 
             resumeButtonLogic();

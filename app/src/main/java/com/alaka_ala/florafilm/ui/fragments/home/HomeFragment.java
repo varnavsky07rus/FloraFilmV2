@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentHomeBinding;
@@ -80,6 +81,43 @@ public class HomeFragment extends Fragment {
         //  когда адаптер пытается получить кол-во элементов списка)
         //  #### ВОЗМОЖНО ПРОБЛЕМУ РЕШИЛ ОБРАБОТАВ В АДАПТЕРЕ РАЗМЕР МАССИВА, если null то возвращает 0 элементов списка 22.03.25 02:05
         //  ########################################################################################
+
+        // Фильмы/сериалы
+        TextView textViewTitleHomeCategory = binding.fragmentHomeIncludePopularAl.textViewTitleHomeCategory;
+        // Фильмы
+        TextView textViewTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.textViewTitleHomeCategoryMovie;
+        // Сериалы
+        TextView textViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.textViewTitleHomeCategorySerial;
+
+        textViewTitleHomeCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("collection", "Фильмы/сериалы");
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
+            }
+        });
+
+        textViewTitleHomeCategoryMovie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("collection", "Фильмы");
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
+            }
+        });
+
+        textViewTitleHomeCategorySerial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("collection", "Сериалы");
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
+            }
+        });
+
+
+
         // Фильмы/сериалы
         if (viewModel.getPagePopularAllMutableLiveData().getValue() != null) {
             if (adapterPopAll == null) {

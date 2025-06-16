@@ -31,6 +31,11 @@
             app:exitAnim="@anim/exit_anim"
             app:popEnterAnim="@anim/enter_anim"
             app:popExitAnim="@anim/exit_anim" />
+        <action
+            android:id="@+id/action_navHomeFragment_to_collectionFragment2"
+            app:destination="@id/collectionFragment"
+            app:enterAnim="@anim/enter_anim_right_to_left"
+            app:exitAnim="@anim/exit_anim_left_to_right" />
     </fragment>
     <fragment
         android:id="@+id/navSettingsFragment"
@@ -71,7 +76,7 @@
     <fragment
         android:id="@+id/collectionFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.collections.CollectionFragment"
-        android:label="fragment_collection"
+        android:label="Список"
         tools:layout="@layout/fragment_collection" />
     <fragment
         android:id="@+id/actorsFragment"
@@ -115,4 +120,14 @@
             app:popEnterAnim="@anim/enter_anim"
             app:popExitAnim="@anim/exit_anim" />
     </fragment>
+    <fragment
+        android:id="@+id/instructionViewTorrent"
+        android:name="com.alaka_ala.florafilm.ui.fragments.instructions.InstructionViewTorrentFragment"
+        android:label="Инструкция просмотра торрентов"
+        tools:layout="@layout/fragment_instruction_view_torrent" />
+    <fragment
+        android:id="@+id/imageViewerFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.imgViewer.ImageViewerFragment"
+        android:label="Просмотр"
+        tools:layout="@layout/fragment_image_viewer" />
 </navigation>

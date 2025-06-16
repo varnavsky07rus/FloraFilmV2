@@ -29,8 +29,9 @@
                 android:id="@+id/switch_off_search_vibix"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginEnd="16dp"
+                android:checked="true"
                 android:text="Включить поиск Vibix"
                 app:trackTint="#B0B0B0" />
 
@@ -38,7 +39,7 @@
                 android:id="@+id/switch_off_search_hdvb"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="24dp"
                 android:layout_marginEnd="16dp"
                 android:checked="true"
                 android:text="Включить поиск HDVB"

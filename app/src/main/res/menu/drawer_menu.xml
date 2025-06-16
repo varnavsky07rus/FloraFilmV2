@@ -28,5 +28,13 @@
                     android:title="@string/settings_title_fragment" />
             </menu>
         </item>
+        <item android:title="Инструкция">
+            <menu>
+                <item
+                    android:id="@+id/instructionViewTorrent"
+                    android:icon="@drawable/baseline_apps_24"
+                    android:title="Просмотр торрентов" />
+            </menu>
+        </item>
     </group>
 </menu>
