@@ -1,169 +1,149 @@
 package com.alaka_ala.florafilm.ui.util.updater;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
+import android.os.Build;
 import android.widget.Toast;
-
 import androidx.core.content.FileProvider;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class AppUpdater {
-    private static final String APK_URL = "https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/master/app/release/app-release.apk";
-    private static final String METADATA_URL = "https://github.com/varnavsky07rus/FloraFilmV2/raw/master/app/release/output-metadata.json";
-    private static final String APK_NAME = "FloraFilm_update.apk";
+    private final Context context;
+    private final OkHttpClient client = new OkHttpClient();
+    private final String metadataUrl = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/master/app/release/output-metadata.json?token=GHSAT0AAAAAADFSUS6CYPNS6EQ4IMKE42YG2CPTY6Q";
+    private final String apkUrl = "https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/master/app/release/app-release.apk";
 
-    private Context context;
-    private ProgressDialog progressDialog;
-
+    private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36";
     public AppUpdater(Context context) {
         this.context = context;
     }
 
     public void checkForUpdate(String currentVersion) {
-        new CheckUpdateTask().execute(currentVersion);
+        Request request = new Request.Builder()
+                .url(metadataUrl)
+                .addHeader("User-Agent", USER_AGENT)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                showToast("Ошибка подключения: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    showToast("Ошибка сервера: " + response.code());
+                    return;
+                }
+
+                try {
+                    String jsonData = response.body().string();
+                    JSONObject json = new JSONObject(jsonData);
+                    JSONArray elements = json.getJSONArray("elements");
+                    String latestVersion = elements.getJSONObject(0).getString("versionName");
+
+                    if (!currentVersion.equals(latestVersion)) {
+                        showUpdateDialog();
+                    } else {
+                        showToast("У вас последняя версия");
+                    }
+                } catch (Exception e) {
+                    showToast("Ошибка обработки данных: " + e.getMessage());
+                }
+            }
+        });
     }
 
-    private class CheckUpdateTask extends AsyncTask<String, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(String... params) {
-            String currentVersion = params[0];
-            try {
-                URL url = new URL(METADATA_URL);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
-
-                InputStream inputStream = connection.getInputStream();
-                String json = convertStreamToString(inputStream);
-                JSONObject metadata = new JSONObject(json);
-                JSONObject elements = metadata.getJSONArray("elements").getJSONObject(0);
-                String versionName = elements.getString("versionName");
-
-                return !versionName.equals(currentVersion);
-            } catch (Exception e) {
-                Log.e("AppUpdater", "Update check failed", e);
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean updateAvailable) {
-            if (updateAvailable) {
-                showUpdateDialog();
-            }
+    private void showToast(final String message) {
+        if (context != null) {
+            ((Activity) context).runOnUiThread(() ->
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show());
         }
     }
 
     private void showUpdateDialog() {
-        new AlertDialog.Builder(context)
-                .setTitle("Доступно обновление")
-                .setMessage("Хотите скачать и установить новую версию?")
-                .setPositiveButton("Обновить", (dialog, which) -> downloadApk())
-                .setNegativeButton("Отмена", null)
-                .show();
+        ((Activity) context).runOnUiThread(() ->
+                new AlertDialog.Builder(context)
+                        .setTitle("Доступно обновление")
+                        .setMessage("Хотите обновить приложение?")
+                        .setPositiveButton("Обновить", (dialog, which) -> downloadApk())
+                        .setNegativeButton("Позже", null)
+                        .show());
     }
 
     private void downloadApk() {
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("Загрузка обновления...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        showToast("Начало загрузки...");
 
-        new DownloadApkTask().execute(APK_URL);
-    }
+        Request request = new Request.Builder()
+                .url(apkUrl)
+                .build();
 
-    private class DownloadApkTask extends AsyncTask<String, Integer, File> {
-        @Override
-        protected File doInBackground(String... urls) {
-            try {
-                URL url = new URL(urls[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                showToast("Ошибка загрузки: " + e.getMessage());
+            }
 
-                int fileLength = connection.getContentLength();
-                File outputFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), APK_NAME);
-
-                try (InputStream input = new BufferedInputStream(connection.getInputStream());
-                     FileOutputStream output = new FileOutputStream(outputFile)) {
-
-                    byte[] data = new byte[4096];
-                    long total = 0;
-                    int count;
-                    while ((count = input.read(data)) != -1) {
-                        if (isCancelled()) {
-                            input.close();
-                            return null;
-                        }
-                        total += count;
-                        if (fileLength > 0) {
-                            publishProgress((int) (total * 100 / fileLength));
-                        }
-                        output.write(data, 0, count);
-                    }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    showToast("Ошибка загрузки: " + response.code());
+                    return;
                 }
-                return outputFile;
-            } catch (Exception e) {
-                Log.e("AppUpdater", "Download failed", e);
-                return null;
-            }
-        }
 
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            progressDialog.setProgress(progress[0]);
-        }
+                try {
+                    InputStream inputStream = response.body().byteStream();
+                    File apkFile = new File(context.getExternalFilesDir(null), "update.apk");
 
-        @Override
-        protected void onPostExecute(File apkFile) {
-            progressDialog.dismiss();
-            if (apkFile != null) {
-                installApk(apkFile);
-            } else {
-                Toast.makeText(context, "Ошибка загрузки", Toast.LENGTH_SHORT).show();
+                    try (FileOutputStream outputStream = new FileOutputStream(apkFile)) {
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                    }
+
+                    installApk(apkFile);
+                    showToast("Обновление загружено");
+                } catch (Exception e) {
+                    showToast("Ошибка сохранения: " + e.getMessage());
+                }
             }
-        }
+        });
     }
 
     private void installApk(File apkFile) {
-        try {
-            Uri apkUri;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                apkUri = FileProvider.getUriForFile(
-                        context,
-                        context.getPackageName() + ".provider",
-                        apkFile);
-            } else {
-                apkUri = Uri.fromFile(apkFile);
-            }
-
-            Intent install = new Intent(Intent.ACTION_VIEW);
-            install.setDataAndType(apkUri, "application/vnd.android.package-archive");
-            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(install);
-        } catch (Exception e) {
-            Log.e("AppUpdater", "Installation failed", e);
-            Toast.makeText(context, "Ошибка установки", Toast.LENGTH_SHORT).show();
+        Uri apkUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            apkUri = FileProvider.getUriForFile(
+                    context,
+                    context.getPackageName() + ".provider",
+                    apkFile);
+        } else {
+            apkUri = Uri.fromFile(apkFile);
         }
-    }
 
-    private String convertStreamToString(InputStream is) {
-        try (java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A")) {
-            return s.hasNext() ? s.next() : "";
-        }
+        Intent install = new Intent(Intent.ACTION_VIEW);
+        install.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(install);
     }
 }
