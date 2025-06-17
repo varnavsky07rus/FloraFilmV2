@@ -1,20 +1,23 @@
 package com.alaka_ala.florafilm.ui.fragments.settings;
 
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.TextView;
 
-import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentSettingsBinding;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
 import com.google.android.material.materialswitch.MaterialSwitch;
+
+import org.apache.commons.io.FileUtils;
 
 public class SettingsFragment extends Fragment {
     private FragmentSettingsBinding binding;
@@ -54,20 +57,14 @@ public class SettingsFragment extends Fragment {
         buttonChekUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Проверка обновления (вызывать из Activity)
-                // Во Fragment:
-                try {
-                    String versionName = requireContext().getPackageManager()
-                            .getPackageInfo(requireContext().getPackageName(), 0)
-                            .versionName;
-                    new AppUpdater(getContext()).checkForUpdate(versionName);
-                } catch (PackageManager.NameNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
+                AppUpdater appUpdater = new AppUpdater(getActivity());
+                appUpdater.checkForUpdate();
 
             }
         });
 
+        TextView textViewVersionName = binding.textViewVersionName;
+        textViewVersionName.setText("Текущая: " + getAppVersionName());
 
 
 
@@ -76,4 +73,17 @@ public class SettingsFragment extends Fragment {
 
         return binding.getRoot();
     }
+
+    public String getAppVersionName() {
+        try {
+            String packageName = requireContext().getPackageName();
+            PackageInfo pInfo = requireContext().getPackageManager().getPackageInfo(packageName, 0);
+            return pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "N/A";
+        }
+    }
+
+
 }

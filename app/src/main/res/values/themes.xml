@@ -4,6 +4,8 @@
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/colorPrimaryLight</item>
         <item name="IconsTintTheme">@color/iconsTintLight</item>
+        <item name="SwitchTintTrack">@color/colorPrimaryLight</item>
+
     </style>
 
     <style name="Theme.FloraFilm" parent="Base.Theme.FloraFilm" />

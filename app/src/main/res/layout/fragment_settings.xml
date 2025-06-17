@@ -17,13 +17,6 @@
             android:layout_marginEnd="16dp"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/buttonChekUpdate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#F1933F"
-                android:text="Проверить обновления" />
-
             <TextView
                 android:id="@+id/textView9"
                 android:layout_width="match_parent"
@@ -36,9 +29,11 @@
                 android:id="@+id/switch_off_search_vibix"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="Включить поиск Vibix"
-                app:trackTint="#B0B0B0" />
+                app:thumbTint="#A0CBA4"
+                app:trackDecorationTint="#A0CBA4"
+                app:trackTint="?attr/SwitchTintTrack" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/switch_off_search_hdvb"
@@ -46,13 +41,57 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="Включить поиск HDVB"
-                app:trackTint="#B0B0B0" />
+                app:thumbTint="#A0CBA4"
+                app:trackDecorationTint="#A0CBA4"
+                app:trackTint="?attr/SwitchTintTrack" />
 
             <View
                 android:id="@+id/divider3"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:background="?android:attr/listDivider" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/textView18"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Обновление"
+                            android:textSize="34sp" />
+
+                        <TextView
+                            android:id="@+id/textViewVersionName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonChekUpdate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:backgroundTint="#A0CBA4"
+                        android:text="Проверить обновления"
+                        app:cornerRadius="8dp" />
+                </LinearLayout>
+
+            </FrameLayout>
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

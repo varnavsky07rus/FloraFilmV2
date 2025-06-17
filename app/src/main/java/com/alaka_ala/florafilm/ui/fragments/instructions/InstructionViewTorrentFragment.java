@@ -10,9 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentInstructionViewTorrentBinding;
-import com.alaka_ala.florafilm.ui.util.local.ApkInstaller;
+import com.alaka_ala.florafilm.ui.util.local.InstallTorrServe;
 import com.squareup.picasso.Picasso;
 
 
@@ -33,7 +32,8 @@ public class InstructionViewTorrentFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ApkInstaller.downloadAndInstallApk(getContext());
+                InstallTorrServe installTorrServe = new InstallTorrServe(getActivity());
+                installTorrServe.downloadAndInstall();
             }
         });
 

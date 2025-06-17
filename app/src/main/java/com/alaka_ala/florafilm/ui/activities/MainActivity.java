@@ -66,12 +66,6 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
-        // Полупрозрачный статус-бар (для API 21+)
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );
-
 
         drawerLayout = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
