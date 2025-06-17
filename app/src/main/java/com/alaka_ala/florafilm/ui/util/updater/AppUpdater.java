@@ -26,7 +26,7 @@ import okhttp3.Response;
 public class AppUpdater {
     private final Context context;
     private final OkHttpClient client = new OkHttpClient();
-    private final String metadataUrl = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/master/app/release/output-metadata.json?token=GHSAT0AAAAAADFSUS6CYPNS6EQ4IMKE42YG2CPTY6Q";
+    private final String metadataUrl = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/refs/heads/master/app/release/output-metadata.json";
     private final String apkUrl = "https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/master/app/release/app-release.apk";
 
     private static final String USER_AGENT = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36";
