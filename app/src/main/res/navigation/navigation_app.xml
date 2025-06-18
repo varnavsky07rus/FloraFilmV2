@@ -77,7 +77,15 @@
         android:id="@+id/collectionFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.collections.CollectionFragment"
         android:label="Список"
-        tools:layout="@layout/fragment_collection" />
+        tools:layout="@layout/fragment_collection" >
+        <action
+            android:id="@+id/action_collectionFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment"
+            app:enterAnim="@anim/enter_anim"
+            app:exitAnim="@anim/exit_anim"
+            app:popEnterAnim="@anim/enter_anim"
+            app:popExitAnim="@anim/exit_anim" />
+    </fragment>
     <fragment
         android:id="@+id/actorsFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.actors.ActorsFragment"
