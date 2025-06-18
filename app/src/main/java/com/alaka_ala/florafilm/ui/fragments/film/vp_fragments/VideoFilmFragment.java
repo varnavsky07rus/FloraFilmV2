@@ -120,7 +120,7 @@ public class VideoFilmFragment extends Fragment {
 
             @Override
             public void errorParseVibix(IOException e) {
-                onError("HDVB", e.getMessage());
+                onError("VIBIX", e.getMessage());
             }
         });
     }

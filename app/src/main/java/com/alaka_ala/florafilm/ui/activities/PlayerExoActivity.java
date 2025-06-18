@@ -24,12 +24,25 @@ import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
+import com.alaka_ala.florafilm.ui.util.torrents.TorrentProxyServer;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 
+import org.libtorrent4j.SessionManager;
+import org.libtorrent4j.TorrentBuilder;
+import org.libtorrent4j.TorrentFlags;
+import org.libtorrent4j.TorrentHandle;
+import org.libtorrent4j.TorrentInfo;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -48,7 +61,6 @@ public class PlayerExoActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
@@ -118,6 +130,9 @@ public class PlayerExoActivity extends AppCompatActivity {
         );
     }
 
+    private TorrentProxyServer server;
+    private SessionManager sessionManager;
+
     private void preparePlayer() {
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
 
@@ -160,6 +175,12 @@ public class PlayerExoActivity extends AppCompatActivity {
             // Загрузка первой серии
             onRequareMediaItem(mediaItemsToken);
 
+        }
+        else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("magnet")) {
+            // Запуск торрента и сервера
+
+
+
         } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM)) {
 
             MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
@@ -194,7 +215,8 @@ public class PlayerExoActivity extends AppCompatActivity {
 
             exoPlayer.prepare();
             exoPlayer.play();
-        } else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL)) {
+        }
+        else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL)) {
             for (int i = 0; i < epData.getSerial().getSeasons().size(); i++) {
                 for (int j = 0; j < epData.getSerial().getSeasons().get(i).getEpisodes().size(); j++) {
                     for (int k = 0; k < epData.getSerial().getSeasons().get(i).getEpisodes().get(j).getTranslations().size(); k++) {
@@ -250,6 +272,7 @@ public class PlayerExoActivity extends AppCompatActivity {
 
     private void updateTitleName() {
         TextView textViewNameFilm = binding.playerExoView.findViewById(R.id.textViewNameFilm);
+
         String nameFilm =
                 epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) ?
                         epData.getFilmInfo().getNameRu() :
@@ -257,6 +280,7 @@ public class PlayerExoActivity extends AppCompatActivity {
                                 + " | сезон " + (epData.getIndexSeason() + 1)
                                 + " серия " + (exoPlayer.getCurrentMediaItemIndex() + 1);
         textViewNameFilm.setText(nameFilm);
+
     }
 
     // Воспроизводит сначала то, что требует пользователь
@@ -339,7 +363,6 @@ public class PlayerExoActivity extends AppCompatActivity {
         thread.start();
 
     }
-
 
     @Override
     protected void onDestroy() {

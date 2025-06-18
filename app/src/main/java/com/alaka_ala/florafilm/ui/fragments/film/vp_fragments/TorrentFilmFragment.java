@@ -24,17 +24,22 @@ import android.widget.Toast;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentTorrentFilmBinding;
+import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
+import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.jacred.JacredTor;
+import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.local.TorrentHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -165,11 +170,39 @@ public class TorrentFilmFragment extends Fragment {
                     //String magnet = "magnet:?xt=urn:btih:9C38D68035F190F1953F758E5527DDE1C7563B72&tr=http%3A%2F%2Fbt2.t-ru.org%2Fann%3Fmagnet";
                     new MaterialAlertDialogBuilder(getContext())
                             .setTitle("Выберите действие")
-                            .setItems(new String[]{"Скачать", "Открыть с помощью"}, new DialogInterface.OnClickListener() {
+                            .setItems(new String[]{"Смотреть", "Открыть с помощью"}, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     if (i == 0) {
-                                        Toast.makeText(getContext(), "Временно не работает!", Toast.LENGTH_SHORT).show();
+
+                                        EPData.Film.Builder filmBuilder = new EPData.Film.Builder();
+
+                                        filmBuilder.setNameFilm(jacredData.getName());
+                                        filmBuilder.setId(String.valueOf(kinopoisk_id));
+                                        filmBuilder.setPoster(mainFilmViewModel.getItemFilmInfoMap(getContext(), kinopoisk_id).getPosterUrl());
+                                        EPData.Film.Translations.Builder translationBuilder = new EPData.Film.Translations.Builder();
+                                        translationBuilder.setTitle(String.valueOf(jacredData.getVoices()));
+                                        List<Map.Entry<String, String>> videoData = new ArrayList<>();
+                                        videoData.add(new AbstractMap.SimpleEntry<>("magnet", jacredData.getMagnet()));
+                                        translationBuilder.setVideoData(videoData);
+                                        ArrayList<EPData.Film.Translations> translationsArrayList = new ArrayList<>();
+                                        EPData.Film.Translations translations = translationBuilder.build();
+                                        translationsArrayList.add(translations);
+                                        filmBuilder.setTranslations(translationsArrayList);
+
+
+                                        Intent intent = new Intent(getActivity(), PlayerExoActivity.class);
+                                        EPData.Builder builderEPData = new EPData.Builder();
+                                        builderEPData.setFilm(filmBuilder.build());
+                                        builderEPData.setIndexTranslation(0);
+                                        builderEPData.setIndexQuality(0);
+                                        builderEPData.setBalancer("magnet");
+                                        builderEPData.setFilmInfo(mainFilmViewModel.getItemFilmInfoMap(getContext(), kinopoisk_id));
+                                        EPData film = builderEPData.build();
+                                        intent.putExtra("epData", film);
+                                        getActivity().startActivity(intent);
+
+
                                     } else if (i == 1) {
                                         TorrentHelper.openMagnetLink(view.getContext(), jacredData.getMagnet());
                                     }

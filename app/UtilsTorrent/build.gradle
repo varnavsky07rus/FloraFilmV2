@@ -73,4 +73,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:${lifecycleVersion}"
     implementation "androidx.lifecycle:lifecycle-process:${lifecycleVersion}"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${lifecycleVersion}"
+
+    implementation 'com.frostwire:libtorrent4j:2.0.8-1'  // Торрент-клиент
 }
