@@ -24,25 +24,17 @@ import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
-import com.alaka_ala.florafilm.ui.util.torrents.TorrentProxyServer;
+import com.alaka_ala.florafilm.ui.util.torrents.TorrentStreamer;
+import com.alaka_ala.florafilm.ui.util.torrents.TorrentStreamerV2;
+import com.frostwire.jlibtorrent.SessionManager;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 
-import org.libtorrent4j.SessionManager;
-import org.libtorrent4j.TorrentBuilder;
-import org.libtorrent4j.TorrentFlags;
-import org.libtorrent4j.TorrentHandle;
-import org.libtorrent4j.TorrentInfo;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -130,8 +122,6 @@ public class PlayerExoActivity extends AppCompatActivity {
         );
     }
 
-    private TorrentProxyServer server;
-    private SessionManager sessionManager;
 
     private void preparePlayer() {
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
@@ -178,13 +168,23 @@ public class PlayerExoActivity extends AppCompatActivity {
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("magnet")) {
             // Запуск торрента и сервера
+            String magnet = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
+            TorrentStreamerV2 torrentStreamerV2 = new TorrentStreamerV2(this, exoPlayer, binding.progressBar3);
+
+            torrentStreamerV2.start(magnet);
+
+
+
+
+
 
 
 
         } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM)) {
 
             MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
-            mediaItemBuilder.setUri(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue());
+            String uriVideoData = replaceIncorrectProtocol(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue());;
+            mediaItemBuilder.setUri(uriVideoData);
             mediaItems.add(mediaItemBuilder.build());
 
             exoPlayer.setMediaItems(
@@ -253,6 +253,10 @@ public class PlayerExoActivity extends AppCompatActivity {
             exoPlayer.prepare();
             exoPlayer.play();
         }
+    }
+
+    private String replaceIncorrectProtocol(String value) {
+        return value.replaceFirst(".+:", "https:");
     }
 
     private String getTokenHdvb(int j) {

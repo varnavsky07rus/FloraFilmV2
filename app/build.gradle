@@ -10,8 +10,8 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 6
-        versionName "1.0.6"
+        versionCode 7
+        versionName "1.0.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -72,14 +72,24 @@ dependencies {
     implementation 'jp.wasabeef:blurry:4.0.1'   // эффект размытия
 
 
-    implementation 'org.nanohttpd:nanohttpd:2.3.1'  // С помощью этой библиотеки создаю локальный сервер Http
-
-
     implementation 'com.airbnb.android:lottie:6.6.4'    // Анимации lottie
 
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'  // Увеличение изображений
 
     // https://mvnrepository.com/artifact/org.libtorrent4j/libtorrent4j
-    implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.1.0-35")
+    // implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.1.0-35")
+
+    // libtorrent (используем jlibtorrent)
+    implementation 'com.frostwire:jlibtorrent-android-arm64:1.2.0.0'
+
+    // SSL
+    implementation 'info.guardianproject.netcipher:netcipher:2.1.0'
+    implementation 'org.conscrypt:conscrypt-android:2.5.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+
+    // ======================================================================
+    // https://mvnrepository.com/artifact/com.github.TorrentStream/TorrentStream-Android
+    implementation 'com.github.TorrentStream:TorrentStream-Android:f2ea936857'
+
 }

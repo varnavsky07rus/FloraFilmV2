@@ -83,7 +83,7 @@ public class VibixSelector {
         if (film == null) return;
 
         for (int i = 0; i < film.getTranslations().size(); i++) {
-            String titleTranslation = film.getTranslations().get(i).getTitle() + " | [Vibix]";
+            String titleTranslation = film.getTranslations().get(i).getTitle() + " | [VIBIX]";
             // Корневой элемент View
             View viewTranslation = LayoutInflater.from(root.getContext()).inflate(R.layout.selector_film_item_1, root, false);
             // Задаем название перевода
