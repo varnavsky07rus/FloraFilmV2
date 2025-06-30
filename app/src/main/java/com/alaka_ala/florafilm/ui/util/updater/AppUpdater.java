@@ -21,12 +21,12 @@ import androidx.core.content.FileProvider;
 
 import com.alaka_ala.florafilm.R;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -172,6 +172,8 @@ public class AppUpdater {
     }
 
     private class DownloadApkTask extends AsyncTask<Void, Integer, Boolean> {
+        private volatile boolean isDownloading = true;
+
         @Override
         protected void onPreExecute() {
             updateStatus("Подготовка к загрузке...");
@@ -180,7 +182,8 @@ public class AppUpdater {
         @Override
         protected Boolean doInBackground(Void... voids) {
             try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(APK_URL).openConnection();
+                URL url = new URL(APK_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -190,28 +193,42 @@ public class AppUpdater {
                 int fileLength = connection.getContentLength();
                 File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 downloadedApk = new File(downloadsDir, "app-release.apk");
+                File tempFile = new File(downloadsDir, "app-release.tmp");
 
-                try (InputStream input = connection.getInputStream();
-                     FileOutputStream output = new FileOutputStream(downloadedApk)) {
-
-                    byte[] data = new byte[4096];
-                    long total = 0;
-                    int count;
-                    while ((count = input.read(data)) != -1) {
-                        if (isCancelled()) {
-                            downloadedApk.delete();
-                            return false;
+                // Запускаем поток для отслеживания прогресса
+                new Thread(() -> {
+                    while (isDownloading) {
+                        try {
+                            Thread.sleep(500); // Проверяем каждые 500 мс
+                            if (tempFile.exists()) {
+                                long downloaded = tempFile.length();
+                                int progress = (int) (downloaded * 100 / fileLength);
+                                publishProgress(progress);
+                            }
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
                         }
-                        total += count;
-                        if (fileLength > 0) {
-                            publishProgress((int) (total * 100 / fileLength));
-                        }
-                        output.write(data, 0, count);
                     }
+                }).start();
+
+                // Скачиваем файл с помощью FileUtils
+                FileUtils.copyURLToFile(url, tempFile);
+
+                // Останавливаем поток отслеживания прогресса
+                isDownloading = false;
+
+                // Переименовываем временный файл
+                if (tempFile.exists()) {
+                    if (downloadedApk.exists()) {
+                        downloadedApk.delete();
+                    }
+                    tempFile.renameTo(downloadedApk);
                 }
+
                 return true;
             } catch (IOException e) {
                 Log.e(TAG, "Download error", e);
+                isDownloading = false;
                 return false;
             }
         }
@@ -224,6 +241,7 @@ public class AppUpdater {
 
         @Override
         protected void onPostExecute(Boolean success) {
+            isDownloading = false;
             if (downloadDialog != null && downloadDialog.isShowing()) {
                 downloadDialog.dismiss();
             }
@@ -233,6 +251,15 @@ public class AppUpdater {
             } else {
                 showErrorDialog("Ошибка загрузки обновления");
             }
+        }
+
+        @Override
+        protected void onCancelled() {
+            isDownloading = false;
+            if (downloadDialog != null && downloadDialog.isShowing()) {
+                downloadDialog.dismiss();
+            }
+            showErrorDialog("Загрузка отменена");
         }
     }
 

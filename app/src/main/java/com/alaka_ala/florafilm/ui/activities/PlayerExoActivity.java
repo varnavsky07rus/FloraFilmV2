@@ -180,7 +180,42 @@ public class PlayerExoActivity extends AppCompatActivity {
 
 
 
-        } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM)) {
+        } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("HDVB")) {
+
+            MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
+            String uriVideoData = epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();;
+            mediaItemBuilder.setUri(uriVideoData);
+            mediaItems.add(mediaItemBuilder.build());
+
+            exoPlayer.setMediaItems(
+                    mediaItems,
+                    epData.getIndexEpisode(),
+                    playbackPositionManager.getSavedPositionEpisode(
+                            epData.getFilmInfo().getKinopoiskId(),
+                            epData.getIndexEpisode(),
+                            epData.getIndexSeason()
+                    ));
+
+            exoPlayer.addAnalyticsListener(new AnalyticsListener() {
+                @Override
+                public void onMediaItemTransition(@NonNull EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
+                    AnalyticsListener.super.onMediaItemTransition(eventTime, mediaItem, reason);
+                    playbackPositionManager.
+                            savePositionEpisode(
+                                    epData.getFilmInfo().getKinopoiskId(),
+                                    exoPlayer.getCurrentMediaItemIndex(),
+                                    epData.getIndexSeason(),
+                                    epData.getIndexTranslation(),
+                                    epData.getIndexQuality(),
+                                    exoPlayer.getCurrentPosition(),
+                                    epData.getBalancer());
+                    updateTitleName();
+                }
+            });
+
+            exoPlayer.prepare();
+            exoPlayer.play();
+        } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("VIBIX")) {
 
             MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
             String uriVideoData = replaceIncorrectProtocol(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue());;
