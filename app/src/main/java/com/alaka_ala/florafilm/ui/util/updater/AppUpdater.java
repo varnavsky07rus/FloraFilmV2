@@ -38,6 +38,7 @@ public class AppUpdater {
     private static final String APK_URL = "https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/master/app/release/app-release.apk";
     private static final String VERSION_URL = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/refs/heads/master/app/release/output-metadata.json";
     private static final int REQUEST_INSTALL_PERMISSION = 1001;
+    private static final String TEMP_APK_NAME = "update_temp.apk";
 
     private final Activity activity;
     private AlertDialog downloadDialog;
@@ -45,6 +46,7 @@ public class AppUpdater {
     private TextView progressText;
     private TextView statusText;
     private File downloadedApk;
+    private int newVersionCode;
 
     public AppUpdater(Activity activity) {
         this.activity = activity;
@@ -59,7 +61,7 @@ public class AppUpdater {
             if (canInstallApk()) {
                 proceedWithInstallation();
             } else {
-                showErrorDialog("Разрешение на установку не предоставлено");
+                showErrorDialog("Install permission not granted");
             }
         }
     }
@@ -110,36 +112,42 @@ public class AppUpdater {
         @Override
         protected void onPostExecute(Integer latestVersionCode) {
             if (latestVersionCode == null) {
-                showErrorDialog("Ошибка проверки обновления");
+                showErrorDialog("Update check error");
                 return;
             }
 
             if (latestVersionCode > currentVersionCode) {
-                showUpdateDialog(latestVersionCode);
+                newVersionCode = latestVersionCode;
+                showUpdateDialog();
             } else {
-                showMessageDialog("У вас последняя версия приложения");
+                showMessageDialog("You have the latest version");
             }
         }
     }
 
-    private void showUpdateDialog(int newVersionCode) {
+    private void showUpdateDialog() {
         new AlertDialog.Builder(activity)
-                .setTitle("Доступно обновление")
-                .setMessage("Доступна новая версия приложения. Обновить сейчас?")
-                .setPositiveButton("Обновить", (dialog, which) -> checkExistingApk(newVersionCode))
-                .setNegativeButton("Позже", null)
+                .setTitle("Update available")
+                .setMessage("New version available. Update now?")
+                .setPositiveButton("Update", (dialog, which) -> prepareDownload())
+                .setNegativeButton("Later", null)
                 .show();
     }
 
-    private void checkExistingApk(int newVersionCode) {
-        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        downloadedApk = new File(downloadsDir, "app-release.apk");
-
-        if (downloadedApk.exists() && downloadedApk.length() > 0) {
-            showInstallDialog();
-        } else {
-            startDownload();
+    private void prepareDownload() {
+        // Создаем временную папку в кэше приложения
+        File tempDir = new File(activity.getCacheDir(), "updates");
+        if (!tempDir.exists()) {
+            tempDir.mkdirs();
         }
+
+        // Удаляем предыдущий временный файл, если есть
+        downloadedApk = new File(tempDir, TEMP_APK_NAME);
+        if (downloadedApk.exists()) {
+            downloadedApk.delete();
+        }
+
+        startDownload();
     }
 
     private void startDownload() {
@@ -156,7 +164,7 @@ public class AppUpdater {
 
         downloadDialog = new AlertDialog.Builder(activity)
                 .setView(dialogView)
-                .setTitle("Загрузка обновления")
+                .setTitle("Downloading update")
                 .setCancelable(false)
                 .create();
         downloadDialog.show();
@@ -176,7 +184,7 @@ public class AppUpdater {
 
         @Override
         protected void onPreExecute() {
-            updateStatus("Подготовка к загрузке...");
+            updateStatus("Preparing download...");
         }
 
         @Override
@@ -191,17 +199,14 @@ public class AppUpdater {
                 }
 
                 int fileLength = connection.getContentLength();
-                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                downloadedApk = new File(downloadsDir, "app-release.apk");
-                File tempFile = new File(downloadsDir, "app-release.tmp");
 
                 // Запускаем поток для отслеживания прогресса
                 new Thread(() -> {
                     while (isDownloading) {
                         try {
-                            Thread.sleep(500); // Проверяем каждые 500 мс
-                            if (tempFile.exists()) {
-                                long downloaded = tempFile.length();
+                            Thread.sleep(300);
+                            if (downloadedApk.exists()) {
+                                long downloaded = downloadedApk.length();
                                 int progress = (int) (downloaded * 100 / fileLength);
                                 publishProgress(progress);
                             }
@@ -211,19 +216,9 @@ public class AppUpdater {
                     }
                 }).start();
 
-                // Скачиваем файл с помощью FileUtils
-                FileUtils.copyURLToFile(url, tempFile);
-
-                // Останавливаем поток отслеживания прогресса
+                // Скачиваем файл
+                FileUtils.copyURLToFile(url, downloadedApk);
                 isDownloading = false;
-
-                // Переименовываем временный файл
-                if (tempFile.exists()) {
-                    if (downloadedApk.exists()) {
-                        downloadedApk.delete();
-                    }
-                    tempFile.renameTo(downloadedApk);
-                }
 
                 return true;
             } catch (IOException e) {
@@ -236,7 +231,7 @@ public class AppUpdater {
         @Override
         protected void onProgressUpdate(Integer... values) {
             updateDownloadProgress(values[0]);
-            updateStatus("Загрузка...");
+            updateStatus("Downloading...");
         }
 
         @Override
@@ -246,29 +241,49 @@ public class AppUpdater {
                 downloadDialog.dismiss();
             }
 
-            if (success && downloadedApk != null && downloadedApk.exists()) {
-                showInstallDialog();
+            if (success && downloadedApk.exists()) {
+                verifyAndInstall();
             } else {
-                showErrorDialog("Ошибка загрузки обновления");
+                showErrorDialog("Download failed");
+                cleanupTempFiles();
             }
         }
 
         @Override
         protected void onCancelled() {
             isDownloading = false;
+            cleanupTempFiles();
             if (downloadDialog != null && downloadDialog.isShowing()) {
                 downloadDialog.dismiss();
             }
-            showErrorDialog("Загрузка отменена");
+            showErrorDialog("Download cancelled");
+        }
+    }
+
+    private void verifyAndInstall() {
+        try {
+            PackageInfo newPackageInfo = activity.getPackageManager()
+                    .getPackageArchiveInfo(downloadedApk.getAbsolutePath(), 0);
+
+            if (newPackageInfo != null && newPackageInfo.versionCode == newVersionCode) {
+                showInstallDialog();
+            } else {
+                showErrorDialog("Downloaded file is corrupted");
+                cleanupTempFiles();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Version verification error", e);
+            showErrorDialog("Version check failed");
+            cleanupTempFiles();
         }
     }
 
     private void showInstallDialog() {
         new AlertDialog.Builder(activity)
-                .setTitle("Установка обновления")
-                .setMessage("Обновление загружено. Установить сейчас?")
-                .setPositiveButton("Установить", (dialog, which) -> installApk())
-                .setNegativeButton("Позже", null)
+                .setTitle("Install update")
+                .setMessage("Update downloaded. Install now?")
+                .setPositiveButton("Install", (dialog, which) -> installApk())
+                .setNegativeButton("Later", (dialog, which) -> cleanupTempFiles())
                 .show();
     }
 
@@ -287,36 +302,59 @@ public class AppUpdater {
 
     private void requestInstallPermission() {
         new AlertDialog.Builder(activity)
-                .setTitle("Требуется разрешение")
-                .setMessage("Для установки обновления разрешите установку из неизвестных источников")
-                .setPositiveButton("Настройки", (dialog, which) -> {
+                .setTitle("Permission required")
+                .setMessage("Allow installation from unknown sources")
+                .setPositiveButton("Settings", (dialog, which) -> {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
                     intent.setData(Uri.parse("package:" + activity.getPackageName()));
                     activity.startActivityForResult(intent, REQUEST_INSTALL_PERMISSION);
                 })
-                .setNegativeButton("Отмена", null)
+                .setNegativeButton("Cancel", (dialog, which) -> cleanupTempFiles())
                 .show();
     }
 
     private void proceedWithInstallation() {
         if (downloadedApk == null || !downloadedApk.exists()) {
-            showErrorDialog("Файл обновления не найден");
+            showErrorDialog("Update file not found");
             return;
         }
 
         try {
-            Uri apkUri = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                    ? FileProvider.getUriForFile(activity, activity.getPackageName() + ".fileprovider", downloadedApk)
-                    : Uri.fromFile(downloadedApk);
+            Uri apkUri = FileProvider.getUriForFile(
+                    activity,
+                    activity.getPackageName() + ".provider",
+                    downloadedApk
+            );
 
-            Intent installIntent = new Intent(Intent.ACTION_VIEW);
-            installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+            installIntent.setData(apkUri);
+            installIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            installIntent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+            installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+
+            // Удаляем файл после установки
+            installIntent.putExtra(Intent.EXTRA_ALLOW_REPLACE, true);
+            installIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
             activity.startActivity(installIntent);
+
+            // Удаляем файл через 10 секунд на всякий случай
+            new android.os.Handler().postDelayed(this::cleanupTempFiles, 10000);
         } catch (Exception e) {
             Log.e(TAG, "Installation error", e);
-            showErrorDialog("Ошибка установки: " + e.getMessage());
+            showErrorDialog("Installation failed: " + e.getMessage());
+            cleanupTempFiles();
+        }
+    }
+
+    private void cleanupTempFiles() {
+        try {
+            if (downloadedApk != null && downloadedApk.exists()) {
+                downloadedApk.delete();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error cleaning temp files", e);
         }
     }
 
@@ -329,7 +367,7 @@ public class AppUpdater {
 
     private void showErrorDialog(String message) {
         new AlertDialog.Builder(activity)
-                .setTitle("Ошибка")
+                .setTitle("Error")
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
