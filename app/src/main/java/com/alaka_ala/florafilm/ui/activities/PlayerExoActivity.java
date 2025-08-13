@@ -36,7 +36,12 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import io.appmetrica.analytics.AppMetrica;
+import io.appmetrica.analytics.AppMetricaConfig;
 
 public class PlayerExoActivity extends AppCompatActivity {
     private ActivityPlayerExoBinding binding;
@@ -44,6 +49,7 @@ public class PlayerExoActivity extends AppCompatActivity {
     private PlaybackPositionManager playbackPositionManager;
     private EPData epData;
 
+    private int count_send_event = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,16 @@ public class PlayerExoActivity extends AppCompatActivity {
             return;
         }
         exoPlayer = new ExoPlayer.Builder(this).build();
+        exoPlayer.addAnalyticsListener(new AnalyticsListener() {
+            @Override
+            public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
+                AnalyticsListener.super.onIsPlayingChanged(eventTime, isPlaying);
+                if (isPlaying && count_send_event == 1) {
+                    sendEventMetrica();
+                    ++count_send_event;
+                }
+            }
+        });
         binding.playerExoView.setPlayer(exoPlayer);
 
         updateTitleName();
@@ -75,6 +91,7 @@ public class PlayerExoActivity extends AppCompatActivity {
 
         resizeMode();
 
+        appMetrica();
     }
 
     private void resizeMode() {
@@ -423,4 +440,20 @@ public class PlayerExoActivity extends AppCompatActivity {
     }
 
 
+    private void appMetrica() {
+        AppMetricaConfig config = AppMetricaConfig.newConfigBuilder("1945eb04-4fda-4a26-9fcc-4d36e0f34551").build();
+        // Initializing the AppMetrica SDK.
+        AppMetrica.activate(this, config);
+
+
+    }
+
+    private void sendEventMetrica(){
+        // С параметрами (например, название фильма и жанр)
+        Map<String, Object> eventParams = new HashMap<>();
+        eventParams.put("movie_id", epData.getFilmInfo().getKinopoiskId());
+        eventParams.put("title", epData.getFilmInfo().getNameRu());
+        eventParams.put("genre", epData.getFilmInfo().getGenres());
+        AppMetrica.reportEvent("movie_started", eventParams);
+    }
 }

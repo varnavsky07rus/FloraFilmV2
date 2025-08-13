@@ -38,6 +38,9 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
 
+import io.appmetrica.analytics.AppMetrica;
+import io.appmetrica.analytics.AppMetricaConfig;
+
 
 public class MainActivity extends AppCompatActivity implements PermissionManager.PermissionResultCallback {
 
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
+        appMetrica();
 
         drawerLayout = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
@@ -101,6 +105,12 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         permissionManager = new PermissionManager(getApplicationContext(), this, null, this);
         checkPermissionsAndDoSomething();
         updateStatusBarIconColor(this);
+    }
+
+    private void appMetrica() {
+        AppMetricaConfig config = AppMetricaConfig.newConfigBuilder("1945eb04-4fda-4a26-9fcc-4d36e0f34551").build();
+        // Initializing the AppMetrica SDK.
+        AppMetrica.activate(this, config);
     }
 
     private void checkPermissionsAndDoSomething() {
