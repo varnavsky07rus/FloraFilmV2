@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
 import com.alaka_ala.florafilm.R;
@@ -322,20 +323,11 @@ public class AppUpdater {
         try {
             Uri apkUri = FileProvider.getUriForFile(
                     activity,
-                    activity.getPackageName() + ".provider",
+                    activity.getPackageName() + ".fileprovider",
                     downloadedApk
             );
 
-            Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-            installIntent.setData(apkUri);
-            installIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            installIntent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-            installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
-
-            // Удаляем файл после установки
-            installIntent.putExtra(Intent.EXTRA_ALLOW_REPLACE, true);
-            installIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            Intent installIntent = getIntentInstall(apkUri);
 
             activity.startActivity(installIntent);
 
@@ -346,6 +338,21 @@ public class AppUpdater {
             showErrorDialog("Installation failed: " + e.getMessage());
             cleanupTempFiles();
         }
+    }
+
+    @NonNull
+    private static Intent getIntentInstall(Uri apkUri) {
+        Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+        installIntent.setData(apkUri);
+        installIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        installIntent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+        installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+
+        // Удаляем файл после установки
+        installIntent.putExtra(Intent.EXTRA_ALLOW_REPLACE, true);
+        installIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return installIntent;
     }
 
     private void cleanupTempFiles() {
