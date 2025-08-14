@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     private AppBarConfiguration appBarConfiguration;
     private Toolbar toolbar;
 
+
     private PermissionManager permissionManager;
 
     @Override
