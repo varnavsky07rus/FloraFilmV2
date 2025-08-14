@@ -85,13 +85,13 @@ public class PlayerExoActivity extends AppCompatActivity {
             }
         });
         binding.playerExoView.setPlayer(exoPlayer);
-
+        appMetrica();
         updateTitleName();
         preparePlayer();
 
         resizeMode();
 
-        appMetrica();
+
     }
 
     private void resizeMode() {
@@ -444,8 +444,6 @@ public class PlayerExoActivity extends AppCompatActivity {
         AppMetricaConfig config = AppMetricaConfig.newConfigBuilder("1945eb04-4fda-4a26-9fcc-4d36e0f34551").build();
         // Initializing the AppMetrica SDK.
         AppMetrica.activate(this, config);
-
-
     }
 
     private void sendEventMetrica(){

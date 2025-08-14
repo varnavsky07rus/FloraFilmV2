@@ -62,7 +62,7 @@ public class AppUpdater {
             if (canInstallApk()) {
                 proceedWithInstallation();
             } else {
-                showErrorDialog("Install permission not granted");
+                showErrorDialog("Ошибка установки! Разрешения на установку из неизвестных источников не выданы!");
             }
         }
     }
@@ -113,7 +113,7 @@ public class AppUpdater {
         @Override
         protected void onPostExecute(Integer latestVersionCode) {
             if (latestVersionCode == null) {
-                showErrorDialog("Update check error");
+                showErrorDialog("Ошибка поиска обновлений");
                 return;
             }
 
@@ -121,17 +121,17 @@ public class AppUpdater {
                 newVersionCode = latestVersionCode;
                 showUpdateDialog();
             } else {
-                showMessageDialog("You have the latest version");
+                showMessageDialog("Обновлений не найдено!");
             }
         }
     }
 
     private void showUpdateDialog() {
         new AlertDialog.Builder(activity)
-                .setTitle("Update available")
-                .setMessage("New version available. Update now?")
-                .setPositiveButton("Update", (dialog, which) -> prepareDownload())
-                .setNegativeButton("Later", null)
+                .setTitle("Доступно обновление")
+                .setMessage("Доступна новая версия приложения, установить сейчас?")
+                .setPositiveButton("Да", (dialog, which) -> prepareDownload())
+                .setNegativeButton("Позже", null)
                 .show();
     }
 
@@ -165,7 +165,7 @@ public class AppUpdater {
 
         downloadDialog = new AlertDialog.Builder(activity)
                 .setView(dialogView)
-                .setTitle("Downloading update")
+                .setTitle("Загрузка обновлений")
                 .setCancelable(false)
                 .create();
         downloadDialog.show();
@@ -185,7 +185,7 @@ public class AppUpdater {
 
         @Override
         protected void onPreExecute() {
-            updateStatus("Preparing download...");
+            updateStatus("Подготовка к загрузке...");
         }
 
         @Override
@@ -232,7 +232,7 @@ public class AppUpdater {
         @Override
         protected void onProgressUpdate(Integer... values) {
             updateDownloadProgress(values[0]);
-            updateStatus("Downloading...");
+            updateStatus("Загрузка...");
         }
 
         @Override
@@ -245,7 +245,7 @@ public class AppUpdater {
             if (success && downloadedApk.exists()) {
                 verifyAndInstall();
             } else {
-                showErrorDialog("Download failed");
+                showErrorDialog("Ошибка загрузки!");
                 cleanupTempFiles();
             }
         }
@@ -257,7 +257,7 @@ public class AppUpdater {
             if (downloadDialog != null && downloadDialog.isShowing()) {
                 downloadDialog.dismiss();
             }
-            showErrorDialog("Download cancelled");
+            showErrorDialog("Загрузка отменена!");
         }
     }
 
@@ -269,22 +269,22 @@ public class AppUpdater {
             if (newPackageInfo != null && newPackageInfo.versionCode == newVersionCode) {
                 showInstallDialog();
             } else {
-                showErrorDialog("Downloaded file is corrupted");
+                showErrorDialog("Загруженный файл поврежден");
                 cleanupTempFiles();
             }
         } catch (Exception e) {
             Log.e(TAG, "Version verification error", e);
-            showErrorDialog("Version check failed");
+            showErrorDialog("Ошибка проверки версии файла");
             cleanupTempFiles();
         }
     }
 
     private void showInstallDialog() {
         new AlertDialog.Builder(activity)
-                .setTitle("Install update")
-                .setMessage("Update downloaded. Install now?")
-                .setPositiveButton("Install", (dialog, which) -> installApk())
-                .setNegativeButton("Later", (dialog, which) -> cleanupTempFiles())
+                .setTitle("Установка обновления")
+                .setMessage("Обновление загружено. Установить сейчас?")
+                .setPositiveButton("Установить", (dialog, which) -> installApk())
+                .setNegativeButton("Позже", (dialog, which) -> cleanupTempFiles())
                 .show();
     }
 
@@ -303,20 +303,20 @@ public class AppUpdater {
 
     private void requestInstallPermission() {
         new AlertDialog.Builder(activity)
-                .setTitle("Permission required")
-                .setMessage("Allow installation from unknown sources")
-                .setPositiveButton("Settings", (dialog, which) -> {
+                .setTitle("Требуется разрешение")
+                .setMessage("Разрешите установку из неизвестных источников")
+                .setPositiveButton("К настройкам", (dialog, which) -> {
                     Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
                     intent.setData(Uri.parse("package:" + activity.getPackageName()));
                     activity.startActivityForResult(intent, REQUEST_INSTALL_PERMISSION);
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> cleanupTempFiles())
+                .setNegativeButton("Отмена", (dialog, which) -> cleanupTempFiles())
                 .show();
     }
 
     private void proceedWithInstallation() {
         if (downloadedApk == null || !downloadedApk.exists()) {
-            showErrorDialog("Update file not found");
+            showErrorDialog("Файл обновления не найден");
             return;
         }
 
@@ -335,7 +335,7 @@ public class AppUpdater {
             new android.os.Handler().postDelayed(this::cleanupTempFiles, 10000);
         } catch (Exception e) {
             Log.e(TAG, "Installation error", e);
-            showErrorDialog("Installation failed: " + e.getMessage());
+            showErrorDialog("Ошибка установки: " + e.getMessage());
             cleanupTempFiles();
         }
     }

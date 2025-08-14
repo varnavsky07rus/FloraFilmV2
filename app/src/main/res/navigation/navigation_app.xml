@@ -35,7 +35,9 @@
             android:id="@+id/action_navHomeFragment_to_collectionFragment2"
             app:destination="@id/collectionFragment"
             app:enterAnim="@anim/enter_anim_right_to_left"
-            app:exitAnim="@anim/exit_anim_left_to_right" />
+            app:exitAnim="@anim/exit_anim_left_to_right"
+            app:popEnterAnim="@anim/enter_anim_right_to_left"
+            app:popExitAnim="@anim/exit_anim_left_to_right" />
     </fragment>
     <fragment
         android:id="@+id/navSettingsFragment"
