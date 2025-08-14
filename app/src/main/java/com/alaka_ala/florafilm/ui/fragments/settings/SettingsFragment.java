@@ -67,6 +67,15 @@ public class SettingsFragment extends Fragment {
         textViewVersionName.setText("Текущая: " + getAppVersionName());
 
 
+        MaterialSwitch switch_off_beta_version = binding.switchOffBetaVersion;
+        boolean isActiveBetaVersion = SettingsUtils.getParamBetaVersion(getContext());
+        switch_off_beta_version.setChecked(isActiveBetaVersion);
+        switch_off_beta_version.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsUtils.setParamBetaVersion(getContext(), isChecked);
+            }
+        });
 
 
 

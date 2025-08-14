@@ -3,6 +3,7 @@ package com.alaka_ala.florafilm.ui.util.updater;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
 import com.alaka_ala.florafilm.R;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
@@ -34,10 +36,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import io.appmetrica.analytics.impl.S;
+
 public class AppUpdater {
     private static final String TAG = "AppUpdater";
     private static final String APK_URL = "https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/master/app/release/app-release.apk";
     private static final String VERSION_URL = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/refs/heads/master/app/release/output-metadata.json";
+    private static final String APK_URL_BETA_VERSION = "https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/beta/app/release/app-release.apk";
+    private static final String VERSION_URL_BETA = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/refs/heads/beta/app/release/output-metadata.json";
     private static final int REQUEST_INSTALL_PERMISSION = 1001;
     private static final String TEMP_APK_NAME = "update_temp.apk";
 
@@ -49,8 +55,12 @@ public class AppUpdater {
     private File downloadedApk;
     private int newVersionCode;
 
+    // Если включено обновление до бета версий то True
+    private boolean isUpdateBetaVersion;
+
     public AppUpdater(Activity activity) {
         this.activity = activity;
+        SettingsUtils.getParamBetaVersion(activity.getBaseContext());
     }
 
     public void checkForUpdate() {
@@ -84,7 +94,7 @@ public class AppUpdater {
         @Override
         protected Integer doInBackground(Void... voids) {
             try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(VERSION_URL).openConnection();
+                HttpURLConnection connection = (HttpURLConnection) new URL(isUpdateBetaVersion ? VERSION_URL_BETA : VERSION_URL).openConnection();
                 connection.setRequestMethod("GET");
 
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -191,7 +201,7 @@ public class AppUpdater {
         @Override
         protected Boolean doInBackground(Void... voids) {
             try {
-                URL url = new URL(APK_URL);
+                URL url = new URL(isUpdateBetaVersion ? APK_URL_BETA_VERSION : APK_URL);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
@@ -331,8 +341,8 @@ public class AppUpdater {
 
             activity.startActivity(installIntent);
 
-            // Удаляем файл через 10 секунд на всякий случай
-            new android.os.Handler().postDelayed(this::cleanupTempFiles, 10000);
+            // Удаляем файл через 100 секунд на всякий случай
+            new android.os.Handler().postDelayed(this::cleanupTempFiles, 100000);
         } catch (Exception e) {
             Log.e(TAG, "Installation error", e);
             showErrorDialog("Ошибка установки: " + e.getMessage());

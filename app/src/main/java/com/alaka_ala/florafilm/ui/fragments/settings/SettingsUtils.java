@@ -13,6 +13,9 @@ public class SettingsUtils {
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_HDVB = true;
     public static final String KEY_SEARCH_MODE_HDVB = "KEY_SEARCH_MODE_SERIAL_2x00000";
+    // =============================================================================================
+    public static final boolean DEF_BETA_VERSION_MODE = false;
+    public static final String KEY_BETA_VERSION_MODE = "KEY_BETA_VERSION_MODE_3x00000";
 
 
     /**Взять параметр: Включен или отключен поиск сериалов по VIBIX*/
@@ -39,5 +42,16 @@ public class SettingsUtils {
         preferences.edit().putBoolean(KEY_SEARCH_MODE_HDVB, param).apply();
     }
 
+    //==============================================================================================
+
+    public static boolean getParamBetaVersion(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(KEY_BETA_VERSION_MODE, DEF_BETA_VERSION_MODE);
+    }
+
+    public static void setParamBetaVersion(Context context, boolean param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(KEY_BETA_VERSION_MODE, param).apply();
+    }
 
 }

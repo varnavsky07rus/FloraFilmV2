@@ -81,6 +81,16 @@
                             android:gravity="end" />
                     </LinearLayout>
 
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_off_beta_version"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:text="Обновлять до beta версий"
+                        app:thumbTint="#CBA5A0"
+                        app:trackDecorationTint="#CBA0A0"
+                        app:trackTint="?attr/SwitchTintTrack" />
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonChekUpdate"
                         android:layout_width="match_parent"
