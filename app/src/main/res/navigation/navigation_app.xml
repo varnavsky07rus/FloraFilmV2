@@ -112,6 +112,9 @@
             app:exitAnim="@anim/exit_anim"
             app:popEnterAnim="@anim/enter_anim"
             app:popExitAnim="@anim/exit_anim" />
+        <action
+            android:id="@+id/action_descriptionFragment_to_sequelsPrequelsFragment"
+            app:destination="@id/sequelsPrequelsFragment" />
     </fragment>
     <fragment
         android:id="@+id/donateFragment"
@@ -140,4 +143,15 @@
         android:name="com.alaka_ala.florafilm.ui.fragments.imgViewer.ImageViewerFragment"
         android:label="Просмотр"
         tools:layout="@layout/fragment_image_viewer" />
+    <fragment
+        android:id="@+id/sequelsPrequelsFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.sequels.SequelsPrequelsFragment"
+        android:label="Сиквелы / Приквелы"
+        tools:layout="@layout/fragment_sequels_prequels" >
+        <action
+            android:id="@+id/action_sequelsPrequelsFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment"
+            app:launchSingleTop="true"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

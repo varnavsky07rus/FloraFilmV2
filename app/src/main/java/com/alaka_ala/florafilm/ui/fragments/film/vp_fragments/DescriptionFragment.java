@@ -313,6 +313,7 @@ public class DescriptionFragment extends Fragment {
             menu.add("Добавить в избранное").setIcon(R.drawable.round_favorite_border_24).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         menu.add("Актёры").setIcon(R.drawable.ic_launcher_foreground).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add("Сиквелы / Приквелы").setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
     }
 
     @Override
@@ -339,6 +340,12 @@ public class DescriptionFragment extends Fragment {
             bundle.putString("nameRu", (itemFilmInfo.getNameRu().equals("null") ? itemFilmInfo.getNameEn() : itemFilmInfo.getNameRu())
                     .equals("null") ? "Актёры" : (itemFilmInfo.getNameRu().equals("null") ? itemFilmInfo.getNameOriginal() : itemFilmInfo.getNameRu()));
             Navigation.findNavController(binding.getRoot()).navigate(R.id.actorsFragment, bundle);
+        }
+        else if (item.getTitle().equals("Сиквелы / Приквелы")) {
+            Bundle bundle = new Bundle();
+            bundle.putInt("kinopoisk_id", kinopoisk_id);
+            bundle.putString("title", "Сиквелы / Приквелы");
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.sequelsPrequelsFragment, bundle);
         }
 
         return super.onOptionsItemSelected(item);

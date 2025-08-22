@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Country;
+import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.FilmRelation;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.FilmTrailer;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Genre;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
@@ -21,18 +22,24 @@ import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.NewsMedia;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.StaffFilmsItem;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.StaffInfo;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.StaffSpouseItem;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Type;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -152,6 +159,22 @@ public class KinopoiskAPI {
         void finishInfoStaff();
     }
 
+    public interface RequestCallbackSequelAndPrequel {
+        void onSuccessRequestPrequel(List<FilmRelation> filmRelations);
+
+        void onFailureRequestPrequel(IOException e);
+
+        /**
+         * Метод выполнится после завершения всех подключений...
+         * Т.е. если вызвав к примеру несколько запросов getList() то каждый из них вызывает finish();
+         * однако данный метод ограничивает вызов каждый раз этого метода ограничив его до одного.
+         * На каждый вызов есть отдельный метод, onSuccess().
+         * Данный метод будет вызываться столько раз, сколько будет вызвано новых запросов.
+         * Так же будет вызываться onFailure() на каждый новый запрос
+         */
+        void finishRequestPrequel();
+    }
+
     private interface ConntectCallback {
         void onSuccess(String responseJson);
 
@@ -159,6 +182,7 @@ public class KinopoiskAPI {
 
         void finish();
     }
+
 
     // Общее кол-во подключений
     private int previousCountConnections = 0;
@@ -186,7 +210,7 @@ public class KinopoiskAPI {
                 if (ok && codeResponse == 200) {
                     callback.onSuccess(response);
                 } else {
-                    callback.onFailure(new IOException("Код ответа: " + codeResponse + " Ошибка: " + response + " | " + error));
+                    callback.onFailure(new IOException("Код ответа: " + codeResponse + "| Ошибка: " + response + "| " + error));
                 }
 
                 requestId = 0;
@@ -1332,6 +1356,7 @@ public class KinopoiskAPI {
     }
 
     private ItemFilmInfo createItemInfoClass(String json) throws JSONException {
+
         // Создание JSON Объекта на основе ответа от сервера
         JSONObject jsonItem = new JSONObject(json);
         // преобразование JSON Объекта в новый объект класса Collection
@@ -1625,6 +1650,43 @@ public class KinopoiskAPI {
                 lastSync
         );
     }
+
+    /**
+     * Получает сиквелы и приквелы для указанного фильма
+     * @param kinopoisk_id идентификатор фильма на Кинопоиске
+     * @return список связанных фильмов
+     */
+    public void getFilmSequelsAndPrequels(int kinopoisk_id, RequestCallbackSequelAndPrequel rcsap) {
+        String base_url = "https://kinopoiskapiunofficial.tech/api/v2.1/films/" + kinopoisk_id + "/sequels_and_prequels";
+        connect(base_url, new ConntectCallback() {
+            @Override
+            public void onSuccess(String response) {
+                if (!response.isEmpty()) {
+                    if (JsonParser.parseString(response).isJsonArray()) {
+                        Type filmListType = new TypeToken<List<FilmRelation>>(){}.getType();
+                        Gson gson = new Gson();
+                        List<FilmRelation> filmRelations = gson.fromJson(response, filmListType);
+                        rcsap.onSuccessRequestPrequel(filmRelations);
+                    }
+                } else {
+                    onFailure(new IOException("Пустой ответ метода поиска сиквелов и приквелов!"));
+                }
+
+            }
+
+            @Override
+            public void onFailure(IOException e) {
+                rcsap.onFailureRequestPrequel(e);
+            }
+
+            @Override
+            public void finish() {
+                rcsap.finishRequestPrequel();
+            }
+        });
+    }
+
+
 
 
     public static class GenreConstants {

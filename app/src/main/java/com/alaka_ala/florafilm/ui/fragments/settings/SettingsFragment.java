@@ -59,7 +59,6 @@ public class SettingsFragment extends Fragment {
             public void onClick(View v) {
                 AppUpdater appUpdater = new AppUpdater(getActivity());
                 appUpdater.checkForUpdate();
-
             }
         });
 
