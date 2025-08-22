@@ -2,9 +2,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/gradient_player"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_player">
 
     <!-- Прогресс-бар + Текущая позиция и Длительность -->
     <LinearLayout
@@ -62,7 +62,7 @@
             app:ad_marker_color="#925D5D"
             app:ad_marker_width="5dp"
             app:bar_gravity="center"
-            app:bar_height="2.5dp"
+            app:bar_height="2dp"
             app:buffered_color="#C7C7C7"
             app:played_color="#242424"
             app:scrubber_color="#434343"
@@ -89,48 +89,80 @@
         android:orientation="horizontal"
         android:padding="16dp">
 
-        <ImageView
-            android:id="@id/exo_rew"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/exo_rew"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_marginEnd="50dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="Rewind"
-            android:scaleType="centerInside"
-            android:src="@drawable/rounded_fast_rewind_24"
-            android:tint="@color/white" />
+            android:focusable="auto"
+            app:cardBackgroundColor="#00FFFFFF"
+            app:cardCornerRadius="100dp"
+            app:strokeColor="@color/white">
 
-        <ImageView
-            android:id="@id/exo_play"
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/ripple_background"
+                android:contentDescription="Rewind"
+                android:scaleType="centerInside"
+                android:src="@drawable/rounded_fast_rewind_24"
+                android:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="Play"
-            android:scaleType="centerCrop"
-            android:src="@drawable/rounded_play_circle_24"
-            android:tint="@color/white" />
+            android:focusable="auto"
+            app:cardBackgroundColor="#00FFFFFF"
+            app:cardCornerRadius="100dp"
+            app:strokeColor="@color/white">
 
-        <ImageView
-            android:id="@id/exo_pause"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="Pause"
-            android:scaleType="fitCenter"
-            android:src="@drawable/rounded_pause_circle_24"
-            android:tint="@color/white"
-            android:visibility="gone" />
+            <ImageView
+                android:id="@id/exo_play"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/ripple_background"
+                android:contentDescription="Play"
+                android:scaleType="centerInside"
+                android:src="@drawable/rounded_play_circle_24"
+                android:tint="@color/white" />
 
-        <ImageView
-            android:id="@id/exo_ffwd"
+            <ImageView
+                android:id="@id/exo_pause"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ripple_background"
+                android:contentDescription="Pause"
+                android:scaleType="centerInside"
+                android:src="@drawable/rounded_pause_circle_24"
+                android:tint="@color/white"
+                android:visibility="gone" />
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/exo_ffwd"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_marginStart="50dp"
-            android:background="?attr/selectableItemBackground"
-            android:contentDescription="Forward"
-            android:scaleType="centerInside"
-            android:src="@drawable/rounded_fast_forward_24"
-            android:tint="@color/white" />
+            android:focusable="auto"
+            app:cardBackgroundColor="#00FFFFFF"
+            app:cardCornerRadius="100dp"
+            app:strokeColor="@color/white">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@drawable/ripple_background"
+                android:contentDescription="Forward"
+                android:scaleType="centerInside"
+                android:src="@drawable/rounded_fast_forward_24"
+                android:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 
 </FrameLayout>

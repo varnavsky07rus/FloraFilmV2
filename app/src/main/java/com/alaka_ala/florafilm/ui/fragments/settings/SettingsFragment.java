@@ -57,7 +57,7 @@ public class SettingsFragment extends Fragment {
         buttonChekUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AppUpdater appUpdater = new AppUpdater(getActivity());
+                AppUpdater appUpdater = new AppUpdater(getActivity(), false);
                 appUpdater.checkForUpdate();
             }
         });

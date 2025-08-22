@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -58,8 +59,15 @@ public class AppUpdater {
     // Если включено обновление до бета версий то True
     private boolean isUpdateBetaVersion;
 
-    public AppUpdater(Activity activity) {
+    public boolean isSilentFindUpdate() {
+        return isSilentFindUpdate;
+    }
+
+    private final boolean isSilentFindUpdate;
+
+    public AppUpdater(Activity activity, boolean isSilentFindUpdate) {
         this.activity = activity;
+        this.isSilentFindUpdate = isSilentFindUpdate;
         SettingsUtils.getParamBetaVersion(activity.getBaseContext());
     }
 
@@ -67,7 +75,7 @@ public class AppUpdater {
         new CheckVersionTask().execute();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    private void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_INSTALL_PERMISSION) {
             if (canInstallApk()) {
                 proceedWithInstallation();
@@ -131,18 +139,31 @@ public class AppUpdater {
                 newVersionCode = latestVersionCode;
                 showUpdateDialog();
             } else {
-                showMessageDialog("Обновлений не найдено!");
+                SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+                preferences.edit().putBoolean("upd", false).apply();
+                if (!isSilentFindUpdate) {
+                    showMessageDialog("Обновлений не найдено!");
+                }
             }
         }
     }
 
     private void showUpdateDialog() {
-        new AlertDialog.Builder(activity)
-                .setTitle("Доступно обновление")
-                .setMessage("Доступна новая версия приложения, установить сейчас?")
-                .setPositiveButton("Да", (dialog, which) -> prepareDownload())
-                .setNegativeButton("Позже", null)
-                .show();
+        if (!isSilentFindUpdate) {
+            new AlertDialog.Builder(activity)
+                    .setTitle("Доступно обновление")
+                    .setMessage("Доступна новая версия приложения, установить сейчас?")
+                    .setPositiveButton("Да", (dialog, which) -> prepareDownload())
+                    .setNegativeButton("Позже", null)
+                    .show();
+        }
+        SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+        preferences.edit().putBoolean("upd", true).apply();
+    }
+
+    public boolean isAvailableUpdate(){
+        SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+        return preferences.getBoolean("upd", false);
     }
 
     private void prepareDownload() {
@@ -340,7 +361,6 @@ public class AppUpdater {
             Intent installIntent = getIntentInstall(apkUri);
 
             activity.startActivity(installIntent);
-
             // Удаляем файл через 100 секунд на всякий случай
             new android.os.Handler().postDelayed(this::cleanupTempFiles, 100000);
         } catch (Exception e) {

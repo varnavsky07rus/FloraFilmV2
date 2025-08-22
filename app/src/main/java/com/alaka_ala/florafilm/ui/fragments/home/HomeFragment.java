@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.alaka_ala.florafilm.R;
@@ -26,6 +27,8 @@ import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewScrollListener;
+import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
+import com.google.android.material.chip.Chip;
 
 import java.io.IOException;
 
@@ -55,7 +58,16 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         setHasOptionsMenu(true);
         HomeViewModel viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
+        AppUpdater appUpdater = new AppUpdater(getActivity(), true);
+        appUpdater.checkForUpdate();
+        Chip chipUpdApp = binding.chipUpdApp;
+        chipUpdApp.setVisibility(appUpdater.isAvailableUpdate() ? View.VISIBLE : View.GONE);
+        chipUpdApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(getView()).navigate(R.id.navSettingsFragment);
+            }
+        });
         KinopoiskAPI kinopoiskAPI = new KinopoiskAPI(getResources().getString(R.string.api_key_kinopoisk));
 
 
@@ -64,7 +76,7 @@ public class HomeFragment extends Fragment {
         recyclerViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.recyclerViewTitleHomeCategorySerial;
 
 
-        // TODO: 20.03.202 6:23 - АКТИВНАЯ ОШИБКА
+        // TODO: 20.03.2025 6:23 - АКТИВНАЯ ОШИБКА
         //  ########################################################################################
         //  Обнаружена ошибка (Действия вызывающие ошибку (!)
         //  ########################################################################################

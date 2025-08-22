@@ -24,15 +24,12 @@ import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
-import com.alaka_ala.florafilm.ui.util.torrents.TorrentStreamer;
-import com.alaka_ala.florafilm.ui.util.torrents.TorrentStreamerV2;
-import com.frostwire.jlibtorrent.SessionManager;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.material.snackbar.Snackbar;
 
 
 import java.util.ArrayList;
@@ -186,18 +183,10 @@ public class PlayerExoActivity extends AppCompatActivity {
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("magnet")) {
             // Запуск торрента и сервера
             String magnet = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
-            TorrentStreamerV2 torrentStreamerV2 = new TorrentStreamerV2(this, exoPlayer, binding.progressBar3);
+            Snackbar.make(binding.getRoot(), "Извините, торренты временно не работают!", Snackbar.LENGTH_LONG).show();
 
-            torrentStreamerV2.start(magnet);
-
-
-
-
-
-
-
-
-        } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("HDVB")) {
+        }
+        else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("HDVB")) {
 
             MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
             String uriVideoData = epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();;
@@ -232,7 +221,8 @@ public class PlayerExoActivity extends AppCompatActivity {
 
             exoPlayer.prepare();
             exoPlayer.play();
-        } else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("VIBIX")) {
+        }
+        else if (epData.getTypeContent().equals(EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("VIBIX")) {
 
             MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
             String uriVideoData = replaceIncorrectProtocol(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue());;

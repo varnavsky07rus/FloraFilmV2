@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,19 +15,30 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipUpdApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Доступно обновление"
+                android:textColor="#D1791B"
+                android:visibility="gone"
+                app:chipIcon="@drawable/baseline_info_outline_24"
+                app:chipIconTint="#D1791B"
+                app:chipStrokeColor="#D1791B" />
+
             <include
                 android:id="@+id/fragment_home_include_popular_al"
                 layout="@layout/fragment_home_include_popular_all"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" />
+                android:layout_height="wrap_content" />
 
             <include
                 android:id="@+id/fragment_home_include_movie"
                 layout="@layout/fragment_home_include_movie"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" />
+                android:layout_height="wrap_content" />
 
             <include
                 android:id="@+id/fragment_home_include_serial"
