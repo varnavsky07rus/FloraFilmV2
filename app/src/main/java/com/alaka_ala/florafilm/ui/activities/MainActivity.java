@@ -144,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             }
             // Black icons on light background
         }
-
     }
 
 

@@ -206,18 +206,18 @@ public class Vibix {
 
     // Парсинг страницы если СЕРИАЛ
     private void parseHTMLSerial(Handler handler, String htmlStr) {
-        Pattern pattern = Pattern.compile("\\[.+]");
+        Pattern pattern = Pattern.compile(",file: \\[.+]");
         Matcher matcher = pattern.matcher(htmlStr);
         if (!matcher.find()) return;
         String jsonStr = matcher.group(0);
         // Теперь удаляем лишнее
         assert jsonStr != null;
-        String dell = jsonStr.replace(",file:", "").replace(",poster", "");
+        String dell = jsonStr.replace(",file: ", "").replace(",poster", "");
         try {
             JSONArray jsonArray = new JSONArray(dell);
             createSerial(handler, jsonArray);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            System.out.println("JSON array not found. Ошибка регулярного выражения на поиск объекта Array (file)");
         }
     }
 
@@ -228,7 +228,7 @@ public class Vibix {
         // Проходим по всем сезонам
         for (int seasonIndex = 0; seasonIndex < jsonArray.length(); seasonIndex++) {
             JSONObject seasonJsonObj = jsonArray.getJSONObject(seasonIndex);
-            String title = seasonJsonObj.getString("title"); // "Сезон 1"
+            String title = seasonJsonObj.getString("title");  // "Сезон 1"
             JSONArray folder = seasonJsonObj.getJSONArray("folder");
             ArrayList<EPData.Serial.Episode> episodes = new ArrayList<>();
 
