@@ -9,9 +9,9 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,19 +25,21 @@ import androidx.core.content.FileProvider;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import io.appmetrica.analytics.impl.S;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AppUpdater {
     private static final String TAG = "AppUpdater";
@@ -48,6 +50,8 @@ public class AppUpdater {
     private static final int REQUEST_INSTALL_PERMISSION = 1001;
     private static final String TEMP_APK_NAME = "update_temp.apk";
 
+    // Activity нужна для отображения диалогов.
+    // Важно: если Activity будет уничтожена во время работы, возможны ошибки.
     private final Activity activity;
     private AlertDialog downloadDialog;
     private ProgressBar progressBar;
@@ -56,14 +60,13 @@ public class AppUpdater {
     private File downloadedApk;
     private int newVersionCode;
 
-    // Если включено обновление до бета версий то True
     private final boolean isUpdateBetaVersion;
-
-    public boolean isSilentFindUpdate() {
-        return isSilentFindUpdate;
-    }
-
     private final boolean isSilentFindUpdate;
+
+    // Используем ExecutorService для выполнения задач в фоновом потоке
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    // Используем Handler для отправки результатов в основной поток
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
     public AppUpdater(Activity activity, boolean isSilentFindUpdate) {
         this.activity = activity;
@@ -71,79 +74,81 @@ public class AppUpdater {
         this.isUpdateBetaVersion = SettingsUtils.getParamBetaVersion(activity.getBaseContext());
     }
 
+    public boolean isSilentFindUpdate() {
+        return isSilentFindUpdate;
+    }
+
+    /**
+     * Запускает проверку наличия обновлений в фоновом потоке.
+     */
     public void checkForUpdate() {
-        new CheckVersionTask().execute();
-    }
-
-    private void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_INSTALL_PERMISSION) {
-            if (canInstallApk()) {
-                proceedWithInstallation();
-            } else {
-                showErrorDialog("Ошибка установки! Разрешения на установку из неизвестных источников не выданы!");
-            }
-        }
-    }
-
-    private class CheckVersionTask extends AsyncTask<Void, Void, Integer> {
-        private int currentVersionCode;
-
-        @Override
-        protected void onPreExecute() {
+        executor.execute(() -> {
             try {
+                // Код, который раньше был в doInBackground
                 PackageInfo pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
-                currentVersionCode = pInfo.versionCode;
+                int currentVersionCode = pInfo.versionCode;
+
+                String versionUrl = isUpdateBetaVersion ? VERSION_URL_BETA : VERSION_URL;
+                Integer latestVersionCode = getLatestVersionCodeFromServer(versionUrl);
+
+                // Возвращаем результат в основной поток
+                mainThreadHandler.post(() -> onVersionCheckComplete(latestVersionCode, currentVersionCode));
+
             } catch (PackageManager.NameNotFoundException e) {
                 Log.e(TAG, "Package info error", e);
-                cancel(true);
+                mainThreadHandler.post(() -> onVersionCheckComplete(null, 0));
             }
-        }
+        });
+    }
 
-        @Override
-        protected Integer doInBackground(Void... voids) {
-            try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(isUpdateBetaVersion ? VERSION_URL_BETA : VERSION_URL).openConnection();
-                connection.setRequestMethod("GET");
+    private Integer getLatestVersionCodeFromServer(String urlString) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
+            connection.setRequestMethod("GET");
 
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    return null;
-                }
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder json = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    json.append(line);
-                }
-                reader.close();
-
-                JSONObject jsonObject = new JSONObject(json.toString());
-                return jsonObject.getJSONArray("elements")
-                        .getJSONObject(0)
-                        .getInt("versionCode");
-
-            } catch (IOException | JSONException e) {
-                Log.e(TAG, "Version check error", e);
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 return null;
             }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder json = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                json.append(line);
+            }
+            reader.close();
+
+            JSONObject jsonObject = new JSONObject(json.toString());
+            return jsonObject.getJSONArray("elements")
+                    .getJSONObject(0)
+                    .getInt("versionCode");
+
+        } catch (IOException | JSONException e) {
+            Log.e(TAG, "Version check error", e);
+            return null;
+        }
+    }
+
+    /**
+     * Выполняется в основном потоке после завершения проверки версии.
+     * Аналог onPostExecute из AsyncTask.
+     */
+    private void onVersionCheckComplete(Integer latestVersionCode, int currentVersionCode) {
+        if (activity.isFinishing()) return; // Проверка, что Activity еще "жива"
+
+        if (latestVersionCode == null) {
+            showErrorDialog("Ошибка поиска обновлений");
+            return;
         }
 
-        @Override
-        protected void onPostExecute(Integer latestVersionCode) {
-            if (latestVersionCode == null) {
-                showErrorDialog("Ошибка поиска обновлений");
-                return;
-            }
-
-            if (latestVersionCode > currentVersionCode) {
-                newVersionCode = latestVersionCode;
-                showUpdateDialog();
-            } else {
-                SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
-                preferences.edit().putBoolean("upd", false).apply();
-                if (!isSilentFindUpdate) {
-                    showMessageDialog("Обновлений не найдено!");
-                }
+        if (latestVersionCode > currentVersionCode) {
+            newVersionCode = latestVersionCode;
+            showUpdateDialog();
+        } else {
+            SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+            preferences.edit().putBoolean("upd", false).apply();
+            if (!isSilentFindUpdate) {
+                showMessageDialog("Обновлений не найдено!");
             }
         }
     }
@@ -161,19 +166,17 @@ public class AppUpdater {
         preferences.edit().putBoolean("upd", true).apply();
     }
 
-    public boolean isAvailableUpdate(){
+    public boolean isAvailableUpdate() {
         SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
         return preferences.getBoolean("upd", false);
     }
 
     private void prepareDownload() {
-        // Создаем временную папку в кэше приложения
         File tempDir = new File(activity.getCacheDir(), "updates");
         if (!tempDir.exists()) {
             tempDir.mkdirs();
         }
 
-        // Удаляем предыдущий временный файл, если есть
         downloadedApk = new File(tempDir, TEMP_APK_NAME);
         if (downloadedApk.exists()) {
             downloadedApk.delete();
@@ -184,7 +187,79 @@ public class AppUpdater {
 
     private void startDownload() {
         showDownloadDialog();
-        new DownloadApkTask().execute();
+        // Запускаем загрузку в фоновом потоке
+        executor.execute(this::downloadApkFile);
+    }
+
+    /**
+     * Основной метод загрузки, выполняется в фоновом потоке.
+     */
+    private void downloadApkFile() {
+        HttpURLConnection connection = null;
+        InputStream input = null;
+        OutputStream output = null;
+        try {
+            mainThreadHandler.post(() -> updateStatus("Подготовка к загрузке..."));
+
+            URL url = new URL(isUpdateBetaVersion ? APK_URL_BETA_VERSION : APK_URL);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                mainThreadHandler.post(() -> onDownloadComplete(false));
+                return;
+            }
+
+            int fileLength = connection.getContentLength();
+            input = new BufferedInputStream(connection.getInputStream());
+            output = new FileOutputStream(downloadedApk);
+
+            byte[] data = new byte[4096];
+            long total = 0;
+            int count;
+            mainThreadHandler.post(() -> updateStatus("Загрузка..."));
+            while ((count = input.read(data)) != -1) {
+                total += count;
+                output.write(data, 0, count);
+
+                // Рассчитываем и публикуем прогресс
+                if (fileLength > 0) {
+                    int progress = (int) (total * 100 / fileLength);
+                    mainThreadHandler.post(() -> updateDownloadProgress(progress));
+                }
+            }
+            output.flush();
+            mainThreadHandler.post(() -> onDownloadComplete(true));
+
+        } catch (IOException e) {
+            Log.e(TAG, "Download error", e);
+            mainThreadHandler.post(() -> onDownloadComplete(false));
+        } finally {
+            try {
+                if (output != null) output.close();
+                if (input != null) input.close();
+            } catch (IOException ignored) {}
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    /**
+     * Выполняется в основном потоке после завершения загрузки.
+     * Аналог onPostExecute.
+     */
+    private void onDownloadComplete(boolean success) {
+        if (activity.isFinishing()) return;
+
+        if (downloadDialog != null && downloadDialog.isShowing()) {
+            downloadDialog.dismiss();
+        }
+
+        if (success && downloadedApk.exists()) {
+            verifyAndInstall();
+        } else {
+            showErrorDialog("Ошибка загрузки!");
+            cleanupTempFiles();
+        }
     }
 
     @SuppressLint("MissingInflatedId")
@@ -211,86 +286,7 @@ public class AppUpdater {
         if (statusText != null) statusText.setText(status);
     }
 
-    private class DownloadApkTask extends AsyncTask<Void, Integer, Boolean> {
-        private volatile boolean isDownloading = true;
-
-        @Override
-        protected void onPreExecute() {
-            updateStatus("Подготовка к загрузке...");
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            try {
-                URL url = new URL(isUpdateBetaVersion ? APK_URL_BETA_VERSION : APK_URL);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
-
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                    return false;
-                }
-
-                int fileLength = connection.getContentLength();
-
-                // Запускаем поток для отслеживания прогресса
-                new Thread(() -> {
-                    while (isDownloading) {
-                        try {
-                            Thread.sleep(300);
-                            if (downloadedApk.exists()) {
-                                long downloaded = downloadedApk.length();
-                                int progress = (int) (downloaded * 100 / fileLength);
-                                publishProgress(progress);
-                            }
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                }).start();
-
-                // Скачиваем файл
-                FileUtils.copyURLToFile(url, downloadedApk);
-                isDownloading = false;
-
-                return true;
-            } catch (IOException e) {
-                Log.e(TAG, "Download error", e);
-                isDownloading = false;
-                return false;
-            }
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            updateDownloadProgress(values[0]);
-            updateStatus("Загрузка...");
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            isDownloading = false;
-            if (downloadDialog != null && downloadDialog.isShowing()) {
-                downloadDialog.dismiss();
-            }
-
-            if (success && downloadedApk.exists()) {
-                verifyAndInstall();
-            } else {
-                showErrorDialog("Ошибка загрузки!");
-                cleanupTempFiles();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            isDownloading = false;
-            cleanupTempFiles();
-            if (downloadDialog != null && downloadDialog.isShowing()) {
-                downloadDialog.dismiss();
-            }
-            showErrorDialog("Загрузка отменена!");
-        }
-    }
+    // --- Остальные методы остаются без изменений ---
 
     private void verifyAndInstall() {
         try {
@@ -361,8 +357,7 @@ public class AppUpdater {
             Intent installIntent = getIntentInstall(apkUri);
 
             activity.startActivity(installIntent);
-            // Удаляем файл через 100 секунд на всякий случай
-            new android.os.Handler().postDelayed(this::cleanupTempFiles, 100000);
+            new android.os.Handler(Looper.getMainLooper()).postDelayed(this::cleanupTempFiles, 100000);
         } catch (Exception e) {
             Log.e(TAG, "Installation error", e);
             showErrorDialog("Ошибка установки: " + e.getMessage());
@@ -372,27 +367,23 @@ public class AppUpdater {
 
     @NonNull
     private static Intent getIntentInstall(Uri apkUri) {
-        Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-        installIntent.setData(apkUri);
-        installIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        installIntent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-        installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
-
-        // Удаляем файл после установки
-        installIntent.putExtra(Intent.EXTRA_ALLOW_REPLACE, true);
-        installIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent installIntent = new Intent(Intent.ACTION_VIEW); // ACTION_INSTALL_PACKAGE устарел
+        installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        installIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
         return installIntent;
     }
 
     private void cleanupTempFiles() {
-        try {
-            if (downloadedApk != null && downloadedApk.exists()) {
-                downloadedApk.delete();
+        // Запускаем очистку тоже в фоне, чтобы не блокировать UI
+        executor.execute(() -> {
+            try {
+                if (downloadedApk != null && downloadedApk.exists()) {
+                    downloadedApk.delete();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error cleaning temp files", e);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error cleaning temp files", e);
-        }
+        });
     }
 
     private void showMessageDialog(String message) {
@@ -404,9 +395,20 @@ public class AppUpdater {
 
     private void showErrorDialog(String message) {
         new AlertDialog.Builder(activity)
-                .setTitle("Error")
+                .setTitle("Ошибка")
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
+    }
+
+    // Метод для обработки результата из Activity
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_INSTALL_PERMISSION) {
+            if (canInstallApk()) {
+                proceedWithInstallation();
+            } else {
+                showErrorDialog("Ошибка установки! Разрешения на установку из неизвестных источников не выданы!");
+            }
+        }
     }
 }

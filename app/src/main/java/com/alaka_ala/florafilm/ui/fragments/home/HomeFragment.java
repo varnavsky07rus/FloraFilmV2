@@ -47,9 +47,7 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerViewPopAll;
     private RecyclerView recyclerViewTitleHomeCategoryMovie;
     private RecyclerView recyclerViewTitleHomeCategorySerial;
-
-
-
+    private AppUpdater appUpdater;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -58,16 +56,13 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         setHasOptionsMenu(true);
         HomeViewModel viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        AppUpdater appUpdater = new AppUpdater(getActivity(), true);
+
+        appUpdater = new AppUpdater(getActivity(), true);
         appUpdater.checkForUpdate();
         Chip chipUpdApp = binding.chipUpdApp;
-        chipUpdApp.setVisibility(appUpdater.isAvailableUpdate() ? View.VISIBLE : View.GONE);
-        chipUpdApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Navigation.findNavController(getView()).navigate(R.id.navSettingsFragment);
-            }
-        });
+
+
+
         KinopoiskAPI kinopoiskAPI = new KinopoiskAPI(getResources().getString(R.string.api_key_kinopoisk));
 
 
