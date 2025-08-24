@@ -60,6 +60,13 @@ public class HomeFragment extends Fragment {
         appUpdater = new AppUpdater(getActivity(), true);
         appUpdater.checkForUpdate();
         Chip chipUpdApp = binding.chipUpdApp;
+        chipUpdApp.setVisibility(appUpdater.isAvailableUpdate() ? View.VISIBLE : View.GONE);
+        chipUpdApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_navSettingsFragment);
+            }
+        });
 
 
 

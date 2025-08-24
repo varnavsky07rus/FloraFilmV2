@@ -10,8 +10,8 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 29
-        versionName "1.0.29_beta"
+        versionCode 30
+        versionName "1.0.30_beta"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
