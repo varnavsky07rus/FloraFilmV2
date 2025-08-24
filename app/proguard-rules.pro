@@ -24,3 +24,11 @@
 # This is generated automatically by the Android Gradle plugin.
 -dontwarn com.android.org.conscrypt.SSLParametersImpl
 -dontwarn org.apache.harmony.xnet.provider.jsse.SSLParametersImpl
+
+# Сохраняем все классы в пакете models, их поля и методы.
+# Это необходимо для библиотек рефлексии, таких как GSON.
+-keep class com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.** { *; }
+
+# Это самое важное правило для TypeToken.
+# Оно сохраняет generic-сигнатуры, которые R8 может удалить.
+-keepattributes Signature
