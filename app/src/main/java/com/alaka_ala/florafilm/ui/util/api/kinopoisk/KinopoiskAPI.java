@@ -1663,9 +1663,12 @@ public class KinopoiskAPI {
             public void onSuccess(String response) {
                 if (!response.isEmpty()) {
                     if (JsonParser.parseString(response).isJsonArray()) {
-                        Type filmListType = new TypeToken<List<FilmRelation>>(){}.getType();
-                        Gson gson = new Gson();
-                        List<FilmRelation> filmRelations = gson.fromJson(response, filmListType);
+                        List<FilmRelation> filmRelations = null;
+                        try {
+                            filmRelations = createFilmRelationList(response);
+                        } catch (JSONException e) {
+                            onFailure(new IOException(e.getMessage()));
+                        }
                         rcsap.onSuccessRequestPrequel(filmRelations);
                     }
                 } else {
@@ -1686,7 +1689,33 @@ public class KinopoiskAPI {
         });
     }
 
+    private List<FilmRelation> createFilmRelationList(String jsonResponse) throws JSONException {
+        List<FilmRelation> filmRelations = new ArrayList<>();
+        JSONArray jsonArray = new JSONArray(jsonResponse);
 
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject filmObject = jsonArray.getJSONObject(i);
+
+            // Используем opt-методы для безопасного извлечения.
+            // Они возвращают значение по умолчанию (0, null, false), если ключ отсутствует.
+            int filmId = filmObject.optInt("filmId");
+            String nameRu = filmObject.optString("nameRu");
+            String nameEn = filmObject.optString("nameEn");
+            String nameOriginal = filmObject.optString("nameOriginal");
+            String posterUrl = filmObject.optString("posterUrl");
+            String posterUrlPreview = filmObject.optString("posterUrlPreview");
+            String relationType = filmObject.optString("relationType");
+
+            // Создаем и добавляем объект в список
+            FilmRelation relation = new FilmRelation(
+                    filmId, nameRu, nameEn, nameOriginal,
+                    posterUrl, posterUrlPreview, relationType
+            );
+            filmRelations.add(relation);
+        }
+
+        return filmRelations;
+    }
 
 
     public static class GenreConstants {
