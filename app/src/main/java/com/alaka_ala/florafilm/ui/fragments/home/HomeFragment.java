@@ -40,13 +40,19 @@ public class HomeFragment extends Fragment {
     private int pageMovie = 0;
     private int pageSerial = 0;
 
+    private int pageAnimations = 0;
+
+
     private AdapterRecyclerViewItem1 adapterPopAll;
     private AdapterRecyclerViewItem1 adapterMovie;
     private AdapterRecyclerViewItem1 adapterSerial;
+    private AdapterRecyclerViewItem1 adapterAnimations;
+
 
     private RecyclerView recyclerViewPopAll;
     private RecyclerView recyclerViewTitleHomeCategoryMovie;
     private RecyclerView recyclerViewTitleHomeCategorySerial;
+    private RecyclerView recyclerViewHomeCategoryAnimations;
     private AppUpdater appUpdater;
 
     @SuppressLint("NotifyDataSetChanged")
@@ -76,6 +82,7 @@ public class HomeFragment extends Fragment {
         recyclerViewPopAll = binding.fragmentHomeIncludePopularAl.recyclerViewTitleHomeCategory;
         recyclerViewTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.recyclerViewTitleHomeCategoryMovie;
         recyclerViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.recyclerViewTitleHomeCategorySerial;
+        recyclerViewHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.recyclerViewTitleHomeCategoryAnimations;
 
 
         // TODO: 20.03.2025 6:23 - АКТИВНАЯ ОШИБКА
@@ -102,6 +109,8 @@ public class HomeFragment extends Fragment {
         TextView textViewTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.textViewTitleHomeCategoryMovie;
         // Сериалы
         TextView textViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.textViewTitleHomeCategorySerial;
+        // Мультфильмы
+        TextView textViewTitleHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.textViewTitleHomeCategoryAnimations;
 
         textViewTitleHomeCategory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,6 +138,16 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
             }
         });
+
+        textViewTitleHomeCategoryAnimations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("collection", "Мультфильмы");
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
+            }
+        });
+
 
 
 
@@ -171,6 +190,19 @@ public class HomeFragment extends Fragment {
                 recyclerViewTitleHomeCategorySerial.setAdapter(adapterSerial);
             }
             adapterSerial.notifyDataSetChanged();
+        }
+        // Мультфильмы
+        if (viewModel.getPageAnimationsMutableLiveData().getValue() != null) {
+            if (adapterAnimations == null) {
+                adapterAnimations = new AdapterRecyclerViewItem1();
+            }
+            if (recyclerViewHomeCategoryAnimations.getLayoutManager() == null) {
+                recyclerViewHomeCategoryAnimations.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+            if (recyclerViewHomeCategoryAnimations.getAdapter() == null) {
+                recyclerViewHomeCategoryAnimations.setAdapter(adapterAnimations);
+            }
+            adapterAnimations.notifyDataSetChanged();
         }
 
 
@@ -231,6 +263,24 @@ public class HomeFragment extends Fragment {
                             viewModel.getCollectionMutableLiveDataSerial().observe(getViewLifecycleOwner(), adapterSerial::setCollection);
                         }
                         break;
+                    case "Мультфильм":
+                        viewModel.addDataCollectionAnimations(collection);
+                        viewModel.getPageAnimationsMutableLiveData().setValue(pageAnimations);
+                        // Мультфильмы
+                        if (adapterAnimations == null) {
+                            adapterAnimations = new AdapterRecyclerViewItem1();
+                        }
+                        if (recyclerViewHomeCategoryAnimations.getLayoutManager() == null) {
+                            recyclerViewHomeCategoryAnimations.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                        }
+                        if (recyclerViewHomeCategoryAnimations.getAdapter() == null) {
+                            recyclerViewHomeCategoryAnimations.setAdapter(adapterAnimations);
+
+                        }
+                        if (getView() != null) {
+                            viewModel.getCollectionMutableLiveDataAnimations().observe(getViewLifecycleOwner(), adapterAnimations::setCollection);
+                        }
+                        break;
                 }
 
             }
@@ -251,6 +301,9 @@ public class HomeFragment extends Fragment {
                 }
                 if (adapterSerial != null){
                     adapterSerial.notifyDataSetChanged();
+                }
+                if (adapterAnimations != null) {
+                    adapterAnimations.notifyDataSetChanged();
                 }
             }
         };
@@ -346,19 +399,35 @@ public class HomeFragment extends Fragment {
         kinopoiskAPI.getListTop250TVShows(++pageSerial, requestCallbackCollection);
 
 
-        /*Thread thread = new Thread(new Runnable() {
+        pageAnimations = viewModel.getPageAnimationsMutableLiveData().getValue() == null ? 0 : viewModel.getPageAnimationsMutableLiveData().getValue();
+        recyclerViewHomeCategoryAnimations.addOnScrollListener(new MyRecyclerViewScrollListener(MyRecyclerViewScrollListener.HORIZONTAL) {
             @Override
-            public void run() {
-                HlsProcessor.getHls();
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onEnd() {
+
             }
         });
-        thread.start();*/
+        recyclerViewHomeCategoryAnimations.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), recyclerViewHomeCategoryAnimations, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+                Bundle bundle = new Bundle();
+                if (position <= -1) return;
+                bundle.putInt("kinopoisk_id", viewModel.getCollectionMutableLiveDataAnimations().getValue().getItems().get(position).getKinopoiskId());
+                Navigation.findNavController(view).navigate(R.id.action_navHomeFragment_to_mainFilmFragment, bundle);
+            }
+
+            @Override
+            public void onLongItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+
+            }
+        }));
+        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.ANIMATION, ++pageAnimations, requestCallbackCollection);
 
 
-
-
-
-        // Inflate the layout for this fragment
         return binding.getRoot();
     }
 

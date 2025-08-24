@@ -43,8 +43,9 @@ public class CollectionFragment extends Fragment {
 
     private int page = 0;
     private String collectionsName;
-
+    private GridLayoutManager gridLayoutManager;
     private CollectionsViewModel collectionsViewModel;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -53,15 +54,16 @@ public class CollectionFragment extends Fragment {
         collectionsViewModel = new ViewModelProvider(this).get(CollectionsViewModel.class);
 
 
-
-
-
         rvCollection = binding.rvCollection;
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3, LinearLayoutManager.VERTICAL, false);
-        rvCollection.setLayoutManager(gridLayoutManager);
-        adapter = new AdapterRecyclerViewItem1();
-        rvCollection.setAdapter(adapter);
 
+        gridLayoutManager = new GridLayoutManager(getContext(), 3, LinearLayoutManager.VERTICAL, false);
+        rvCollection.setLayoutManager(gridLayoutManager);
+        if (adapter == null) {
+            adapter = new AdapterRecyclerViewItem1();
+            rvCollection.setAdapter(adapter);
+        } else  {
+            rvCollection.setAdapter(adapter);
+        }
 
         LinearLayout llInfo = binding.llInfo;
 
@@ -101,6 +103,15 @@ public class CollectionFragment extends Fragment {
                         }
                         adapter.setCollection(collectionsViewModel.getCollectionMutableLiveDataSerial().getValue());
                         break;
+                    case "Мультфильмы":
+                        if (collectionsViewModel.getCollectionMutableLiveDataAnimations().getValue() == null) {
+                            collectionsViewModel.getCollectionMutableLiveDataAnimations().setValue(collection);
+
+                        } else {
+                            collectionsViewModel.getCollectionMutableLiveDataAnimations().getValue().getItems().addAll(collection.getItems());
+                        }
+                        adapter.setCollection(collectionsViewModel.getCollectionMutableLiveDataAnimations().getValue());
+                        break;
 
                 }
 
@@ -120,7 +131,6 @@ public class CollectionFragment extends Fragment {
         };
 
 
-
         switch (collectionsName) {
             case "Фильмы/сериалы":
                 kinopoiskAPI.getListTopPopularAll(++page, requestCallbackCollection);
@@ -130,6 +140,9 @@ public class CollectionFragment extends Fragment {
                 break;
             case "Сериалы":
                 kinopoiskAPI.getListTop250TVShows(++page, requestCallbackCollection);
+                break;
+            case "Мультфильмы":
+                kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.ANIMATION, ++page, requestCallbackCollection);
                 break;
 
         }
@@ -151,6 +164,9 @@ public class CollectionFragment extends Fragment {
                         break;
                     case "Сериалы":
                         kinopoiskAPI.getListTop250TVShows(++page, requestCallbackCollection);
+                        break;
+                    case "Мультфильмы":
+                        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.ANIMATION, ++page, requestCallbackCollection);
                         break;
 
                 }
@@ -179,6 +195,9 @@ public class CollectionFragment extends Fragment {
                     case "Сериалы":
                         bundle.putInt("kinopoisk_id", collectionsViewModel.getCollectionMutableLiveDataSerial().getValue().getItems().get(position).getKinopoiskId());
                         break;
+                    case "Мультфильмы":
+                        bundle.putInt("kinopoisk_id", collectionsViewModel.getCollectionMutableLiveDataAnimations().getValue().getItems().get(position).getKinopoiskId());
+                        break;
 
                 }
 
@@ -190,7 +209,6 @@ public class CollectionFragment extends Fragment {
 
             }
         }));
-
 
 
         return binding.getRoot();

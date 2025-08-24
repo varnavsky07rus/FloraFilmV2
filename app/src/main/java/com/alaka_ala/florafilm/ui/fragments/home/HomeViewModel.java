@@ -22,6 +22,10 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Collection> collectionMutableLiveDataSerial;
     private final MutableLiveData<Integer> pageSerialMutableLiveData;
 
+    // Мультфильмы
+    private final MutableLiveData<Collection> collectionMutableLiveDataAnimations;
+    private final MutableLiveData<Integer> pageAnimationsMutableLiveData;
+
 
     public HomeViewModel() {
         // Фильмы-сериалы
@@ -33,6 +37,9 @@ public class HomeViewModel extends ViewModel {
         // Сериалы
         this.pageSerialMutableLiveData = new MutableLiveData<>();
         this.collectionMutableLiveDataSerial = new MutableLiveData<>();
+        // Мультфильмы
+        this.pageAnimationsMutableLiveData = new MutableLiveData<>();
+        this.collectionMutableLiveDataAnimations = new MutableLiveData<>();
     }
 
 
@@ -87,6 +94,23 @@ public class HomeViewModel extends ViewModel {
 
     public MutableLiveData<Integer> getPageSerialMutableLiveData() {
         return pageSerialMutableLiveData;
+    }
+
+
+    // Мультфильмы (Мультфильмы)
+    public void addDataCollectionAnimations(Collection collection) {
+        if (collectionMutableLiveDataAnimations.getValue() == null) {
+            collectionMutableLiveDataAnimations.setValue(collection);
+        } else {
+            Objects.requireNonNull(collectionMutableLiveDataAnimations.getValue()).getItems().addAll(collection.getItems());
+        }
+    }
+
+    public MutableLiveData<Collection> getCollectionMutableLiveDataAnimations() {
+        return collectionMutableLiveDataAnimations;
+    }
+    public MutableLiveData<Integer> getPageAnimationsMutableLiveData() {
+        return pageAnimationsMutableLiveData;
     }
 
 

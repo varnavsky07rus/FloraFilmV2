@@ -1651,6 +1651,34 @@ public class KinopoiskAPI {
         );
     }
 
+    private List<FilmRelation> createFilmRelationList(String jsonResponse) throws JSONException {
+        List<FilmRelation> filmRelations = new ArrayList<>();
+        JSONArray jsonArray = new JSONArray(jsonResponse);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject filmObject = jsonArray.getJSONObject(i);
+
+            // Используем opt-методы для безопасного извлечения.
+            // Они возвращают значение по умолчанию (0, null, false), если ключ отсутствует.
+            int filmId = filmObject.optInt("filmId");
+            String nameRu = filmObject.optString("nameRu");
+            String nameEn = filmObject.optString("nameEn");
+            String nameOriginal = filmObject.optString("nameOriginal");
+            String posterUrl = filmObject.optString("posterUrl");
+            String posterUrlPreview = filmObject.optString("posterUrlPreview");
+            String relationType = filmObject.optString("relationType");
+
+            // Создаем и добавляем объект в список
+            FilmRelation relation = new FilmRelation(
+                    filmId, nameRu, nameEn, nameOriginal,
+                    posterUrl, posterUrlPreview, relationType
+            );
+            filmRelations.add(relation);
+        }
+
+        return filmRelations;
+    }
+
     /**
      * Получает сиквелы и приквелы для указанного фильма
      * @param kinopoisk_id идентификатор фильма на Кинопоиске
@@ -1687,34 +1715,6 @@ public class KinopoiskAPI {
                 rcsap.finishRequestPrequel();
             }
         });
-    }
-
-    private List<FilmRelation> createFilmRelationList(String jsonResponse) throws JSONException {
-        List<FilmRelation> filmRelations = new ArrayList<>();
-        JSONArray jsonArray = new JSONArray(jsonResponse);
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject filmObject = jsonArray.getJSONObject(i);
-
-            // Используем opt-методы для безопасного извлечения.
-            // Они возвращают значение по умолчанию (0, null, false), если ключ отсутствует.
-            int filmId = filmObject.optInt("filmId");
-            String nameRu = filmObject.optString("nameRu");
-            String nameEn = filmObject.optString("nameEn");
-            String nameOriginal = filmObject.optString("nameOriginal");
-            String posterUrl = filmObject.optString("posterUrl");
-            String posterUrlPreview = filmObject.optString("posterUrlPreview");
-            String relationType = filmObject.optString("relationType");
-
-            // Создаем и добавляем объект в список
-            FilmRelation relation = new FilmRelation(
-                    filmId, nameRu, nameEn, nameOriginal,
-                    posterUrl, posterUrlPreview, relationType
-            );
-            filmRelations.add(relation);
-        }
-
-        return filmRelations;
     }
 
 
