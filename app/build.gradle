@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -10,8 +11,8 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 31
-        versionName "1.0.31"
+        versionCode 32
+        versionName "1.0.32"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +43,8 @@ dependencies {
     implementation libs.navigation.ui
     implementation libs.androidx.navigation.fragment
     implementation libs.androidx.navigation.ui
+    implementation libs.androidx.cardview
+    implementation libs.firebase.auth
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
@@ -81,6 +84,10 @@ dependencies {
     implementation 'info.guardianproject.netcipher:netcipher:2.1.0'
     implementation 'org.conscrypt:conscrypt-android:2.5.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+
+
+    implementation 'com.google.firebase:firebase-database:22.0.0' // Или актуальная версия
+
 
 
 }

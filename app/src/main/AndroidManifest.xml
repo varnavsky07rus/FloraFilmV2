@@ -31,6 +31,7 @@
 
 
     <application
+        android:name=".ui.FFApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"

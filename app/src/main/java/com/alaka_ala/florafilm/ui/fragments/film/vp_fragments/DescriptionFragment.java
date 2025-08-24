@@ -27,10 +27,12 @@ import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
+import com.alaka_ala.florafilm.ui.util.api.firebase.DataLikes;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 
@@ -40,14 +42,14 @@ public class DescriptionFragment extends Fragment {
     private FragmentDescriptionFilmBinding binding;
     private TextView textViewMainTitleFilm;
     private TextView textViewOriginalTitleFilm;
-    private TextView textViewYearFilm;
     private TextView textViewGenreCategoryFilm;
     private TextView textViewRatingKpFilm;
-    private TextView textViewRatingImdbFilm;
     private TextView textViewDescriptionFilm;
     private ImageView imageViewPosterFilm;
     private TextView textViewCountryFilm;
     private TextView textVieSloganFilm;
+    private Chip chipLike;
+    private Chip chipDislike;
     private FavoriteMoviesManager favoriteMoviesManager;
     private MainFilmViewModel mainFilmViewModel;
     private Button buttonResumeView;
@@ -74,20 +76,43 @@ public class DescriptionFragment extends Fragment {
         kinopoisk_id = mainFilmViewModel.getKinopoiskId();
         textViewMainTitleFilm = binding.textViewMainTitleFilm;
         textViewOriginalTitleFilm = binding.textViewOriginalTitleFilm;
-        textViewYearFilm = binding.textViewYearFilm;
         textViewGenreCategoryFilm = binding.textViewGenreCategoryFilm;
         textViewRatingKpFilm = binding.textViewRatingKpFilm;
-        textViewRatingImdbFilm = binding.textViewRatingImdbFilm;
         textViewDescriptionFilm = binding.textViewDescriptionFilm;
         imageViewPosterFilm = binding.imageViewPosterFilm;
         textViewCountryFilm = binding.textViewCountryFilm;
         textVieSloganFilm = binding.textVieSloganFilm;
         buttonResumeView = binding.buttonResumeView;
-
+        chipLike = binding.chipLike;
+        chipDislike = binding.chipDislike;
 
 
         loadDataDescription();
 
+
+        DataLikes dataLikes = getDataLikes();
+
+        chipLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dataLikes.addLikeDislike("like");
+
+            }
+        });
+
+        chipDislike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dataLikes.addLikeDislike("dislike");
+            }
+        });
+
+        textViewRatingKpFilm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(binding.getRoot(), "Рейтинг Кинопоиска", Snackbar.LENGTH_SHORT).show();
+            }
+        });
 
         VideoFilmFragment.setCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
 
@@ -131,6 +156,28 @@ public class DescriptionFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @NonNull
+    private DataLikes getDataLikes() {
+        DataLikes dataLikes = new DataLikes(kinopoisk_id);
+        dataLikes.getLikeDislike(new DataLikes.ListenerLikeDislike() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onLike(long count) {
+                chipLike.setText("" + count);
+                String s = "";
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onDislike(long count) {
+                chipDislike.setText("" + count);
+                String s = "";
+            }
+        });
+        return dataLikes;
+    }
+
+
     @SuppressLint("SetTextI18n")
     private void loadDataDescription() {
 
@@ -148,9 +195,9 @@ public class DescriptionFragment extends Fragment {
                     if (title.equals("null")) {
                         title = itemFilmInfo.getNameOriginal();
                     }
-                    textViewMainTitleFilm.setText(title);
+                    title += " " + itemFilmInfo.getYear();
+                    textViewMainTitleFilm.setText(title + " (" + itemFilmInfo.getYear() + ")");
                     textViewOriginalTitleFilm.setText(subTitle);
-                    textViewYearFilm.setText(itemFilmInfo.getYear());
                     StringBuilder genre = new StringBuilder();
                     for (int i = 0; i < itemFilmInfo.getGenres().size(); i++) {
                         genre.append(itemFilmInfo.getGenres().get(i).getGenre());
@@ -159,8 +206,7 @@ public class DescriptionFragment extends Fragment {
                         }
                     }
                     textViewGenreCategoryFilm.setText(genre);
-                    textViewRatingKpFilm.setText("Кинопоиск: " + itemFilmInfo.getRatingKinopoisk());
-                    textViewRatingImdbFilm.setText("IMDb: " + itemFilmInfo.getRatingImdb());
+                    textViewRatingKpFilm.setText("☆" + itemFilmInfo.getRatingKinopoisk());
                     textViewDescriptionFilm.setText(itemFilmInfo.getDescription());
                     StringBuilder country = new StringBuilder();
                     for (int i = 0; i < itemFilmInfo.getCountries().size(); i++) {
@@ -197,9 +243,8 @@ public class DescriptionFragment extends Fragment {
             });
         }
         else {
-            textViewMainTitleFilm.setText(itemFilmInfo.getNameRu());
-            textViewOriginalTitleFilm.setText(itemFilmInfo.getNameOriginal().equals("null") ? "" : itemFilmInfo.getNameOriginal());
-            textViewYearFilm.setText(itemFilmInfo.getYear());
+            textViewMainTitleFilm.setText(itemFilmInfo.getNameRu() + " (" + itemFilmInfo.getYear() + ")");
+            textViewOriginalTitleFilm.setText(itemFilmInfo.getNameOriginal().equals("null") ? "" : itemFilmInfo.getNameOriginal() + " " + itemFilmInfo.getYear());
             StringBuilder genres = new StringBuilder();
             for (int i = 0; i < itemFilmInfo.getGenres().size(); i++) {
                 genres.append(itemFilmInfo.getGenres().get(i).getGenre());
@@ -208,8 +253,7 @@ public class DescriptionFragment extends Fragment {
                 }
             }
             textViewGenreCategoryFilm.setText(genres);
-            textViewRatingKpFilm.setText("Кинопоиск: " + itemFilmInfo.getRatingKinopoisk());
-            textViewRatingImdbFilm.setText("IMDb: " + itemFilmInfo.getRatingImdb());
+            textViewRatingKpFilm.setText("☆" + itemFilmInfo.getRatingKinopoisk());
             textViewDescriptionFilm.setText(itemFilmInfo.getDescription().equals("null") ? "Описание отсутствует" : itemFilmInfo.getDescription());
             StringBuilder counries = new StringBuilder();
             for (int i = 0; i < itemFilmInfo.getCountries().size(); i++) {

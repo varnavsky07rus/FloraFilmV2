@@ -11,4 +11,6 @@
     <color name="iconsTintLight">#000000</color>
     <color name="iconsTintDark">#FFFFFF</color>
 
+    <color name="kinopoisk_orange">#FD5400</color>
+
 </resources>

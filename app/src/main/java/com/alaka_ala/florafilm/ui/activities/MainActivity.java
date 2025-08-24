@@ -35,6 +35,7 @@ import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
 import com.alaka_ala.florafilm.ui.util.local.PermissionManager;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
 
 import java.util.List;
 
