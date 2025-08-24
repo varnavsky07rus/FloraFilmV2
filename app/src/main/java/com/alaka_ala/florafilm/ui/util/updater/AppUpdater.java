@@ -57,7 +57,7 @@ public class AppUpdater {
     private int newVersionCode;
 
     // Если включено обновление до бета версий то True
-    private boolean isUpdateBetaVersion;
+    private final boolean isUpdateBetaVersion;
 
     public boolean isSilentFindUpdate() {
         return isSilentFindUpdate;
@@ -68,7 +68,7 @@ public class AppUpdater {
     public AppUpdater(Activity activity, boolean isSilentFindUpdate) {
         this.activity = activity;
         this.isSilentFindUpdate = isSilentFindUpdate;
-        SettingsUtils.getParamBetaVersion(activity.getBaseContext());
+        this.isUpdateBetaVersion = SettingsUtils.getParamBetaVersion(activity.getBaseContext());
     }
 
     public void checkForUpdate() {
