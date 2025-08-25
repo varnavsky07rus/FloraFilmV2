@@ -258,7 +258,7 @@ public class Vibix {
 
                     while (voiceMatcher.find()) {
                         String voice = voiceMatcher.group(1); // "Кравец", "LostFilm"
-                        String url = voiceMatcher.group(2).replaceFirst("http", "https");
+                        String url = voiceMatcher.group(2)/*.replaceFirst("http", "https")*/;
 
                         // Добавляем в мапу: если озвучки нет — создаем запись, иначе обновляем
                         if (!voiceToQualityMap.containsKey(voice)) {

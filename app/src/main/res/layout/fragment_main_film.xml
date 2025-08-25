@@ -17,24 +17,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             app:tabIndicatorColor="#565656"
-            app:tabSelectedTextColor="#D8A0A0A0">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Описание" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Видео" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Торрент" />
-
-        </com.google.android.material.tabs.TabLayout>
+            app:tabSelectedTextColor="#D8A0A0A0"/>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vpFilm"

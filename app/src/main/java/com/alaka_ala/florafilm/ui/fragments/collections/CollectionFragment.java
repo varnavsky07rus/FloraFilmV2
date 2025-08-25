@@ -61,7 +61,7 @@ public class CollectionFragment extends Fragment {
         if (adapter == null) {
             adapter = new AdapterRecyclerViewItem1();
             rvCollection.setAdapter(adapter);
-        } else  {
+        } else {
             rvCollection.setAdapter(adapter);
         }
 
@@ -112,6 +112,24 @@ public class CollectionFragment extends Fragment {
                         }
                         adapter.setCollection(collectionsViewModel.getCollectionMutableLiveDataAnimations().getValue());
                         break;
+                    case "Драма":
+                        if (collectionsViewModel.getCollectionMutableLiveDataDrama().getValue() == null) {
+                            collectionsViewModel.getCollectionMutableLiveDataDrama().setValue(collection);
+
+                        } else {
+                            collectionsViewModel.getCollectionMutableLiveDataDrama().getValue().getItems().addAll(collection.getItems());
+                        }
+                        adapter.setCollection(collectionsViewModel.getCollectionMutableLiveDataDrama().getValue());
+                        break;
+                    case "Детям":
+                        if (collectionsViewModel.getCollectionMutableLiveDataKids().getValue() == null) {
+                            collectionsViewModel.getCollectionMutableLiveDataKids().setValue(collection);
+
+                        } else {
+                            collectionsViewModel.getCollectionMutableLiveDataKids().getValue().getItems().addAll(collection.getItems());
+                        }
+                        adapter.setCollection(collectionsViewModel.getCollectionMutableLiveDataKids().getValue());
+                        break;
 
                 }
 
@@ -144,6 +162,12 @@ public class CollectionFragment extends Fragment {
             case "Мультфильмы":
                 kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.ANIMATION, ++page, requestCallbackCollection);
                 break;
+            case "Драма":
+                kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++page, requestCallbackCollection);
+                break;
+            case "Детям":
+                kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++page, requestCallbackCollection);
+                break;
 
         }
 
@@ -168,6 +192,12 @@ public class CollectionFragment extends Fragment {
                     case "Мультфильмы":
                         kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.ANIMATION, ++page, requestCallbackCollection);
                         break;
+                    case "Драма":
+                        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++page, requestCallbackCollection);
+                        break;
+                    case "Детям":
+                        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++page, requestCallbackCollection);
+                        break;
 
                 }
             }
@@ -180,7 +210,8 @@ public class CollectionFragment extends Fragment {
             }
         }
 
-        rvCollection.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), rvCollection, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+        rvCollection.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(),
+                rvCollection, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
                 Bundle bundle = new Bundle();
@@ -198,7 +229,12 @@ public class CollectionFragment extends Fragment {
                     case "Мультфильмы":
                         bundle.putInt("kinopoisk_id", collectionsViewModel.getCollectionMutableLiveDataAnimations().getValue().getItems().get(position).getKinopoiskId());
                         break;
-
+                    case "Драма":
+                        bundle.putInt("kinopoisk_id", collectionsViewModel.getCollectionMutableLiveDataDrama().getValue().getItems().get(position).getKinopoiskId());
+                        break;
+                    case "Детям":
+                        bundle.putInt("kinopoisk_id", collectionsViewModel.getCollectionMutableLiveDataKids().getValue().getItems().get(position).getKinopoiskId());
+                        break;
                 }
 
                 Navigation.findNavController(view).navigate(R.id.action_collectionFragment_to_mainFilmFragment, bundle);

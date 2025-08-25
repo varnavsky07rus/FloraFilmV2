@@ -24,6 +24,15 @@ public class CollectionsViewModel extends ViewModel {
     private final MutableLiveData<Collection> collectionMutableLiveDataAnimations;
     private final MutableLiveData<Integer> pageAnimationsMutableLiveData;
 
+    // Драмы
+    private final MutableLiveData<Collection> collectionMutableLiveDataDrama;
+    private final MutableLiveData<Integer> pageMutableLiveDataDrama;
+
+    // Детям
+    private final MutableLiveData<Collection> collectionMutableLiveDataKids;
+    private final MutableLiveData<Integer> pageKidsMutableLiveData;
+
+
 
     public CollectionsViewModel() {
         // Фильмы-сериалы
@@ -38,6 +47,14 @@ public class CollectionsViewModel extends ViewModel {
         // Мультфильмы
         this.pageAnimationsMutableLiveData = new MutableLiveData<>();
         this.collectionMutableLiveDataAnimations = new MutableLiveData<>();
+        // Драмы
+        this.pageMutableLiveDataDrama = new MutableLiveData<>();
+        this.collectionMutableLiveDataDrama = new MutableLiveData<>();
+        // Детям
+        this.pageKidsMutableLiveData = new MutableLiveData<>();
+        this.collectionMutableLiveDataKids = new MutableLiveData<>();
+
+
     }
 
 
@@ -113,5 +130,39 @@ public class CollectionsViewModel extends ViewModel {
         return pageAnimationsMutableLiveData;
     }
 
+
+    // Драмы
+    public void addDataCollectionDrama(Collection collection) {
+        if (collectionMutableLiveDataDrama.getValue() == null) {
+            collectionMutableLiveDataDrama.setValue(collection);
+        } else {
+            Objects.requireNonNull(collectionMutableLiveDataDrama.getValue()).getItems().addAll(collection.getItems());
+        }
+    }
+
+    public MutableLiveData<Collection> getCollectionMutableLiveDataDrama() {
+        return collectionMutableLiveDataDrama;
+    }
+
+    public MutableLiveData<Integer> getPageMutableLiveDataDrama() {
+        return pageMutableLiveDataDrama;
+    }
+
+    // Детям
+    public void addDataCollectionKids(Collection collection) {
+        if (collectionMutableLiveDataKids.getValue() == null) {
+            collectionMutableLiveDataKids.setValue(collection);
+        } else {
+            Objects.requireNonNull(collectionMutableLiveDataKids.getValue()).getItems().addAll(collection.getItems());
+        }
+    }
+
+    public MutableLiveData<Collection> getCollectionMutableLiveDataKids() {
+        return collectionMutableLiveDataKids;
+    }
+
+    public MutableLiveData<Integer> getPageMutableLiveDataKids() {
+        return pageKidsMutableLiveData;
+    }
 
 }

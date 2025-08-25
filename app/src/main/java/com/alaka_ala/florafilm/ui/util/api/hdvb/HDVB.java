@@ -83,7 +83,16 @@ public class HDVB {
         Request request = requestBuilder.build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("HDVB", "Ошибка парсинга JSON #0");
+                Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+                    @Override
+                    public boolean handleMessage(@NonNull Message message) {
+                        rpc.error(e.getMessage());
+                        return false;
+                    }
+                });
+                handler.sendEmptyMessage(0);
                 e.printStackTrace();
             }
 
@@ -94,21 +103,35 @@ public class HDVB {
                     if (JsonParser.parseString(body).isJsonArray()) {
                         try {
                             JSONArray jsonArray = new JSONArray(body);
-
-
+                            if (jsonArray.length() == 0) {
+                                onFailure(call, new IOException("Фильм отсуствует"));
+                                return;
+                            }
                             JSONObject jsonObject = jsonArray.getJSONObject(0);
                             String type = jsonObject.getString("type");
                             if (type.equals(TYPE_CONTENT_FILM)) {
                                 parseFilm(jsonArray, rpc);
-                            } else if (type.equals(TYPE_CONTENT_SERIAL)) {
+                            }
+                            else if (type.equals(TYPE_CONTENT_SERIAL)) {
                                 parseSerial(jsonObject, rpc);
                             }
+                            // После всего кода отправляем сообщение об завершении кода
+                            Handler handlerFinish = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+                                @Override
+                                public boolean handleMessage(@NonNull Message message) {
+                                    rpc.finish();
+                                    return false;
+                                }
+                            });
+                            handlerFinish.sendEmptyMessage(0);
 
 
                         } catch (JSONException ignored) {
                             Log.e("HDVB", "Ошибка парсинга JSON #1");
                         }
                     }
+                } else {
+                    onFailure(call, new IOException("Ошибка запроса к серверу. Code: " + response.code()));
                 }
             }
         });
@@ -597,6 +620,8 @@ public class HDVB {
         void film(HDVBFilm film, EPData.Film filmEPData);
 
         void error(String err);
+
+        default void finish() {};
 
     }
 

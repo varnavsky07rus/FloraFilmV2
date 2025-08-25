@@ -18,15 +18,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentTorrentFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.jacred.JacredTor;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
@@ -57,6 +60,10 @@ public class TorrentFilmFragment extends Fragment {
     private long seekPosition = 0;
 
 
+    private boolean isNotFoundTorrent = false;
+    private LottieAnimationView lottieNotFoundTorrent;
+    private FrameLayout rootNotFoundTorrent;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -69,6 +76,8 @@ public class TorrentFilmFragment extends Fragment {
             }
         });
 
+        rootNotFoundTorrent = binding.rootNotFoundTorrent;
+        lottieNotFoundTorrent = binding.lottieNotFoundTorrent;
 
         searchView = binding.svTorrents;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -106,6 +115,7 @@ public class TorrentFilmFragment extends Fragment {
                 data = datas;
                 dataFinal = data;
                 rvTorrentFilm.setAdapter(new AdapterTorrentFilm(data));
+                isNotFoundTorrent = data.isEmpty();
             }
 
             @Override
@@ -119,16 +129,37 @@ public class TorrentFilmFragment extends Fragment {
                 if (rvTorrentFilm.getAdapter() != null) {
                     rvTorrentFilm.getAdapter().notifyDataSetChanged();
                 }
+                printNotFoundTorrent();
+
             }
 
             @Override
             public void onError(String msgError, JacredTor.SearchCallback sc) {
-
+                isNotFoundTorrent = true;
             }
         });
 
 
         return binding.getRoot();
+    }
+
+    private void printNotFoundTorrent() {
+        if (isNotFoundTorrent) {
+            rootNotFoundTorrent.setVisibility(View.VISIBLE);
+            lottieNotFoundTorrent.setAnimation(R.raw.not_found);
+            if (SettingsUtils.getParamPageEffectAnimation(getContext())) {
+                lottieNotFoundTorrent.playAnimation();
+            }
+        } else {
+            rootNotFoundTorrent.setVisibility(View.GONE);
+            lottieNotFoundTorrent.pauseAnimation();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        printNotFoundTorrent();
     }
 
     private class AdapterTorrentFilm extends RecyclerView.Adapter<AdapterTorrentFilm.MyViewHolder> {
@@ -368,7 +399,6 @@ public class TorrentFilmFragment extends Fragment {
         thread.start();
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
     private void resetFilters() {
         if (dataFinal == null) return;
@@ -379,7 +409,6 @@ public class TorrentFilmFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-
     public static String formatSize(long size) {
         if (size <= 0) {
             return "0 B";
@@ -388,5 +417,8 @@ public class TorrentFilmFragment extends Fragment {
         int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
         return String.format("%.1f %s", size / Math.pow(1024, digitGroups), units[digitGroups]);
     }
+
+
+
 
 }

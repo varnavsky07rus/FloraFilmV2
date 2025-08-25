@@ -21,6 +21,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentDonateBinding;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.google.android.material.card.MaterialCardView;
 
 public class DonateFragment extends Fragment {
@@ -96,7 +97,9 @@ public class DonateFragment extends Fragment {
         lottieAnimationView.setRepeatMode(LottieDrawable.REVERSE);
         lottieAnimationView.setRepeatCount(1);
         lottieAnimationView.setSpeed(1f);
-        lottieAnimationView.playAnimation();
+        if (SettingsUtils.getParamPageEffectAnimation(getContext())) {
+            lottieAnimationView.playAnimation();
+        }
         lottieAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {

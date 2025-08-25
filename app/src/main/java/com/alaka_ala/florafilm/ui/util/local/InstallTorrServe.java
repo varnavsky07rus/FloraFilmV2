@@ -46,7 +46,7 @@ public class InstallTorrServe {
     }
 
     private void checkExistingApk() {
-        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File downloadsDir = activity.getExternalCacheDir();
         downloadedApk = new File(downloadsDir, "TorrServe_MatriX.135.Client-release.apk");
 
         if (downloadedApk.exists()) {
@@ -121,7 +121,7 @@ public class InstallTorrServe {
                 }
 
                 int fileLength = connection.getContentLength();
-                File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File downloadsDir = activity.getExternalCacheDir();
                 downloadedApk = new File(downloadsDir, "TorrServe_MatriX.135.Client-release.apk");
 
                 InputStream input = connection.getInputStream();
@@ -193,13 +193,9 @@ public class InstallTorrServe {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             Uri apkUri;
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                String authority = activity.getPackageName() + ".fileprovider";
-                apkUri = FileProvider.getUriForFile(activity, authority, downloadedApk);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                apkUri = Uri.fromFile(downloadedApk);
-            }
+            String authority = activity.getPackageName() + ".fileprovider";
+            apkUri = FileProvider.getUriForFile(activity, authority, downloadedApk);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

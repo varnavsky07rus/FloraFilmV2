@@ -33,6 +33,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.local.PermissionManager;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
@@ -91,10 +92,34 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         // Настраиваем NavigationView с NavController
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        // Проверка и установка эффекта сдвига экрана при открытии бокового меню
+        if (SettingsUtils.getParamScrollPageEffect(this)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                final View contentView = drawerLayout.getChildAt(0);
+                drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+                    // Объявите константу здесь
+                    private static final float END_SCALE = 0.85f;
+                    @Override
+                    public void onDrawerSlide(View drawerView, float slideOffset) {
+                        super.onDrawerSlide(drawerView, slideOffset);
+                        // slideOffset is a value from 0.0 (closed) to 1.0 (fully open)
+
+                        // 1. Calculate the horizontal translation (the "push" effect)
+                        final float slideX = drawerView.getWidth() * slideOffset;
+                        contentView.setTranslationX(slideX);
+
+                        // 2. (Optional) Add a scaling effect to the content view
+                        final float scale = 1 - (slideOffset * (1 - END_SCALE));
+                        contentView.setScaleX(scale);
+                        contentView.setScaleY(scale);
+                    }
+                });
+            }
+        }
+
+
         View header = navigationView.getHeaderView(0);
         ImageView donateButton = header.findViewById(R.id.imageViewDonate);
-        // Загружаем анимацию из raw-ресурсов
-
         donateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

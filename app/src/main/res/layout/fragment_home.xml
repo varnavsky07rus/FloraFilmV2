@@ -51,6 +51,18 @@
                 layout="@layout/fragment_home_include_animations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
+            <include
+                android:id="@+id/fragment_home_include_drama"
+                layout="@layout/fragment_home_include_drama"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <include
+                android:id="@+id/fragment_home_include_kids"
+                layout="@layout/fragment_home_include_kids"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </FrameLayout>

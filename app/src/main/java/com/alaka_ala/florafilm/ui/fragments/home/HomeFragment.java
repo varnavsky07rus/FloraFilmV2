@@ -1,5 +1,7 @@
 package com.alaka_ala.florafilm.ui.fragments.home;
 
+import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI.GenreConstants.ANIMATION;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
@@ -39,20 +41,30 @@ public class HomeFragment extends Fragment {
     private int pagePopularAll = 0;
     private int pageMovie = 0;
     private int pageSerial = 0;
-
     private int pageAnimations = 0;
+    private int pageDrama = 0;
+    private int pageKids = 0;
 
 
     private AdapterRecyclerViewItem1 adapterPopAll;
     private AdapterRecyclerViewItem1 adapterMovie;
     private AdapterRecyclerViewItem1 adapterSerial;
     private AdapterRecyclerViewItem1 adapterAnimations;
+    private AdapterRecyclerViewItem1 adapterDrama;
+    private AdapterRecyclerViewItem1 adapterKids;
+
+
 
 
     private RecyclerView recyclerViewPopAll;
     private RecyclerView recyclerViewTitleHomeCategoryMovie;
     private RecyclerView recyclerViewTitleHomeCategorySerial;
     private RecyclerView recyclerViewHomeCategoryAnimations;
+    private RecyclerView recyclerViewHomeCategoryDrama;
+    private RecyclerView recyclerViewHomeCategoryKids;
+
+
+
     private AppUpdater appUpdater;
 
     @SuppressLint("NotifyDataSetChanged")
@@ -64,7 +76,6 @@ public class HomeFragment extends Fragment {
         HomeViewModel viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         appUpdater = new AppUpdater(getActivity(), true);
-        appUpdater.checkForUpdate();
         Chip chipUpdApp = binding.chipUpdApp;
         chipUpdApp.setVisibility(appUpdater.isAvailableUpdate() ? View.VISIBLE : View.GONE);
         chipUpdApp.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +86,6 @@ public class HomeFragment extends Fragment {
         });
 
 
-
         KinopoiskAPI kinopoiskAPI = new KinopoiskAPI(getResources().getString(R.string.api_key_kinopoisk));
 
 
@@ -83,25 +93,10 @@ public class HomeFragment extends Fragment {
         recyclerViewTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.recyclerViewTitleHomeCategoryMovie;
         recyclerViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.recyclerViewTitleHomeCategorySerial;
         recyclerViewHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.recyclerViewTitleHomeCategoryAnimations;
+        recyclerViewHomeCategoryDrama = binding.fragmentHomeIncludeDrama.recyclerViewTitleHomeCategoryDrama;
+        recyclerViewHomeCategoryKids = binding.fragmentHomeIncludeKids.recyclerViewTitleHomeCategoryKids;
 
 
-        // TODO: 20.03.2025 6:23 - АКТИВНАЯ ОШИБКА
-        //  ########################################################################################
-        //  Обнаружена ошибка (Действия вызывающие ошибку (!)
-        //  ########################################################################################
-        //  Переход во вкладку избранное ->
-        //  Переход на любой фильм из избранного ->
-        //  смена темы на любую ->
-        //  возврат назад до главной ->
-        //  ошибка (!)
-        //  ########################################################################################
-        //  (Описание ошибки:
-        //  При создании адаптера на RecyclerView
-        //  в адаптер передаются пустые данные
-        //  из-за чего происходит ошибка
-        //  когда адаптер пытается получить кол-во элементов списка)
-        //  #### ВОЗМОЖНО ПРОБЛЕМУ РЕШИЛ ОБРАБОТАВ В АДАПТЕРЕ РАЗМЕР МАССИВА, если null то возвращает 0 элементов списка 22.03.25 02:05
-        //  ########################################################################################
 
         // Фильмы/сериалы
         TextView textViewTitleHomeCategory = binding.fragmentHomeIncludePopularAl.textViewTitleHomeCategory;
@@ -111,7 +106,14 @@ public class HomeFragment extends Fragment {
         TextView textViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.textViewTitleHomeCategorySerial;
         // Мультфильмы
         TextView textViewTitleHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.textViewTitleHomeCategoryAnimations;
+        // Драмы
+        TextView textViewTitleHomeCategoryDrama = binding.fragmentHomeIncludeDrama.textViewTitleHomeCategoryDrama;
+        // Детям
+        TextView textViewTitleHomeCategoryKids = binding.fragmentHomeIncludeKids.textViewTitleHomeCategoryKids;
 
+
+
+        // Фильмы/сериалы
         textViewTitleHomeCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,7 +122,7 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
             }
         });
-
+        // Фильмы
         textViewTitleHomeCategoryMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,7 +131,7 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
             }
         });
-
+        // Сериалы
         textViewTitleHomeCategorySerial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,7 +140,7 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
             }
         });
-
+        // Мультфильмы
         textViewTitleHomeCategoryAnimations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,9 +149,24 @@ public class HomeFragment extends Fragment {
                 Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
             }
         });
-
-
-
+        // Драма
+        textViewTitleHomeCategoryDrama.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("collection", "Драма");
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
+            }
+        });
+        // Детям
+        textViewTitleHomeCategoryKids.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("collection", "Детям");
+                Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_collectionFragment2, bundle);
+            }
+        });
 
         // Фильмы/сериалы
         if (viewModel.getPagePopularAllMutableLiveData().getValue() != null) {
@@ -204,16 +221,42 @@ public class HomeFragment extends Fragment {
             }
             adapterAnimations.notifyDataSetChanged();
         }
+        // Драмы
+        if (viewModel.getPageDramaMutableLiveData().getValue() != null) {
+            if (adapterDrama == null) {
+                adapterDrama = new AdapterRecyclerViewItem1();
+            }
+            if (recyclerViewHomeCategoryDrama.getLayoutManager() == null) {
+                recyclerViewHomeCategoryDrama.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+            if (recyclerViewHomeCategoryDrama.getAdapter() == null) {
+                recyclerViewHomeCategoryDrama.setAdapter(adapterDrama);
+            }
+            adapterDrama.notifyDataSetChanged();
+        }
+        // Детям
+        if (viewModel.getPageKidsMutableLiveData().getValue() != null) {
+            if (adapterKids == null) {
+                adapterKids = new AdapterRecyclerViewItem1();
+            }
+            if (recyclerViewHomeCategoryKids.getLayoutManager() == null) {
+                recyclerViewHomeCategoryKids.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+            if (recyclerViewHomeCategoryKids.getAdapter() == null) {
+                recyclerViewHomeCategoryKids.setAdapter(adapterKids);
+            }
+            adapterKids.notifyDataSetChanged();
+        }
 
-
+        // Подгрузка данных
         KinopoiskAPI.RequestCallbackCollection requestCallbackCollection = new KinopoiskAPI.RequestCallbackCollection() {
             @Override
             public void onSuccess(Collection collection) {
                 switch (collection.getTitleCollection()) {
                     case "Популярные фильмы/сериалы":
+                        // Новинки (Фильмы/Сериалы)
                         viewModel.addDataCollectionPopularAll(collection);
                         viewModel.getPagePopularAllMutableLiveData().setValue(pagePopularAll);
-                        // Новинки (Фильмы/Сериалы)
                         if (adapterPopAll == null) {
                             adapterPopAll = new AdapterRecyclerViewItem1();
                         }
@@ -223,15 +266,14 @@ public class HomeFragment extends Fragment {
                         if (recyclerViewPopAll.getAdapter() == null) {
                             recyclerViewPopAll.setAdapter(adapterPopAll);
                         }
-
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), adapterPopAll::setCollection);
                         }
                         break;
                     case "Топ 250 фильмов":
+                        // Фильмы
                         viewModel.addDataCollectionMovie(collection);
                         viewModel.getPageMovieMutableLiveData().setValue(pageMovie);
-                        // Фильмы
                         if (adapterMovie == null) {
                             adapterMovie = new AdapterRecyclerViewItem1();
                         }
@@ -241,15 +283,14 @@ public class HomeFragment extends Fragment {
                         if (recyclerViewTitleHomeCategoryMovie.getAdapter() == null) {
                             recyclerViewTitleHomeCategoryMovie.setAdapter(adapterMovie);
                         }
-
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataMovie().observe(getViewLifecycleOwner(), adapterMovie::setCollection);
                         }
                         break;
                     case "Топ 250 сериалов":
+                        // Сериалы
                         viewModel.addDataCollectionSerial(collection);
                         viewModel.getPageSerialMutableLiveData().setValue(pageSerial);
-                        // Сериалы
                         if (adapterSerial == null) {
                             adapterSerial = new AdapterRecyclerViewItem1();
                         }
@@ -264,9 +305,9 @@ public class HomeFragment extends Fragment {
                         }
                         break;
                     case "Мультфильм":
+                        // Мультфильмы
                         viewModel.addDataCollectionAnimations(collection);
                         viewModel.getPageAnimationsMutableLiveData().setValue(pageAnimations);
-                        // Мультфильмы
                         if (adapterAnimations == null) {
                             adapterAnimations = new AdapterRecyclerViewItem1();
                         }
@@ -275,10 +316,43 @@ public class HomeFragment extends Fragment {
                         }
                         if (recyclerViewHomeCategoryAnimations.getAdapter() == null) {
                             recyclerViewHomeCategoryAnimations.setAdapter(adapterAnimations);
-
                         }
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataAnimations().observe(getViewLifecycleOwner(), adapterAnimations::setCollection);
+                        }
+                        break;
+                    case "Драма":
+                        // Драмы
+                        viewModel.addDataCollectionDrama(collection);
+                        viewModel.getPageDramaMutableLiveData().setValue(pageDrama);
+                        if (adapterDrama == null) {
+                            adapterDrama = new AdapterRecyclerViewItem1();
+                        }
+                        if (recyclerViewHomeCategoryDrama.getLayoutManager() == null) {
+                            recyclerViewHomeCategoryDrama.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                        }
+                        if (recyclerViewHomeCategoryDrama.getAdapter() == null) {
+                            recyclerViewHomeCategoryDrama.setAdapter(adapterDrama);
+                        }
+                        if (getView() != null) {
+                            viewModel.getCollectionMutableLiveDataDrama().observe(getViewLifecycleOwner(), adapterDrama::setCollection);
+                        }
+                        break;
+                    case "Детский":
+                        // Детям
+                        viewModel.addDataCollectionKids(collection);
+                        viewModel.getPageKidsMutableLiveData().setValue(pageKids);
+                        if (adapterKids == null) {
+                            adapterKids = new AdapterRecyclerViewItem1();
+                        }
+                        if (recyclerViewHomeCategoryKids.getLayoutManager() == null) {
+                            recyclerViewHomeCategoryKids.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                        }
+                        if (recyclerViewHomeCategoryKids.getAdapter() == null) {
+                            recyclerViewHomeCategoryKids.setAdapter(adapterKids);
+                        }
+                        if (getView() != null) {
+                            viewModel.getCollectionMutableLiveDataKids().observe(getViewLifecycleOwner(), adapterKids::setCollection);
                         }
                         break;
                 }
@@ -293,17 +367,20 @@ public class HomeFragment extends Fragment {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void finish() {
-                if (adapterPopAll != null){
+                if (adapterPopAll != null) {
                     adapterPopAll.notifyDataSetChanged();
                 }
-                if (adapterMovie != null){
+                if (adapterMovie != null) {
                     adapterMovie.notifyDataSetChanged();
                 }
-                if (adapterSerial != null){
+                if (adapterSerial != null) {
                     adapterSerial.notifyDataSetChanged();
                 }
                 if (adapterAnimations != null) {
                     adapterAnimations.notifyDataSetChanged();
+                }
+                if (adapterDrama != null) {
+                    adapterDrama.notifyDataSetChanged();
                 }
             }
         };
@@ -399,6 +476,7 @@ public class HomeFragment extends Fragment {
         kinopoiskAPI.getListTop250TVShows(++pageSerial, requestCallbackCollection);
 
 
+        // Мультфильмы
         pageAnimations = viewModel.getPageAnimationsMutableLiveData().getValue() == null ? 0 : viewModel.getPageAnimationsMutableLiveData().getValue();
         recyclerViewHomeCategoryAnimations.addOnScrollListener(new MyRecyclerViewScrollListener(MyRecyclerViewScrollListener.HORIZONTAL) {
             @Override
@@ -408,7 +486,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onEnd() {
-
+                kinopoiskAPI.getListFromGenre(ANIMATION, ++pageAnimations, requestCallbackCollection);
             }
         });
         recyclerViewHomeCategoryAnimations.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), recyclerViewHomeCategoryAnimations, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
@@ -425,8 +503,65 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.ANIMATION, ++pageAnimations, requestCallbackCollection);
+        kinopoiskAPI.getListFromGenre(ANIMATION, ++pageAnimations, requestCallbackCollection);
 
+        // Драмы
+        pageDrama = viewModel.getPageDramaMutableLiveData().getValue() == null ? 0 : viewModel.getPageDramaMutableLiveData().getValue();
+        recyclerViewHomeCategoryDrama.addOnScrollListener(new MyRecyclerViewScrollListener(MyRecyclerViewScrollListener.HORIZONTAL) {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onEnd() {
+                kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++pageDrama, requestCallbackCollection);
+            }
+        });
+        recyclerViewHomeCategoryDrama.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), recyclerViewHomeCategoryDrama, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+                Bundle bundle = new Bundle();
+                if (position <= -1) return;
+                bundle.putInt("kinopoisk_id", viewModel.getCollectionMutableLiveDataDrama().getValue().getItems().get(position).getKinopoiskId());
+                Navigation.findNavController(view).navigate(R.id.action_navHomeFragment_to_mainFilmFragment, bundle);
+            }
+
+            @Override
+            public void onLongItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+
+            }
+        }));
+        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++pageDrama, requestCallbackCollection);
+
+        // Детям
+        pageKids = viewModel.getPageKidsMutableLiveData().getValue() == null ? 0 : viewModel.getPageKidsMutableLiveData().getValue();
+        recyclerViewHomeCategoryKids.addOnScrollListener(new MyRecyclerViewScrollListener(MyRecyclerViewScrollListener.HORIZONTAL) {
+            @Override
+            public void onStart() {
+
+            }
+
+            @Override
+            public void onEnd() {
+                kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++pageKids, requestCallbackCollection);
+            }
+        });
+        recyclerViewHomeCategoryKids.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), recyclerViewHomeCategoryKids, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+                Bundle bundle = new Bundle();
+                if (position <= -1) return;
+                bundle.putInt("kinopoisk_id", viewModel.getCollectionMutableLiveDataKids().getValue().getItems().get(position).getKinopoiskId());
+                Navigation.findNavController(view).navigate(R.id.action_navHomeFragment_to_mainFilmFragment, bundle);
+            }
+
+            @Override
+            public void onLongItemClick(RecyclerView.ViewHolder holder, View view, int position) {
+
+            }
+        }));
+        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++pageKids, requestCallbackCollection);
 
         return binding.getRoot();
     }
@@ -452,7 +587,6 @@ public class HomeFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 
 }

@@ -17,10 +17,15 @@ import android.view.ViewGroup;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentMainFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
+import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.DepthPageTransformer;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.ViewPagerFilmAdapter;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.google.android.material.tabs.TabLayout;
 
+/**
+ * Фрагмент, отображающий подробную информацию о фильме с вкладками.
+ */
 public class MainFilmFragment extends Fragment {
     private FragmentMainFilmBinding binding;
     private ViewPager2 vpFilm;
@@ -28,21 +33,26 @@ public class MainFilmFragment extends Fragment {
     private MainFilmViewModel mainFilmViewModel;
     private static ViewPagerListener viewPagerListener;
 
-    private int kinopoisk_id;
-
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentMainFilmBinding.inflate(inflater, container, false);
         mainFilmViewModel = new ViewModelProvider(getActivity()).get(MainFilmViewModel.class);
-        kinopoisk_id = getArguments().getInt("kinopoisk_id");
+        int kinopoisk_id = getArguments().getInt("kinopoisk_id");
         mainFilmViewModel.setKinopoiskId(kinopoisk_id);
         vpFilm = binding.vpFilm;
         tabLayoutFilm = binding.tabLayoutFilm;
 
-        ViewPagerFilmAdapter viewPagerFilmAdapter = new ViewPagerFilmAdapter(getChildFragmentManager(), getLifecycle());
+        addTabLayout();
+        
+        ViewPagerFilmAdapter viewPagerFilmAdapter = new ViewPagerFilmAdapter(getChildFragmentManager(), getLifecycle(), getContext());
         vpFilm.setAdapter(viewPagerFilmAdapter);
+
+        if (SettingsUtils.getParamScrollPageEffect(getContext())) {
+            // Добавляем эффекты прокрутки страниц
+            vpFilm.setPageTransformer(new DepthPageTransformer());
+        }
 
         vpFilm.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -55,6 +65,7 @@ public class MainFilmFragment extends Fragment {
         });
         onTransitionListener();
 
+        // Максимальное кол-во фрагментов хранящихся в памяти
         vpFilm.setOffscreenPageLimit(3);
         tabLayoutFilm.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -77,23 +88,46 @@ public class MainFilmFragment extends Fragment {
         return binding.getRoot();
     }
 
+    /**
+     * Добавляет вкладки в TabLayout.
+     */
+    private void addTabLayout() {
+        tabLayoutFilm.addTab(tabLayoutFilm.newTab().setText("Описание"));
+        tabLayoutFilm.addTab(tabLayoutFilm.newTab().setText("Видео"));
+        // Если вкл\откл поиск по торрентам, то нужно показать или скрыть вкладку с торрентами
+        if (SettingsUtils.getParamSearchTorrent(getContext())) {
+            tabLayoutFilm.addTab(tabLayoutFilm.newTab().setText("Торрент"));
+        }
+    }
+
+    /**
+     * Уведомляет слушателя о смене страницы.
+     */
     private void onTransitionListener() {
         if (viewPagerListener != null) {
             viewPagerListener.onTransition(vpFilm.getCurrentItem());
         }
     }
 
+    /**
+     * Интерфейс для прослушивания переходов ViewPager.
+     */
     public interface ViewPagerListener {
+        /**
+         * Вызывается при смене страницы.
+         *
+         * @param currentPage Текущая страница.
+         */
         void onTransition(int currentPage);
     }
 
 
+    /**
+     * Устанавливает слушателя для ViewPager.
+     *
+     * @param viewPagerListener Слушатель.
+     */
     public static void setViewPagerListener(ViewPagerListener viewPagerListener) {
         MainFilmFragment.viewPagerListener = viewPagerListener;
     }
-
-
-
-
-
 }

@@ -1,5 +1,7 @@
 package com.alaka_ala.florafilm.ui.fragments.film.vp_adapter;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -9,13 +11,18 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.DescriptionFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.TorrentFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.VideoFilmFragment;
+import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 
 public class ViewPagerFilmAdapter extends FragmentStateAdapter {
-    private int countFragments = 3;
+    private int countFragments;
 
-    public ViewPagerFilmAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+    public ViewPagerFilmAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, Context context) {
         super(fragmentManager, lifecycle);
-
+        if (SettingsUtils.getParamSearchTorrent(context)) {
+            countFragments = 3;
+        } else {
+            countFragments = 2;
+        }
     }
 
     @NonNull
