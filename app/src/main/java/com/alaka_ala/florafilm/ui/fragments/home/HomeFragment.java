@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentHomeBinding;
 import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem1;
+import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
@@ -31,6 +33,7 @@ import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewScrollListener;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 
@@ -54,15 +57,12 @@ public class HomeFragment extends Fragment {
     private AdapterRecyclerViewItem1 adapterKids;
 
 
-
-
     private RecyclerView recyclerViewPopAll;
     private RecyclerView recyclerViewTitleHomeCategoryMovie;
     private RecyclerView recyclerViewTitleHomeCategorySerial;
     private RecyclerView recyclerViewHomeCategoryAnimations;
     private RecyclerView recyclerViewHomeCategoryDrama;
     private RecyclerView recyclerViewHomeCategoryKids;
-
 
 
     private AppUpdater appUpdater;
@@ -74,6 +74,7 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         setHasOptionsMenu(true);
         HomeViewModel viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        viewModel.initData(getContext());
 
         appUpdater = new AppUpdater(getActivity(), true);
         Chip chipUpdApp = binding.chipUpdApp;
@@ -97,7 +98,6 @@ public class HomeFragment extends Fragment {
         recyclerViewHomeCategoryKids = binding.fragmentHomeIncludeKids.recyclerViewTitleHomeCategoryKids;
 
 
-
         // Фильмы/сериалы
         TextView textViewTitleHomeCategory = binding.fragmentHomeIncludePopularAl.textViewTitleHomeCategory;
         // Фильмы
@@ -110,7 +110,6 @@ public class HomeFragment extends Fragment {
         TextView textViewTitleHomeCategoryDrama = binding.fragmentHomeIncludeDrama.textViewTitleHomeCategoryDrama;
         // Детям
         TextView textViewTitleHomeCategoryKids = binding.fragmentHomeIncludeKids.textViewTitleHomeCategoryKids;
-
 
 
         // Фильмы/сериалы
@@ -187,6 +186,7 @@ public class HomeFragment extends Fragment {
             if (adapterMovie == null) {
                 adapterMovie = new AdapterRecyclerViewItem1();
             }
+            viewModel.getCollectionMutableLiveDataMovie().observe(getViewLifecycleOwner(), adapterMovie::setCollection);
             if (recyclerViewTitleHomeCategoryMovie.getLayoutManager() == null) {
                 recyclerViewTitleHomeCategoryMovie.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -200,6 +200,7 @@ public class HomeFragment extends Fragment {
             if (adapterSerial == null) {
                 adapterSerial = new AdapterRecyclerViewItem1();
             }
+            viewModel.getCollectionMutableLiveDataSerial().observe(getViewLifecycleOwner(), adapterSerial::setCollection);
             if (recyclerViewTitleHomeCategorySerial.getLayoutManager() == null) {
                 recyclerViewTitleHomeCategorySerial.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -213,6 +214,7 @@ public class HomeFragment extends Fragment {
             if (adapterAnimations == null) {
                 adapterAnimations = new AdapterRecyclerViewItem1();
             }
+            viewModel.getCollectionMutableLiveDataAnimations().observe(getViewLifecycleOwner(), adapterAnimations::setCollection);
             if (recyclerViewHomeCategoryAnimations.getLayoutManager() == null) {
                 recyclerViewHomeCategoryAnimations.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -226,6 +228,7 @@ public class HomeFragment extends Fragment {
             if (adapterDrama == null) {
                 adapterDrama = new AdapterRecyclerViewItem1();
             }
+            viewModel.getCollectionMutableLiveDataDrama().observe(getViewLifecycleOwner(), adapterDrama::setCollection);
             if (recyclerViewHomeCategoryDrama.getLayoutManager() == null) {
                 recyclerViewHomeCategoryDrama.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -239,6 +242,7 @@ public class HomeFragment extends Fragment {
             if (adapterKids == null) {
                 adapterKids = new AdapterRecyclerViewItem1();
             }
+            viewModel.getCollectionMutableLiveDataKids().observe(getViewLifecycleOwner(), adapterKids::setCollection);
             if (recyclerViewHomeCategoryKids.getLayoutManager() == null) {
                 recyclerViewHomeCategoryKids.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -269,6 +273,9 @@ public class HomeFragment extends Fragment {
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), adapterPopAll::setCollection);
                         }
+                        if (adapterPopAll != null) {
+                            adapterPopAll.notifyDataSetChanged();
+                        }
                         break;
                     case "Топ 250 фильмов":
                         // Фильмы
@@ -285,6 +292,9 @@ public class HomeFragment extends Fragment {
                         }
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataMovie().observe(getViewLifecycleOwner(), adapterMovie::setCollection);
+                        }
+                        if (adapterMovie != null) {
+                            adapterMovie.notifyDataSetChanged();
                         }
                         break;
                     case "Топ 250 сериалов":
@@ -303,6 +313,9 @@ public class HomeFragment extends Fragment {
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataSerial().observe(getViewLifecycleOwner(), adapterSerial::setCollection);
                         }
+                        if (adapterSerial != null) {
+                            adapterSerial.notifyDataSetChanged();
+                        }
                         break;
                     case "Мультфильм":
                         // Мультфильмы
@@ -319,6 +332,9 @@ public class HomeFragment extends Fragment {
                         }
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataAnimations().observe(getViewLifecycleOwner(), adapterAnimations::setCollection);
+                        }
+                        if (adapterAnimations != null) {
+                            adapterAnimations.notifyDataSetChanged();
                         }
                         break;
                     case "Драма":
@@ -337,6 +353,9 @@ public class HomeFragment extends Fragment {
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataDrama().observe(getViewLifecycleOwner(), adapterDrama::setCollection);
                         }
+                        if (adapterDrama != null) {
+                            adapterDrama.notifyDataSetChanged();
+                        }
                         break;
                     case "Детский":
                         // Детям
@@ -354,37 +373,30 @@ public class HomeFragment extends Fragment {
                         if (getView() != null) {
                             viewModel.getCollectionMutableLiveDataKids().observe(getViewLifecycleOwner(), adapterKids::setCollection);
                         }
+                        if (adapterKids != null) {
+                            adapterKids.notifyDataSetChanged();
+                        }
                         break;
                 }
-
             }
 
             @Override
             public void onFailure(IOException e) {
-
+                if (getContext() != null)
+                    Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_SHORT).show();
             }
 
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void finish() {
-                if (adapterPopAll != null) {
-                    adapterPopAll.notifyDataSetChanged();
-                }
-                if (adapterMovie != null) {
-                    adapterMovie.notifyDataSetChanged();
-                }
-                if (adapterSerial != null) {
-                    adapterSerial.notifyDataSetChanged();
-                }
-                if (adapterAnimations != null) {
-                    adapterAnimations.notifyDataSetChanged();
-                }
-                if (adapterDrama != null) {
-                    adapterDrama.notifyDataSetChanged();
+                if (getContext() != null) {
+                    viewModel.saveData(getContext());
                 }
             }
         };
 
+        /*BanCheker banCheker = new BanCheker();
+        banCheker.loadList();*/
 
         // Фильмы Сериалы
         pagePopularAll = viewModel.getPagePopularAllMutableLiveData().getValue() == null ? 0 : viewModel.getPagePopularAllMutableLiveData().getValue();
@@ -413,7 +425,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListTopPopularAll(++pagePopularAll, requestCallbackCollection);
+        if (pagePopularAll == 0) kinopoiskAPI.getListTopPopularAll(++pagePopularAll, requestCallbackCollection);
+
 
 
         // Фильмы
@@ -443,7 +456,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListTop250Movies(++pageMovie, requestCallbackCollection);
+        if (pageMovie == 0) kinopoiskAPI.getListTop250Movies(++pageMovie, requestCallbackCollection);
+
 
 
         // Сериалы
@@ -473,7 +487,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListTop250TVShows(++pageSerial, requestCallbackCollection);
+        if (pageSerial == 0) kinopoiskAPI.getListTop250TVShows(++pageSerial, requestCallbackCollection);
+
 
 
         // Мультфильмы
@@ -503,7 +518,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListFromGenre(ANIMATION, ++pageAnimations, requestCallbackCollection);
+        if (pageAnimations == 0) kinopoiskAPI.getListFromGenre(ANIMATION, ++pageAnimations, requestCallbackCollection);
+
 
         // Драмы
         pageDrama = viewModel.getPageDramaMutableLiveData().getValue() == null ? 0 : viewModel.getPageDramaMutableLiveData().getValue();
@@ -532,7 +548,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++pageDrama, requestCallbackCollection);
+        if (pageDrama == 0) kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++pageDrama, requestCallbackCollection);
+
 
         // Детям
         pageKids = viewModel.getPageKidsMutableLiveData().getValue() == null ? 0 : viewModel.getPageKidsMutableLiveData().getValue();
@@ -561,11 +578,10 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++pageKids, requestCallbackCollection);
+        if (pageKids == 0) kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++pageKids, requestCallbackCollection);
 
         return binding.getRoot();
     }
-
 
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override

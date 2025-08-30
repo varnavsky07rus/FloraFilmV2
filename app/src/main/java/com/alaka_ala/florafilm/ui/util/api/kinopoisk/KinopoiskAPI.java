@@ -107,6 +107,7 @@ public class KinopoiskAPI {
          * На каждый вызов есть отдельный метод, onSuccess().
          * Данный метод будет вызываться столько раз, сколько будет вызвано новых запросов.
          * Так же будет вызываться onFailure() на каждый новый запрос
+         * 30.08.2025 - Проще говоря finish() будет вызван после того как отработает все подключения.
          */
         void finish();
     }
@@ -298,7 +299,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -333,7 +336,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -368,7 +373,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -403,7 +410,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -439,7 +448,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -474,7 +485,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -510,7 +523,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -545,7 +560,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -582,7 +599,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (previousCountConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -617,7 +636,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (previousCountConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
@@ -654,7 +675,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                rcc.finish();
+                if (countConnections == 0) {
+                    rcc.finish();
+                }
             }
         });
     }
