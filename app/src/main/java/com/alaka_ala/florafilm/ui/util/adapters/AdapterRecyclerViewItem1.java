@@ -1,5 +1,7 @@
 package com.alaka_ala.florafilm.ui.util.adapters;
 
+import android.annotation.SuppressLint;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
+import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ListFilmItem;
 import com.squareup.picasso.Picasso;
 
 public class AdapterRecyclerViewItem1 extends RecyclerView.Adapter<AdapterRecyclerViewItem1.ViewHolder> {
@@ -22,24 +25,38 @@ public class AdapterRecyclerViewItem1 extends RecyclerView.Adapter<AdapterRecycl
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = View.inflate(parent.getContext(), R.layout.rv_item_1, null);
+        // ПРАВИЛЬНЫЙ способ создания View: используется LayoutInflater и передается parent
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.rv_item_1, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String title = !collection.getItems().get(position).getNameRu().equals("null") ? collection.getItems().get(position).getNameRu() : collection.getItems().get(position).getNameOriginal();
-        if (title.equals("null")) title = collection.getItems().get(position).getNameEn();
-        if (title.equals("null")) title = "";
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        // Получаем элемент ОДИН раз, чтобы избежать повторных вызовов
+        final ListFilmItem filmItem = collection.getItems().get(position);
+
+        // Логика выбора названия стала чище
+        String title = filmItem.getNameRu();
+        if (title == null || title.equals("null")) {
+            title = filmItem.getNameOriginal();
+        }
+        if (title == null || title.equals("null")) {
+            title = filmItem.getNameEn();
+        }
+        if (title == null || title.equals("null")) {
+            title = "";
+        }
+
         holder.textViewTitleFilmItem1.setText(title);
-        Picasso.get().load(collection.getItems().get(position).getPosterUrlPreview()).into(holder.imageViewPosterFilmItem1);
+        Picasso.get().load(filmItem.getPosterUrlPreview()).into(holder.imageViewPosterFilmItem1);
         holder.imageViewIsViewedItem1.setVisibility(View.GONE);
         holder.imageViewisFavoriteItem1.setVisibility(View.GONE);
     }
 
     @Override
     public int getItemCount() {
-        if (collection == null) return 0;
+        if (collection == null || collection.getItems() == null) return 0;
         return collection.getItems().size();
     }
 
@@ -57,5 +74,4 @@ public class AdapterRecyclerViewItem1 extends RecyclerView.Adapter<AdapterRecycl
             textViewTitleFilmItem1 = itemView.findViewById(R.id.textViewTitleFilmItem1);
         }
     }
-
 }

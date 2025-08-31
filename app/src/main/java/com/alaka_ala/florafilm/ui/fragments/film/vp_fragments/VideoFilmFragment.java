@@ -20,6 +20,7 @@ import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentVideoFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
+import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVBSelector;
@@ -59,13 +60,19 @@ public class VideoFilmFragment extends Fragment {
         rootNotFound = binding.rootNotFound;
         lottieNotFound = binding.lottieNotFound;
 
-        if (SettingsUtils.getParamSearchVIBIX(getContext())) {
-            parseVibix();
+        BanCheker banCheker = new BanCheker(getContext());
+        if (!banCheker.isBan(mainFilmViewModel.getKinopoiskId())) {
+            if (SettingsUtils.getParamSearchVIBIX(getContext())) {
+                parseVibix();
+            }
+            if (SettingsUtils.getParamSeeachHDVB(getContext())) {
+                parseHdvb();
+            }
+        } else {
+            isNotFountDataVibix = true;
+            isNotFountDataHDVB = true;
         }
 
-        if (SettingsUtils.getParamSeeachHDVB(getContext())) {
-            parseHdvb();
-        }
 
         printNotFoundFile();
 

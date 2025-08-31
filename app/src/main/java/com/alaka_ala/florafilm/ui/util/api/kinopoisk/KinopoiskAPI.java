@@ -125,7 +125,10 @@ public class KinopoiskAPI {
          * Данный метод будет вызываться столько раз, сколько будет вызвано новых запросов.
          * Так же будет вызываться onFailure() на каждый новый запрос
          */
-        default void finishInfoItem(){};
+        default void finishInfoItem() {
+        }
+
+        ;
     }
 
     public interface RequestCallbackStaffList {
@@ -268,6 +271,7 @@ public class KinopoiskAPI {
 
 
     private RequestCallbackCollection rcc;
+
     /**
      * Получение всех популярных фильмов и сериалов
      */
@@ -448,9 +452,7 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                if (countConnections == 0) {
-                    rcc.finish();
-                }
+                rcc.finish();
             }
         });
     }
@@ -485,9 +487,9 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                if (countConnections == 0) {
-                    rcc.finish();
-                }
+
+                rcc.finish();
+
             }
         });
     }
@@ -523,9 +525,7 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                if (countConnections == 0) {
-                    rcc.finish();
-                }
+                rcc.finish();
             }
         });
     }
@@ -599,9 +599,10 @@ public class KinopoiskAPI {
 
             @Override
             public void finish() {
-                if (previousCountConnections == 0) {
+                if (countConnections == 0) {
                     rcc.finish();
                 }
+
             }
         });
     }
@@ -609,7 +610,7 @@ public class KinopoiskAPI {
     /**
      * Получение списка фильмов/сериалов по стране
      */
-    public void getListFromCountries(int page,  int country, RequestCallbackCollection rcc) {
+    public void getListFromCountries(int page, int country, RequestCallbackCollection rcc) {
         String base_url = "https://kinopoiskapiunofficial.tech/api/v2.2/films?countries=" + country + "&order=RATING&type=FILM&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&page=" + page;
         connect(base_url, new ConntectCallback() {
             @Override
@@ -644,11 +645,10 @@ public class KinopoiskAPI {
     }
 
 
-
     /**
      * Получение списка фильмов/сериалов по жанру
      */
-    public void getListFromGenre(@SuppressLint("SupportAnnotationUsage") @GenreConstants.GenreType  int genreId, int page, RequestCallbackCollection rcc) {
+    public void getListFromGenre(@SuppressLint("SupportAnnotationUsage") @GenreConstants.GenreType int genreId, int page, RequestCallbackCollection rcc) {
         String base_url = "https://kinopoiskapiunofficial.tech/api/v2.2/films?genres=" + genreId + "&order=RATING&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&page=" + page;
         connect(base_url, new ConntectCallback() {
             @Override
@@ -1704,6 +1704,7 @@ public class KinopoiskAPI {
 
     /**
      * Получает сиквелы и приквелы для указанного фильма
+     *
      * @param kinopoisk_id идентификатор фильма на Кинопоиске
      * @return список связанных фильмов
      */
@@ -1825,7 +1826,8 @@ public class KinopoiskAPI {
                 ACTION, FANTASY, COMEDY, WAR, HISTORY, MUSIC, HORROR, ANIMATION, FAMILY, MUSICAL,
                 SPORT, DOCUMENTARY, SHORT_FILM, ANIME, EMPTY, NEWS, CONCERT, ADULT, CEREMONY, REALITY_TV,
                 GAME, TALK_SHOW, KIDS})
-        public @interface GenreType {}
+        public @interface GenreType {
+        }
 
         public static String getGenreName(@GenreType int genreId) {
             return GENRE_MAP.getOrDefault(genreId, "Неизвестно");
@@ -2098,7 +2100,8 @@ public class KinopoiskAPI {
 
         // Сюда надо добавить константы для легкого выбора стран
         @IntDef({})
-        public @interface Countries {}
+        public @interface Countries {
+        }
 
 
         // Метод для добавления страны в мапы
@@ -2106,7 +2109,6 @@ public class KinopoiskAPI {
             ID_TO_COUNTRY.put(id, country);
             COUNTRY_TO_ID.put(country, id);
         }
-
 
 
         public static final int EMPTY = -1;

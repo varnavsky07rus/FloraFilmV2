@@ -24,8 +24,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:lottie_asyncUpdates="automatic"
             app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_speed="1.5" />
+            app:lottie_speed="2" />
 
         <TextView
             android:id="@+id/textView19"

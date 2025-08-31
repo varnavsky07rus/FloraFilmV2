@@ -27,6 +27,7 @@ import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
+import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.firebase.DataLikes;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
@@ -90,8 +91,11 @@ public class DescriptionFragment extends Fragment {
 
         loadDataDescription();
 
-
         DataLikes dataLikes = getDataLikes();
+
+
+
+
 
         chipLike.setOnClickListener(new View.OnClickListener() {
             @Override

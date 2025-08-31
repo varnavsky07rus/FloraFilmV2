@@ -36,5 +36,16 @@
                     android:title="Просмотр торрентов" />
             </menu>
         </item>
+        <item
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="Связь">
+            <menu>
+                <item
+                    android:id="@+id/contactFragment"
+                    android:icon="@drawable/outline_contact_support_24"
+                    android:title="Контакты" />
+            </menu>
+        </item>
     </group>
 </menu>

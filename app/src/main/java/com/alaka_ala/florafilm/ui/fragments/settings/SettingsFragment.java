@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,9 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.apache.commons.io.FileUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Фрагмент для отображения настроек приложения.
@@ -138,6 +142,12 @@ public class SettingsFragment extends Fragment {
         });
 
 
+        if (isNtVersion()) {
+            binding.frameLayoutUpdateContainer.setVisibility(View.VISIBLE);
+            binding.divider3.setVisibility(View.VISIBLE);
+        }
+
+
         return binding.getRoot();
     }
 
@@ -156,4 +166,17 @@ public class SettingsFragment extends Fragment {
             return "N/A";
         }
     }
+
+    /** Получение буквенного обозначения версии приложения. Подробнее см. в gradle.app*/
+    private boolean isNtVersion() {
+        String vName = getAppVersionName();
+        Pattern symbolName = Pattern.compile("(?<=\\_)[a-zA-Z]+");
+        Matcher matcher = symbolName.matcher(vName);
+        if (matcher.find()) {
+            vName = matcher.group();
+        }
+        return vName.equals("nt");
+    }
+
+
 }

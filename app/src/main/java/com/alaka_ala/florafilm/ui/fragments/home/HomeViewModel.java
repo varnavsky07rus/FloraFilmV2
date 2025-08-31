@@ -58,7 +58,7 @@ public class HomeViewModel extends ViewModel {
     private static final String PREFS_NAME = "HomeViewModelPrefs";
     private static final String KEY_LAST_CACHE_TIME = "last_cache_time";
     private static final long TWENTY_FOUR_HOURS_IN_MS = 24 * 60 * 60 * 1000L;
-
+    public boolean isInitViewModel = false;
 
     public HomeViewModel() {
         // Фильмы-сериалы
@@ -81,8 +81,9 @@ public class HomeViewModel extends ViewModel {
         this.collectionMutableLiveDataKids = new MutableLiveData<>();
     }
 
-    public void initData(Context context){
+    public void initData(Context context) {
         loadData(context);
+        isInitViewModel = true;
     }
 
 
@@ -408,6 +409,7 @@ public class HomeViewModel extends ViewModel {
             return null;
         }
     }
+
 
 
 

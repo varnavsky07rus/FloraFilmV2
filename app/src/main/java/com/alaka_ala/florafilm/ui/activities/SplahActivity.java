@@ -1,5 +1,7 @@
 package com.alaka_ala.florafilm.ui.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +20,7 @@ import com.airbnb.lottie.LottieDrawable;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivitySplahBinding;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
+import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
 
 public class SplahActivity extends AppCompatActivity {
@@ -36,30 +39,40 @@ public class SplahActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Проверка обновления приложения
         appUpdater = new AppUpdater(this, true);
         appUpdater.checkForUpdate();
         boolean isAvaibleUpdate = appUpdater.isAvailableUpdate();
 
+        // Загружаем сразу список заблокированных фильмов и сохраняем в кэш
+        BanCheker banCheker = new BanCheker(this);
+        banCheker.loadList();
 
         LottieAnimationView lottieAnimationView = binding.lottieAnimLoading;
-        lottieAnimationView.setAnimation(R.raw.loading3);
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        lottieAnimationView.setAnimation(R.raw.loading4);
+        lottieAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
-            public void run() {
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
                 Intent intent = new Intent(SplahActivity.this, MainActivity.class);
                 startActivity(intent);
                 SplahActivity.this.finish();
             }
-        }, 3000);
+        });
 
 
 
-        //lottieAnimationView.setRepeatMode(LottieDrawable.REVERSE);
-        //lottieAnimationView.setRepeatCount(1);
-        //lottieAnimationView.setSpeed(1f);
-        //lottieAnimationView.playAnimation();
+        /*Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        }, 2000);*/
+
+
+
+
 
 
 

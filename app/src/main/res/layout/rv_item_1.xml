@@ -7,10 +7,10 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView4"
-        android:layout_width="110dp"
-        android:layout_height="160dp"
+        android:layout_width="140dp"
+        android:layout_height="210dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
         android:layout_weight="0"
         android:clickable="true"
@@ -72,6 +72,7 @@
         android:layout_marginBottom="16dp"
         android:lines="3"
         android:maxLines="3"
+        android:singleLine="true"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

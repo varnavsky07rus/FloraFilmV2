@@ -1,6 +1,5 @@
 package com.alaka_ala.florafilm.ui.fragments.collections;
 
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
@@ -23,8 +22,7 @@ import android.widget.Toast;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentCollectionBinding;
-import com.alaka_ala.florafilm.ui.fragments.home.HomeViewModel;
-import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem1;
+import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem2;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
@@ -37,7 +35,7 @@ public class CollectionFragment extends Fragment {
     private FragmentCollectionBinding binding;
 
     private RecyclerView rvCollection;
-    private AdapterRecyclerViewItem1 adapter;
+    private AdapterRecyclerViewItem2 adapter;
 
     private KinopoiskAPI kinopoiskAPI;
 
@@ -59,7 +57,7 @@ public class CollectionFragment extends Fragment {
         gridLayoutManager = new GridLayoutManager(getContext(), 3, LinearLayoutManager.VERTICAL, false);
         rvCollection.setLayoutManager(gridLayoutManager);
         if (adapter == null) {
-            adapter = new AdapterRecyclerViewItem1();
+            adapter = new AdapterRecyclerViewItem2();
             rvCollection.setAdapter(adapter);
         } else {
             rvCollection.setAdapter(adapter);

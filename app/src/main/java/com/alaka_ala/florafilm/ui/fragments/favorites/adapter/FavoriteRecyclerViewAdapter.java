@@ -14,7 +14,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class FavoriteRecyclerViewAdapter extends RecyclerView.Adapter<FavoriteRecyclerViewAdapter.MyViewHolderFavorite> {
 
@@ -32,14 +31,14 @@ public class FavoriteRecyclerViewAdapter extends RecyclerView.Adapter<FavoriteRe
     @NonNull
     @Override
     public MyViewHolderFavorite onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = View.inflate(parent.getContext(), R.layout.rv_item_1, null);
+        View view = View.inflate(parent.getContext(), R.layout.rv_item_2, null);
         return new MyViewHolderFavorite(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolderFavorite holder, int position) {
-        holder.textViewTitleFilmItem1.setText(data.get(position).getName());
-        Picasso.get().load(data.get(position).getUrl()).into(holder.imageViewPosterFilmItem1);
+        holder.textViewTitleFilmItem2.setText(data.get(position).getName());
+        Picasso.get().load(data.get(position).getUrl()).into(holder.imageViewPosterFilmItem2);
     }
 
     @Override
@@ -48,17 +47,13 @@ public class FavoriteRecyclerViewAdapter extends RecyclerView.Adapter<FavoriteRe
     }
 
     public static class MyViewHolderFavorite extends RecyclerView.ViewHolder {
-        private final ImageView imageViewPosterFilmItem1;
-        private final ImageView imageViewIsViewedItem1;
-        private final ImageView imageViewisFavoriteItem1;
-        private final TextView textViewTitleFilmItem1;
+        private final ImageView imageViewPosterFilmItem2;
+        private final TextView textViewTitleFilmItem2;
 
         public MyViewHolderFavorite(@NonNull View itemView) {
             super(itemView);
-            imageViewPosterFilmItem1 = itemView.findViewById(R.id.imageViewPosterFilmItem1);
-            imageViewIsViewedItem1 = itemView.findViewById(R.id.imageViewIsViewedItem1);
-            imageViewisFavoriteItem1 = itemView.findViewById(R.id.imageViewisFavoriteItem1);
-            textViewTitleFilmItem1 = itemView.findViewById(R.id.textViewTitleFilmItem1);
+            imageViewPosterFilmItem2 = itemView.findViewById(R.id.imageViewPosterFilmItem2);
+            textViewTitleFilmItem2 = itemView.findViewById(R.id.textViewTitleFilmItem2);
         }
     }
 

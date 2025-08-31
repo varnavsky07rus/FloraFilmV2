@@ -18,6 +18,7 @@ import android.widget.SearchView;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentSearchBinding;
 import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem1;
+import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem2;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
@@ -30,7 +31,7 @@ public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
     private SearchView searchView;
     private RecyclerView rvSearch;
-    private AdapterRecyclerViewItem1 adapter;
+    private AdapterRecyclerViewItem2 adapter;
     private KinopoiskAPI kinopoiskAPI;
 
     private SearchFragmentViewModel viewModel;
@@ -61,7 +62,7 @@ public class SearchFragment extends Fragment {
         rvSearch.setLayoutManager(new GridLayoutManager(getContext(), 3, LinearLayoutManager.VERTICAL, false));
 
         if (collection != null) {
-            adapter = new AdapterRecyclerViewItem1();
+            adapter = new AdapterRecyclerViewItem2();
             adapter.setCollection(collection);
             rvSearch.setAdapter(adapter);
             adapter.notifyDataSetChanged();
@@ -89,7 +90,7 @@ public class SearchFragment extends Fragment {
                     public void finish() {
                         viewModel.setCollection(collection);
                         if (adapter == null) {
-                            adapter = new AdapterRecyclerViewItem1();
+                            adapter = new AdapterRecyclerViewItem2();
                             adapter.setCollection(collection);
                             rvSearch.setAdapter(adapter);
                             adapter.notifyDataSetChanged();
@@ -139,7 +140,7 @@ public class SearchFragment extends Fragment {
                         viewModel.setCollection(collection);
                         viewModel.getPage().setValue(page);
                         if (adapter == null) {
-                            adapter = new AdapterRecyclerViewItem1();
+                            adapter = new AdapterRecyclerViewItem2();
                             adapter.setCollection(collection);
                             rvSearch.setAdapter(adapter);
                             adapter.notifyDataSetChanged();

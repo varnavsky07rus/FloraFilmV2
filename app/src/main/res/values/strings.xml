@@ -18,7 +18,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="description_donate">Выражаем слова благодарности каждому кто поддерживает нас!\n
-        Мы будем рады вам даже если вы просто остаётесь с нами, вы вносите не меньший вклад в развитие приложения.\n
+        Мы будем рады вам даже если вы просто остаётесь с нами!\n
     </string>
 
 </resources>

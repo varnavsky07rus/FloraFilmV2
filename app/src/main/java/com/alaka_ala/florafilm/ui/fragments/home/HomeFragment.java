@@ -74,7 +74,9 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         setHasOptionsMenu(true);
         HomeViewModel viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-        viewModel.initData(getContext());
+        if (!viewModel.isInitViewModel) {
+            viewModel.initData(getContext());
+        }
 
         appUpdater = new AppUpdater(getActivity(), true);
         Chip chipUpdApp = binding.chipUpdApp;
@@ -395,8 +397,6 @@ public class HomeFragment extends Fragment {
             }
         };
 
-        /*BanCheker banCheker = new BanCheker();
-        banCheker.loadList();*/
 
         // Фильмы Сериалы
         pagePopularAll = viewModel.getPagePopularAllMutableLiveData().getValue() == null ? 0 : viewModel.getPagePopularAllMutableLiveData().getValue();
