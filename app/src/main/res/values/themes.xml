@@ -6,6 +6,11 @@
         <item name="IconsTintTheme">@color/iconsTintLight</item>
         <item name="SwitchTintTrack">@color/colorPrimaryLight</item>
 
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
     </style>
 
     <style name="Theme.FloraFilm" parent="Base.Theme.FloraFilm" />

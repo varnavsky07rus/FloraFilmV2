@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:orientation="vertical">
 
@@ -21,7 +22,8 @@
                 android:id="@+id/frameLayoutUpdateContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -53,8 +55,8 @@
                         android:layout_height="wrap_content"
                         android:checked="false"
                         android:text="Обновлять до beta версий"
-                        app:thumbTint="#CBA5A0"
-                        app:trackDecorationTint="#CBA0A0"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
 
                     <com.google.android.material.button.MaterialButton
@@ -62,9 +64,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:backgroundTint="#A0CBA4"
+                        android:backgroundTint="@color/butonUpdateColor"
                         android:text="Проверить обновления"
-                        app:cornerRadius="8dp" />
+                        android:textColor="@color/colorPrimaryLight"
+                        app:cornerRadius="50dp" />
                 </LinearLayout>
 
             </FrameLayout>
@@ -101,8 +104,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Включить поиск Vibix"
-                        app:thumbTint="#A0CBA4"
-                        app:trackDecorationTint="#A0CBA4"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -111,8 +114,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Включить поиск HDVB"
-                        app:thumbTint="#A0CBA4"
-                        app:trackDecorationTint="#A0CBA4"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -121,8 +124,8 @@
                         android:layout_height="wrap_content"
                         android:checked="false"
                         android:text="Включить поиск Torrent"
-                        app:thumbTint="#A0CBA4"
-                        app:trackDecorationTint="#A0CBA4"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
                 </LinearLayout>
             </FrameLayout>
@@ -158,8 +161,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Включить эффекты прокрутки страниц"
-                        app:thumbTint="#A0CBA4"
-                        app:trackDecorationTint="#A0CBA4"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -168,8 +171,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Включить анимации"
-                        app:thumbTint="#A0CBA4"
-                        app:trackDecorationTint="#A0CBA4"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
 
                 </LinearLayout>

@@ -23,28 +23,17 @@
         <item android:title="Другое" >
             <menu >
                 <item
-                    android:id="@+id/navSettingsFragment"
-                    android:icon="@drawable/rounded_settings_applications_24"
-                    android:title="@string/settings_title_fragment" />
-            </menu>
-        </item>
-        <item android:title="Инструкция">
-            <menu>
-                <item
                     android:id="@+id/instructionViewTorrent"
                     android:icon="@drawable/baseline_apps_24"
                     android:title="Просмотр торрентов" />
-            </menu>
-        </item>
-        <item
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:title="Связь">
-            <menu>
                 <item
                     android:id="@+id/contactFragment"
                     android:icon="@drawable/outline_contact_support_24"
                     android:title="Контакты" />
+                <item
+                    android:id="@+id/navSettingsFragment"
+                    android:icon="@drawable/rounded_settings_applications_24"
+                    android:title="@string/settings_title_fragment" />
             </menu>
         </item>
     </group>

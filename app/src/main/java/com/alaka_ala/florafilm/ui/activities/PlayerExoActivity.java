@@ -1,5 +1,6 @@
 package com.alaka_ala.florafilm.ui.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
+import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -88,6 +90,17 @@ public class PlayerExoActivity extends AppCompatActivity {
 
         resizeMode();
 
+        saveToLastMovie();
+
+
+
+    }
+
+    private void saveToLastMovie() {
+        Context context = this;
+        ResumeLastMovie resumeLastMovie = new ResumeLastMovie(context);
+        resumeLastMovie.saveLastMovie(epData.getFilmInfo().getKinopoiskId(), epData.getFilmInfo().getNameRu(), epData.getFilmInfo().getPosterUrl());
+        resumeLastMovie.setLaunched();
 
     }
 

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.film.MainFilmFragment">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -16,13 +16,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
+            app:tabGravity="start"
             app:tabIndicatorColor="#565656"
-            app:tabSelectedTextColor="#D8A0A0A0"/>
+            app:tabIndicatorFullWidth="false"
+            app:tabInlineLabel="true"
+            app:tabMode="auto"
+            app:tabSelectedTextColor="#D8A0A0A0" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vpFilm"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
 </FrameLayout>

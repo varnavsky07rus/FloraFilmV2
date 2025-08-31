@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentHomeBinding;
+import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem1;
 import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
@@ -31,6 +33,7 @@ import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewScrollListener;
+import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
@@ -79,6 +82,7 @@ public class HomeFragment extends Fragment {
         }
 
         appUpdater = new AppUpdater(getActivity(), true);
+
         Chip chipUpdApp = binding.chipUpdApp;
         chipUpdApp.setVisibility(appUpdater.isAvailableUpdate() ? View.VISIBLE : View.GONE);
         chipUpdApp.setOnClickListener(new View.OnClickListener() {

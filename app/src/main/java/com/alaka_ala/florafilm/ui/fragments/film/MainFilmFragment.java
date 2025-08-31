@@ -19,8 +19,11 @@ import com.alaka_ala.florafilm.databinding.FragmentMainFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.DepthPageTransformer;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.ViewPagerFilmAdapter;
+import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
+import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.tabs.TabLayout;
 
 /**
@@ -83,6 +86,9 @@ public class MainFilmFragment extends Fragment {
 
             }
         });
+
+
+
 
 
         return binding.getRoot();

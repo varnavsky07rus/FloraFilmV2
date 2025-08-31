@@ -5,6 +5,11 @@
         <item name="colorPrimary">@color/colorPrimaryDark</item>
         <item name="IconsTintTheme">@color/iconsTintDark</item>
         <item name="SwitchTintTrack">@color/colorPrimaryDark</item>
+
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <style name="Theme.FloraFilm.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark" />

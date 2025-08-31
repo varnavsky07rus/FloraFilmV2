@@ -5,13 +5,9 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorPrimary"
-    android:fitsSystemWindows="true"
-    tools:context=".ui.activities.MainActivity"
-    tools:elevation="150dp">
+    tools:context=".ui.activities.MainActivity">
 
     <LinearLayout
-        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -19,10 +15,10 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:overScrollMode="ifContentScrolls"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            android:fitsSystemWindows="true"
+            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/Theme.FloraFilm.PopupOverlay" />
 
         <fragment
@@ -31,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:defaultNavHost="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:navGraph="@navigation/navigation_app" />
     </LinearLayout>
 

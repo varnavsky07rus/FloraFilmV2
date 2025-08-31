@@ -85,6 +85,7 @@ public class DescriptionFragment extends Fragment {
         textViewCountryFilm = binding.textViewCountryFilm;
         textVieSloganFilm = binding.textVieSloganFilm;
         buttonResumeView = binding.buttonResumeView;
+        buttonResumeView.setEnabled(false);
         chipLike = binding.chipLike;
         chipDislike = binding.chipDislike;
 
@@ -119,30 +120,44 @@ public class DescriptionFragment extends Fragment {
             }
         });
 
+        String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
+
         VideoFilmFragment.setCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
 
             @Override
             public void successHDVBFilm(EPData.Film film) {
                 isLoadHDVB = true;
                 mainFilmViewModel.getFilmMutableLiveDataHDVB().setValue(film);
+                if (balancer.equals("HDVB")) {
+                    buttonResumeView.setEnabled(true);
+                }
             }
 
             @Override
             public void successVibixFilm(EPData.Film film) {
                 isLoadVibix = true;
                 mainFilmViewModel.getFilmMutableLiveDataVibix().setValue(film);
+                if (balancer.equals("VIBIX")) {
+                    buttonResumeView.setEnabled(true);
+                }
             }
 
             @Override
             public void successHDVBSerial(EPData.Serial serial) {
                 isLoadHDVB = true;
                 mainFilmViewModel.getSerialMutableLiveDataHDVB().setValue(serial);
+                if (balancer.equals("HDVB")) {
+                    buttonResumeView.setEnabled(true);
+                }
             }
 
             @Override
             public void successVibixSerial(EPData.Serial serial) {
                 isLoadVibix = true;
                 mainFilmViewModel.getSerialMutableLiveDataVibix().setValue(serial);
+                if (balancer.equals("HDVB")) {
+                    buttonResumeView.setEnabled(true);
+                }
             }
 
             @Override

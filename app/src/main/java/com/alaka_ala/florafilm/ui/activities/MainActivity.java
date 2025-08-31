@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,9 +21,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -33,8 +31,10 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
+import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.local.PermissionManager;
+import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 
@@ -61,12 +61,6 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
@@ -131,6 +125,14 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         permissionManager = new PermissionManager(getApplicationContext(), this, null, this);
         checkPermissionsAndDoSomething();
         updateStatusBarIconColor(this);
+
+        ResumeLastMovie resumeLastMovie = new ResumeLastMovie(this);
+        if (resumeLastMovie.isFirstLaunch() && resumeLastMovie.existLastMovie()) {
+            resumeLastMovie.setNotLaunched();
+            new Handler().postDelayed(() -> {
+                ResumeBottomSheetFragment.newInstance().show(getSupportFragmentManager(), ResumeBottomSheetFragment.TAG);
+            }, 1500);
+        }
     }
 
 
