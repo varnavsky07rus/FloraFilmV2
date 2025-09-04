@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -37,9 +40,20 @@ public class BanCheker {
         this.context = context;
     }
 
+    public interface LoaderCallback {
+        void onFinish();
+    }
+
     private final Context context;
 
-    public void loadList() {
+    public void loadList(LoaderCallback loaderCallback) {
+        Handler handler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(@NonNull Message message) {
+                loaderCallback.onFinish();
+                return false;
+            }
+        });
         new Thread(() -> {
             Map<Integer, Boolean> banList = new HashMap<>();
             try {
@@ -55,12 +69,14 @@ public class BanCheker {
                 }
                 if (cacheList(banList)) {
                     Log.d(TAG, "Бан лист успешно загружен");
+                    handler.sendEmptyMessage(0);
                 } else {
+                    handler.sendEmptyMessage(1);
                     Log.e(TAG, "Ошибка при загрузке бан листа");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                //Log.e("BanCheker", Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
             }
         }).start();
     }

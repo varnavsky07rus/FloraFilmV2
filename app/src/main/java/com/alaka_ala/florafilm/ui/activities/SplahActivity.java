@@ -43,47 +43,32 @@ public class SplahActivity extends AppCompatActivity {
         appUpdater = new AppUpdater(this, true);
         appUpdater.checkForUpdate();
         boolean isAvaibleUpdate = appUpdater.isAvailableUpdate();
+        LottieAnimationView lottieAnimationView = binding.lottieAnimLoading;
+        lottieAnimationView.setAnimation(R.raw.loading4);
+
+
 
         // Загружаем сразу список заблокированных фильмов и сохраняем в кэш
         BanCheker banCheker = new BanCheker(this);
-        banCheker.loadList();
-
-        LottieAnimationView lottieAnimationView = binding.lottieAnimLoading;
-        lottieAnimationView.setAnimation(R.raw.loading4);
-        lottieAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
+        banCheker.loadList(new BanCheker.LoaderCallback() {
             @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                Intent intent = new Intent(SplahActivity.this, MainActivity.class);
+            public void onFinish() {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
-                SplahActivity.this.finish();
+                if (!SplahActivity.this.isFinishing()) {
+                    SplahActivity.this.finish();
+                }
             }
         });
 
 
-
-        /*Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        /*lottieAnimationView.addAnimatorListener(new AnimatorListenerAdapter() {
             @Override
-            public void run() {
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
 
             }
-        }, 2000);*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        });*/
 
 
     }

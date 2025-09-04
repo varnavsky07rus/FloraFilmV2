@@ -41,7 +41,8 @@ public class ResumeBottomSheetFragment extends BottomSheetDialogFragment {
                 binding.buttonNext.setEnabled(false);
                 Bundle bundle = new Bundle();
                 bundle.putInt("kinopoisk_id", kinopoiskId);
-                Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main).navigate(R.id.action_navHomeFragment_to_mainFilmFragment, bundle);
+                // TODO: Выяснить осталась ли ошибка при переходе. (раньше былаа ссылка с homeFragment на mainFilmFragment а теперь просто mainFilmFragment)
+                Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main).navigate(R.id.mainFilmFragment, bundle);
                 onDismiss(getDialog());
             }
         });
