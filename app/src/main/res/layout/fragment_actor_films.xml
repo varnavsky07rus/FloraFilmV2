@@ -20,11 +20,11 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
 
-            app:toolbarId="@+id/toolbar">
+            app:toolbarId="@+id/toolbarDescription">
 
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/toolbarDescription"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:visibility="gone" />

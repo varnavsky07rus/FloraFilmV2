@@ -76,19 +76,19 @@ public class SequelsPrequelsFragment extends Fragment {
                 String codeResponse = splitter[0].replace("Код ответа: ", "");
                 switch (codeResponse) {
                     case "200":
-                        Snackbar.make(getView(), "Неизвестная ошибка: код ответа 200", Snackbar.LENGTH_LONG).show();
+                        showNotFound404("Неизвестная ошибка но код ответа 200");
                         break;
                     case "401":
-                        Snackbar.make(getView(), "Пустой или неправильный токен", Snackbar.LENGTH_LONG).show();
+                        showNotFound404("Пустой или неправильный токен");
                         break;
                     case "404":
-                        Snackbar.make(getView(), "Фильмы не найдены", Snackbar.LENGTH_LONG).show();
+                        showNotFound404("Данные отсутствуют");
                         break;
                     case "402":
-                        Snackbar.make(getView(), "Превышен лимит запросов(или дневной, или общий)", Snackbar.LENGTH_LONG).show();
+                        showNotFound404("Превышен лимит запросов(или дневной, или общий)");
                         break;
                     case "429":
-                        Snackbar.make(getView(), "Слишком много запросов. Общий лимит - 20 запросов в секунду", Snackbar.LENGTH_LONG).show();
+                        showNotFound404("Слишком много запросов. Общий лимит - 20 запросов в секунду");
                         break;
                 }
                 // 200 - Запрос выполнен успешно
@@ -108,8 +108,15 @@ public class SequelsPrequelsFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private void showNotFound404(String msg) {
+        binding.textView220.setText(msg.isEmpty() ? "Файлы отсутствуют!" : msg);
+        binding.rootNotFoundSequels.setVisibility(View.VISIBLE);
+        binding.lottieNotFoundSequels.setAnimation(R.raw.not_found);
+        binding.lottieNotFoundSequels.playAnimation();
+    }
 
-    private class AdapterRecyclerViewSequels extends RecyclerView.Adapter<AdapterRecyclerViewSequels.MyViewHolder> {
+
+    private static class AdapterRecyclerViewSequels extends RecyclerView.Adapter<AdapterRecyclerViewSequels.MyViewHolder> {
 
 
         public List<FilmRelation> getFilmRelation() {
@@ -126,7 +133,7 @@ public class SequelsPrequelsFragment extends Fragment {
         @NonNull
         @Override
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_1, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_2, parent, false);
             return new MyViewHolder(view);
         }
 
@@ -144,14 +151,14 @@ public class SequelsPrequelsFragment extends Fragment {
             return filmRelation.size();
         }
 
-        private class MyViewHolder extends RecyclerView.ViewHolder {
+        private static class MyViewHolder extends RecyclerView.ViewHolder {
             private TextView textViewTitleFilmItem1;
             private ImageView imageViewPosterFilmItem1;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
-                textViewTitleFilmItem1 = itemView.findViewById(R.id.textViewTitleFilmItem1);
-                imageViewPosterFilmItem1 = itemView.findViewById(R.id.imageViewPosterFilmItem1);
+                textViewTitleFilmItem1 = itemView.findViewById(R.id.textViewTitleFilmItem2);
+                imageViewPosterFilmItem1 = itemView.findViewById(R.id.imageViewPosterFilmItem5);
             }
         }
     }

@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.alaka_ala.florafilm.BuildConfig;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 
 import java.io.File;
@@ -50,7 +51,7 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Collection> collectionMutableLiveDataKids;
     private final MutableLiveData<Integer> pageKidsMutableLiveData;
 
-    private boolean isDebug = true;
+    private final boolean isDebug;
     private final String TAG = "HomeViewModel";
     private static final String CACHE_DIR_NAME = "cache";
     private static final String CACHE_FILE_NAME = "homeViewModelCache";
@@ -79,6 +80,9 @@ public class HomeViewModel extends ViewModel {
         // Детям
         this.pageKidsMutableLiveData = new MutableLiveData<>();
         this.collectionMutableLiveDataKids = new MutableLiveData<>();
+
+        this.isDebug = BuildConfig.DEBUG;
+
     }
 
     public void initData(Context context) {

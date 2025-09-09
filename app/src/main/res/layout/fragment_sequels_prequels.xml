@@ -6,6 +6,35 @@
     tools:context=".ui.fragments.sequels.SequelsPrequelsFragment">
 
 
+    <FrameLayout
+        android:id="@+id/rootNotFoundSequels"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieNotFoundSequels"
+                android:layout_width="250dp"
+                android:layout_height="250dp"
+                android:layout_gravity="center" />
+
+            <TextView
+                android:id="@+id/textView220"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Файлы отсутствуют!"
+                android:textSize="24sp" />
+        </LinearLayout>
+
+    </FrameLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewSequels"
         android:layout_width="match_parent"

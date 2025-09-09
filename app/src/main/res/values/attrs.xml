@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="IconsTintTheme" />
+    <attr name="IconsTintThemeInverse" />
+    <attr name="TextViewColorThemeInverse"/>
     <attr name="SwitchTintTrack" />
+    <attr name="ColorPrimaryDayNight"/>
+
 </resources>

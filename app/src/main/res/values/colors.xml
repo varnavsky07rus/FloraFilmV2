@@ -16,7 +16,7 @@
     <color name="switchersSettings">#5564A9</color>
     <color name="butonUpdateColor">@color/switchersSettings</color>
 
-    <color name="buttonResumeEnabled">#252D54</color>
+    <color name="buttonResumeEnabled">#3A3F5F</color>
     <color name="buttonResumeDisabled">#575757</color>
 
 

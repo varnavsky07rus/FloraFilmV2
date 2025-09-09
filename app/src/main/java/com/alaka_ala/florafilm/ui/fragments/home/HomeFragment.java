@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alaka_ala.florafilm.R;
@@ -105,21 +106,21 @@ public class HomeFragment extends Fragment {
 
 
         // Фильмы/сериалы
-        TextView textViewTitleHomeCategory = binding.fragmentHomeIncludePopularAl.textViewTitleHomeCategory;
+        LinearLayout linearLayoutTitleHomeCategory = binding.fragmentHomeIncludePopularAl.linearLayoutTitleHomeCategory;
         // Фильмы
-        TextView textViewTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.textViewTitleHomeCategoryMovie;
+        LinearLayout linearLayoutTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.linearLayoutTitleHomeCategoryMovie;
         // Сериалы
-        TextView textViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.textViewTitleHomeCategorySerial;
+        LinearLayout linearLayoutTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.linearLayoutTitleHomeCategorySerial;
         // Мультфильмы
-        TextView textViewTitleHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.textViewTitleHomeCategoryAnimations;
+        LinearLayout linearLayoutTitleHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.linearLayoutTitleHomeCategoryAnimations;
         // Драмы
-        TextView textViewTitleHomeCategoryDrama = binding.fragmentHomeIncludeDrama.textViewTitleHomeCategoryDrama;
+        LinearLayout linearLayoutTitleHomeCategoryDrama = binding.fragmentHomeIncludeDrama.linearLayoutTitleHomeCategoryDrama;
         // Детям
-        TextView textViewTitleHomeCategoryKids = binding.fragmentHomeIncludeKids.textViewTitleHomeCategoryKids;
+        LinearLayout linearLayoutTitleHomeCategoryKids = binding.fragmentHomeIncludeKids.linearLayoutTitleHomeCategoryKids;
 
 
         // Фильмы/сериалы
-        textViewTitleHomeCategory.setOnClickListener(new View.OnClickListener() {
+        linearLayoutTitleHomeCategory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
@@ -128,7 +129,7 @@ public class HomeFragment extends Fragment {
             }
         });
         // Фильмы
-        textViewTitleHomeCategoryMovie.setOnClickListener(new View.OnClickListener() {
+        linearLayoutTitleHomeCategoryMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
@@ -137,7 +138,7 @@ public class HomeFragment extends Fragment {
             }
         });
         // Сериалы
-        textViewTitleHomeCategorySerial.setOnClickListener(new View.OnClickListener() {
+        linearLayoutTitleHomeCategorySerial.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
@@ -146,7 +147,7 @@ public class HomeFragment extends Fragment {
             }
         });
         // Мультфильмы
-        textViewTitleHomeCategoryAnimations.setOnClickListener(new View.OnClickListener() {
+        linearLayoutTitleHomeCategoryAnimations.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
@@ -155,7 +156,7 @@ public class HomeFragment extends Fragment {
             }
         });
         // Драма
-        textViewTitleHomeCategoryDrama.setOnClickListener(new View.OnClickListener() {
+        linearLayoutTitleHomeCategoryDrama.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
@@ -164,7 +165,7 @@ public class HomeFragment extends Fragment {
             }
         });
         // Детям
-        textViewTitleHomeCategoryKids.setOnClickListener(new View.OnClickListener() {
+        linearLayoutTitleHomeCategoryKids.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Bundle bundle = new Bundle();

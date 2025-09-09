@@ -84,7 +84,7 @@ public class HDVB {
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("HDVB", "Ошибка парсинга JSON #0");
+                Log.e("HDVB", e.getMessage());
                 Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
                     @Override
                     public boolean handleMessage(@NonNull Message message) {

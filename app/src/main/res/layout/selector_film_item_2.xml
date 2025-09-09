@@ -26,7 +26,7 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:tint="?attr/IconsTintTheme"
+                android:tint="?attr/IconsTintThemeInverse"
                 app:srcCompat="@drawable/rounded_play_circle_24" />
 
             <TextView

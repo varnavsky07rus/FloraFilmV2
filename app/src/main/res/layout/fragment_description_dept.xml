@@ -1,0 +1,182 @@
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ui.fragments.film.vp_fragments.DescriptionDeptFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textViewMainTitleFilm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            tools:text="Берлинская неотложка" />
+
+        <TextView
+            android:id="@+id/textViewOriginalTitleFilm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/helperText"
+            tools:text="Krank: Berlin" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewPosterimg"
+                android:layout_width="210dp"
+                android:layout_height="310dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="auto"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="16dp">
+
+                <ImageView
+                    android:id="@+id/imageViewPosterFilm"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+            </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="16dp">
+
+                <TextView
+                    android:id="@+id/chipViewRatingKpFilm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:textSize="24sp"
+                    tools:text="☆5.5" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <FrameLayout
+                android:id="@+id/cardView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#00FFFFFF"
+                app:cardCornerRadius="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipLike"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:text="0"
+                        app:chipIcon="@drawable/rounded_thumb_up_24"
+                        app:chipIconTint="?attr/IconsTintThemeInverse" />
+
+                    <View
+                        android:id="@+id/divider6"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_weight="0"
+                        android:background="?android:attr/listDivider" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipDislike"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:text="0"
+                        app:chipIcon="@drawable/rounded_thumb_down_24"
+                        app:chipIconTint="?attr/IconsTintThemeInverse" />
+
+                </LinearLayout>
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/chipGenreCategoryFilm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    tools:text="Драмы" />
+
+                <TextView
+                    android:id="@+id/chipCountryFilm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    tools:text="США" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonResumeView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:soundEffectsEnabled="true"
+            android:text="Продолжить"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:backgroundTint="@color/button_resume_view_tint"
+            app:cornerRadius="50dp"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/textVieSloganFilm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            tools:text="Всему есть конец" />
+
+        <TextView
+            android:id="@+id/textViewDescriptionFilm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="32dp"
+            android:textSize="20sp"
+            tools:text="После того как ее личная жизнь рушится, Паркер решает начать всё с чистого листа, и принимает, на себя управление отделением неотложной помощи в одной из самых непростых и суматошных больниц Берлина" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

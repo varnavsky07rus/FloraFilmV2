@@ -62,10 +62,8 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
 
-        toolbar = binding.toolbar;
+        toolbar = binding.toolbarDescription;
         setSupportActionBar(toolbar);
-
-        appMetrica();
 
         drawerLayout = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
@@ -135,18 +133,11 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
         }
     }
 
-
-
-    private void appMetrica() {
-        AppMetricaConfig config = AppMetricaConfig.newConfigBuilder("1945eb04-4fda-4a26-9fcc-4d36e0f34551").build();
-        // Initializing the AppMetrica SDK.
-        AppMetrica.activate(this, config);
-    }
-
     private void checkPermissionsAndDoSomething() {
         if (permissionManager.hasAllPermissions()) {
+            Log.d("MainActivity", "checkPermissionsAndDoSomething: All permissions granted");
             // Все разрешения есть, можно выполнять действия
-            Toast.makeText(this, "Разрешения получены!", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, "Разрешения получены!", Toast.LENGTH_SHORT).show();
         } else {
             // Запрашиваем разрешения
             permissionManager.requestPermissions();

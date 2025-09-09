@@ -2,16 +2,12 @@ package com.alaka_ala.florafilm.ui.fragments.film.vp_fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,54 +20,39 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
+import com.alaka_ala.florafilm.databinding.FragmentDescriptionDeptBinding;
 import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilm2Binding;
 import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
-import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
-import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
-import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.firebase.DataLikes;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
-import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Country;
-import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Genre;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipDrawable;
-import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.divider.MaterialDivider;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.IOException;
 
-import jp.wasabeef.blurry.Blurry;
 
-public class DescriptionFragment extends Fragment {
-    private FragmentDescriptionFilmBinding binding;
+public class DescriptionDeptFragment extends Fragment {
+
+    private FragmentDescriptionDeptBinding binding;
 
 
     private TextView textViewMainTitleFilm;
     private TextView textViewOriginalTitleFilm;
-
-    private ChipGroup chipGroupGenresAndCountry;
-    private Chip chipRatingKpFilm;
-
+    private TextView textViewGenreCategoryFilm;
+    private TextView textViewRatingKpFilm;
     private TextView textViewDescriptionFilm;
     private ImageView imageViewPosterFilm;
+    private TextView textViewCountryFilm;
     private TextView textVieSloganFilm;
-    private MaterialButton chipLike;
-    private MaterialButton chipDislike;
-    private Chip chipActors;
-    private Chip chipSequels;
-    private Chip chipGeminiMovie;
+    private Chip chipLike;
+    private Chip chipDislike;
     private FavoriteMoviesManager favoriteMoviesManager;
     private MainFilmViewModel mainFilmViewModel;
     private Button buttonResumeView;
@@ -89,7 +70,7 @@ public class DescriptionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentDescriptionFilmBinding.inflate(inflater, container, false);
+        binding = FragmentDescriptionDeptBinding.inflate(inflater, container, false);
         mainFilmViewModel = new ViewModelProvider(getActivity()).get(MainFilmViewModel.class);
         favoriteMoviesManager = new FavoriteMoviesManager(getContext());
         playbackPositionManager = new PlaybackPositionManager(getContext());
@@ -119,28 +100,7 @@ public class DescriptionFragment extends Fragment {
             }
         });
 
-        chipActors.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigateToActors();
-            }
-        });
-
-        chipSequels.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigateToSequels();
-            }
-        });
-
-        chipGeminiMovie.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigateToGeminiMovie();
-            }
-        });
-
-        chipRatingKpFilm.setOnClickListener(new View.OnClickListener() {
+        textViewRatingKpFilm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(), "Рейтинг кинопоиска!", Toast.LENGTH_SHORT).show();
@@ -202,18 +162,15 @@ public class DescriptionFragment extends Fragment {
     private void findViewByBinding() {
         textViewMainTitleFilm = binding.textViewMainTitleFilm;
         textViewOriginalTitleFilm = binding.textViewOriginalTitleFilm;
-        chipRatingKpFilm = binding.chipViewRatingKpFilm;
+        textViewGenreCategoryFilm = binding.chipGenreCategoryFilm;
+        textViewRatingKpFilm = binding.chipViewRatingKpFilm;
         textViewDescriptionFilm = binding.textViewDescriptionFilm;
         imageViewPosterFilm = binding.imageViewPosterFilm;
+        textViewCountryFilm = binding.chipCountryFilm;
         textVieSloganFilm = binding.textVieSloganFilm;
         buttonResumeView = binding.buttonResumeView;
         chipLike = binding.chipLike;
         chipDislike = binding.chipDislike;
-        chipActors = binding.chipActors;
-        chipSequels = binding.chipSequels;
-        chipGeminiMovie = binding.chipGeminiMovie;
-        chipGroupGenresAndCountry = binding.chipGroupGenresAndCountry;
-
     }
 
     @NonNull
@@ -237,115 +194,107 @@ public class DescriptionFragment extends Fragment {
         return dataLikes;
     }
 
+
+    @SuppressLint("SetTextI18n")
     private void loadDataDescription() {
+
         itemFilmInfo = mainFilmViewModel.getItemFilmInfoMap(getContext(), kinopoisk_id);
-        if (itemFilmInfo != null) {
-            populateUi(itemFilmInfo);
-        } else {
+        if (itemFilmInfo == null) {
             KinopoiskAPI kinopoiskAPI = new KinopoiskAPI(getResources().getString(R.string.api_key_kinopoisk));
             kinopoiskAPI.getInforamationItem(kinopoisk_id, new KinopoiskAPI.RequestCallbackInformationItem() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccessInfoItem(ItemFilmInfo itemFilmInfos) {
+                    itemFilmInfo = itemFilmInfos;
                     mainFilmViewModel.addItemFilmInfoMap(getContext(), itemFilmInfos);
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> populateUi(itemFilmInfos));
+                    String title = !itemFilmInfo.getNameRu().equals("null") ? itemFilmInfo.getNameRu() : itemFilmInfo.getNameEn();
+                    String subTitle = !itemFilmInfo.getNameOriginal().equals("null") ? itemFilmInfo.getNameOriginal() : "";
+                    if (title.equals("null")) {
+                        title = itemFilmInfo.getNameOriginal();
                     }
+                    title += " " + itemFilmInfo.getYear();
+                    textViewMainTitleFilm.setText(title + " (" + itemFilmInfo.getYear() + ")");
+                    textViewOriginalTitleFilm.setText(subTitle);
+                    StringBuilder genre = new StringBuilder();
+                    for (int i = 0; i < itemFilmInfo.getGenres().size(); i++) {
+                        genre.append(itemFilmInfo.getGenres().get(i).getGenre());
+                        if (i != itemFilmInfo.getGenres().size() - 1) {
+                            genre.append(", ");
+                        }
+                    }
+                    textViewGenreCategoryFilm.setText(genre);
+                    textViewRatingKpFilm.setText("☆" + itemFilmInfo.getRatingKinopoisk());
+                    textViewDescriptionFilm.setText(itemFilmInfo.getDescription());
+                    StringBuilder country = new StringBuilder();
+                    for (int i = 0; i < itemFilmInfo.getCountries().size(); i++) {
+                        country.append(itemFilmInfo.getCountries().get(i).getCountry());
+                        if (i != itemFilmInfo.getCountries().size() - 1) {
+                            country.append(", ");
+                        }
+                    }
+                    textViewCountryFilm.setText(country);
+                    String slogan = !itemFilmInfo.getSlogan().equals("null") ? itemFilmInfo.getSlogan() : "";
+                    textVieSloganFilm.setText(slogan);
+                    itemFilmInfo.getSlogan();
+                    Picasso.get().load(itemFilmInfo.getPosterUrl()).into(imageViewPosterFilm);
+                    ImageView cardViewPosterimg = binding.imageViewPosterFilm;
+                    cardViewPosterimg.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("url", itemFilmInfo.getPosterUrl());
+                            Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
+                        }
+                    });
+                    setHasOptionsMenu(true);
+
+                    resumeButtonLogic();
+
+
                 }
 
                 @Override
                 public void onFailureInfoItem(IOException e) {
-                    if (getContext() != null && getActivity() != null) {
-                        getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Ошибка загрузки информации о фильме", Toast.LENGTH_SHORT).show());
-                    }
+
                 }
             });
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void populateUi(@NonNull ItemFilmInfo filmInfo) {
-        this.itemFilmInfo = filmInfo;
-
-        String title = !filmInfo.getNameRu().equals("null") ? filmInfo.getNameRu() : filmInfo.getNameEn();
-        if (title.equals("null")) {
-            title = filmInfo.getNameOriginal();
-        }
-        textViewMainTitleFilm.setText(title + " (" + filmInfo.getYear() + ")");
-
-        String subTitle = !filmInfo.getNameOriginal().equals("null") ? filmInfo.getNameOriginal() : "";
-        textViewOriginalTitleFilm.setText(subTitle);
-
-
-        for (Genre genre : filmInfo.getGenres()) {
-            Chip chip = new Chip(getContext());
-            chip.setText(genre.getGenre());
-            chipGroupGenresAndCountry.addView(chip);
-        }
-
-        chipRatingKpFilm.setText("☆" + filmInfo.getRatingKinopoisk());
-        textViewDescriptionFilm.setText(filmInfo.getDescription().equals("null") ? "Описание отсутствует" : filmInfo.getDescription());
-
-        MaterialDivider divider = new MaterialDivider(getContext());
-        divider.setDividerInsetStart(20);
-        divider.setDividerInsetEnd(20);
-        chipGroupGenresAndCountry.addView(divider);
-
-        for (Country country : filmInfo.getCountries()) {
-            Chip chip = new Chip(getContext());
-            chip.setText(country.getCountry());
-            chipGroupGenresAndCountry.addView(chip);
-        }
-
-
-        String slogan = !filmInfo.getSlogan().equals("null") ? filmInfo.getSlogan() : "";
-        textVieSloganFilm.setText(slogan);
-
-        loadPicassoPoster();
-        setHasOptionsMenu(true);
-        resumeButtonLogic();
-    }
-
-
-    private void loadPicassoPoster() {
-        Target target = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                // Изображение успешно загружено в виде Bitmap
-                // Теперь применяем эффект размытия
-                if (getContext() != null) {
-                    Blurry.with(getContext())
-                            .radius(20)     // Радиус размытия (от 0 до 25)
-                            .sampling(5)    // Качество (чем меньше, тем выше качество и медленнее обработка)
-                            .from(bitmap)   // Указываем исходный Bitmap
-                            .into(imageViewPosterFilm); // Указываем, в какой ImageView поместить результат
+        } else {
+            textViewMainTitleFilm.setText(itemFilmInfo.getNameRu() + " (" + itemFilmInfo.getYear() + ")");
+            textViewOriginalTitleFilm.setText(itemFilmInfo.getNameOriginal().equals("null") ? "" : itemFilmInfo.getNameOriginal() + " " + itemFilmInfo.getYear());
+            StringBuilder genres = new StringBuilder();
+            for (int i = 0; i < itemFilmInfo.getGenres().size(); i++) {
+                genres.append(itemFilmInfo.getGenres().get(i).getGenre());
+                if (i != itemFilmInfo.getGenres().size() - 1) {
+                    genres.append(", ");
                 }
             }
+            textViewGenreCategoryFilm.setText(genres);
+            textViewRatingKpFilm.setText("☆" + itemFilmInfo.getRatingKinopoisk());
+            textViewDescriptionFilm.setText(itemFilmInfo.getDescription().equals("null") ? "Описание отсутствует" : itemFilmInfo.getDescription());
+            StringBuilder counries = new StringBuilder();
+            for (int i = 0; i < itemFilmInfo.getCountries().size(); i++) {
+                counries.append(itemFilmInfo.getCountries().get(i).getCountry());
+                if (i != itemFilmInfo.getCountries().size() - 1) {
+                    counries.append(", ");
+                }
+            }
+            textViewCountryFilm.setText(counries);
+            textVieSloganFilm.setText(itemFilmInfo.getSlogan().equals("null") ? "" : itemFilmInfo.getSlogan());
+            Picasso.get().load(itemFilmInfo.getPosterUrl()).into(imageViewPosterFilm);
+            ImageView cardViewPosterimg = binding.imageViewPosterFilm;
+            cardViewPosterimg.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("url", itemFilmInfo.getPosterUrl());
+                    Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
+                }
+            });
+            setHasOptionsMenu(true);
 
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                // Вызывается, если не удалось загрузить изображение
-                // Можно установить изображение-заглушку
-                binding.imageViewPosterFilm.setImageDrawable(errorDrawable);
-            }
+            resumeButtonLogic();
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                // Вызывается перед началом загрузки
-                // Можно установить изображение-заглушку
-                binding.imageViewPosterFilm.setImageDrawable(placeHolderDrawable);
-            }
-        };
-        binding.imageViewPosterFilm.setTag(target);
-        Picasso.get().load(itemFilmInfo.getPosterUrl()).into(target);
-        Picasso.get().load(itemFilmInfo.getPosterUrl()).into(binding.imageViewPosterFilm);
-        imageViewPosterFilm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putString("url", itemFilmInfo.getPosterUrl());
-                Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
-            }
-        });
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -357,72 +306,61 @@ public class DescriptionFragment extends Fragment {
         );
         if (positionView != 0) {
             buttonResumeView.setVisibility(View.VISIBLE);
-            buttonResumeView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
-                    if (balancer.equals("HDVB")) {
-                        if (!isLoadHDVB) {
-                            Toast.makeText(getContext(), "Загрузка HDVB", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    } else if (balancer.equals("VIBIX")) {
-                        if (!isLoadVibix) {
-                            Toast.makeText(getContext(), "Загрузка Vibix", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    } else {
-                        Toast.makeText(getContext(), "Ошибка балансера: " + balancer, Toast.LENGTH_SHORT).show();
+        }
+        buttonResumeView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
+                if (balancer.equals("HDVB")) {
+                    if (!isLoadHDVB) {
+                        Toast.makeText(getContext(), "Загрузка HDVB", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    Intent intent = new Intent(getActivity(), PlayerExoActivity.class);
-                    EPData.Builder builderEPData = new EPData.Builder();
-                    if (itemFilmInfo == null) return;
-                    if (balancer.equals("HDVB")) {
-                        if (itemFilmInfo.isSerial()) {
-                            builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue());
-                        } else {
-                            builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue());
-                        }
-                    } else {
-                        if (itemFilmInfo.isSerial()) {
-                            builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataVibix().getValue());
-                        } else {
-                            builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataVibix().getValue());
-                        }
+                } else if (balancer.equals("VIBIX")) {
+                    if (!isLoadVibix) {
+                        Toast.makeText(getContext(), "Загрузка Vibix", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    builderEPData.setIndexTranslation(playbackPositionManager.getSavedIndexTranslation(kinopoisk_id));
-                    builderEPData.setIndexQuality(playbackPositionManager.getSavedIndexQuality(kinopoisk_id));
-                    builderEPData.setIndexSeason(playbackPositionManager.getSavedIndexSeason(kinopoisk_id));
-                    builderEPData.setIndexEpisode(playbackPositionManager.getSavedIndexEpisode(kinopoisk_id));
-                    builderEPData.setBalancer(balancer);
-                    builderEPData.setFilmInfo(itemFilmInfo);
-                    EPData films = builderEPData.build();
-                    intent.putExtra("epData", films);
-                    getActivity().startActivity(intent);
+                } else {
+                    Toast.makeText(getContext(), "Ошибка балансера: " + balancer, Toast.LENGTH_SHORT).show();
+                    return;
                 }
-            });
-            if (itemFilmInfo == null) return;
-            if (itemFilmInfo.isSerial()) {
-                // Если сериал
-                int indexSeason = playbackPositionManager.getSavedIndexSeason(kinopoisk_id);
-                int indexEpisode = playbackPositionManager.getSavedIndexEpisode(kinopoisk_id);
-                buttonResumeView.setText("Сезон " + (indexSeason + 1) + " • Серия " + (indexEpisode + 1) + " • " + formatTime(positionView));
-            } else {
-                buttonResumeView.setText("Продолжить: " + formatTime(positionView));
+                Intent intent = new Intent(getActivity(), PlayerExoActivity.class);
+                EPData.Builder builderEPData = new EPData.Builder();
+                if (itemFilmInfo == null) return;
+                if (balancer.equals("HDVB")) {
+                    if (itemFilmInfo.isSerial()) {
+                        builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue());
+                    } else {
+                        builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue());
+                    }
+                } else {
+                    if (itemFilmInfo.isSerial()) {
+                        builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataVibix().getValue());
+                    } else {
+                        builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataVibix().getValue());
+                    }
+                }
+                builderEPData.setIndexTranslation(playbackPositionManager.getSavedIndexTranslation(kinopoisk_id));
+                builderEPData.setIndexQuality(playbackPositionManager.getSavedIndexQuality(kinopoisk_id));
+                builderEPData.setIndexSeason(playbackPositionManager.getSavedIndexSeason(kinopoisk_id));
+                builderEPData.setIndexEpisode(playbackPositionManager.getSavedIndexEpisode(kinopoisk_id));
+                builderEPData.setBalancer(balancer);
+                builderEPData.setFilmInfo(itemFilmInfo);
+                EPData films = builderEPData.build();
+                intent.putExtra("epData", films);
+                getActivity().startActivity(intent);
             }
+        });
+        if (itemFilmInfo == null) return;
+        if (itemFilmInfo.isSerial()) {
+            // Если сериал
+            int indexSeason = playbackPositionManager.getSavedIndexSeason(kinopoisk_id);
+            int indexEpisode = playbackPositionManager.getSavedIndexEpisode(kinopoisk_id);
+            buttonResumeView.setText("Сезон " + (indexSeason + 1) + " • Серия " + (indexEpisode + 1) + " • " + formatTime(positionView));
         } else {
-            buttonResumeView.setVisibility(View.VISIBLE);
-            buttonResumeView.setText("Выбрать озвучку");
-            buttonResumeView.setEnabled(true);
-            buttonResumeView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    MainFilmFragment.setTransition(1);
-                }
-            });
+            buttonResumeView.setText("Продолжить: " + formatTime(positionView));
         }
-
     }
 
 

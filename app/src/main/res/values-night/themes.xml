@@ -3,8 +3,11 @@
     <style name="Base.Theme.FloraFilm" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/colorPrimaryDark</item>
-        <item name="IconsTintTheme">@color/iconsTintDark</item>
+        <item name="IconsTintThemeInverse">@color/iconsTintDark</item>
+        <item name="TextViewColorThemeInverse">@color/white</item>
         <item name="SwitchTintTrack">@color/colorPrimaryDark</item>
+        <item name="ColorPrimaryDayNight">@color/colorPrimaryDark</item>
+
 
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>

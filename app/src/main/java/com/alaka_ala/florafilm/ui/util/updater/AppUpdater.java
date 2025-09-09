@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -71,17 +72,21 @@ public class AppUpdater {
     public AppUpdater(Activity activity, boolean isSilentFindUpdate) {
         this.activity = activity;
         this.isSilentFindUpdate = isSilentFindUpdate;
-        this.isUpdateBetaVersion = SettingsUtils.getParamBetaVersion(activity.getBaseContext());
+        this.isUpdateBetaVersion = SettingsUtils.getParamBetaVersion(activity);
     }
 
     public boolean isSilentFindUpdate() {
         return isSilentFindUpdate;
     }
 
+    public interface CallbackCheckUpdate {
+        void onFinish(boolean isUpdateAvailable);
+    }
+
     /**
      * Запускает проверку наличия обновлений в фоновом потоке.
      */
-    public void checkForUpdate() {
+    public void checkForUpdate(CallbackCheckUpdate cb) {
         executor.execute(() -> {
             try {
                 // Код, который раньше был в doInBackground
@@ -92,11 +97,11 @@ public class AppUpdater {
                 Integer latestVersionCode = getLatestVersionCodeFromServer(versionUrl);
 
                 // Возвращаем результат в основной поток
-                mainThreadHandler.post(() -> onVersionCheckComplete(latestVersionCode, currentVersionCode));
+                mainThreadHandler.post(() -> onVersionCheckComplete(latestVersionCode, currentVersionCode, cb));
 
             } catch (PackageManager.NameNotFoundException e) {
                 Log.e(TAG, "Package info error", e);
-                mainThreadHandler.post(() -> onVersionCheckComplete(null, 0));
+                mainThreadHandler.post(() -> onVersionCheckComplete(null, 0, cb));
             }
         });
     }
@@ -133,7 +138,7 @@ public class AppUpdater {
      * Выполняется в основном потоке после завершения проверки версии.
      * Аналог onPostExecute из AsyncTask.
      */
-    private void onVersionCheckComplete(Integer latestVersionCode, int currentVersionCode) {
+    private void onVersionCheckComplete(Integer latestVersionCode, int currentVersionCode, CallbackCheckUpdate cb) {
         if (activity.isFinishing()) return; // Проверка, что Activity еще "жива"
 
         if (latestVersionCode == null) {
@@ -151,6 +156,8 @@ public class AppUpdater {
                 showMessageDialog("Обновлений не найдено!");
             }
         }
+        // Возвращаем результат в MainActivity
+        if (cb != null) cb.onFinish(latestVersionCode > currentVersionCode);
     }
 
     private void showUpdateDialog() {

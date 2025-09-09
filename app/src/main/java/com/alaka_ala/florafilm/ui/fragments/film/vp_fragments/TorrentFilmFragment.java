@@ -74,6 +74,8 @@ public class TorrentFilmFragment extends Fragment {
             public void onTransition(int currentPage) {
                 isCreateMenu = currentPage == 2;
             }
+
+
         });
 
         rootNotFoundTorrent = binding.rootNotFoundTorrent;

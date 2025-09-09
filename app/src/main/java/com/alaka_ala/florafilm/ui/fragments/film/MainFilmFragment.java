@@ -25,6 +25,7 @@ import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 /**
  * Фрагмент, отображающий подробную информацию о фильме с вкладками.
@@ -32,23 +33,19 @@ import com.google.android.material.tabs.TabLayout;
 public class MainFilmFragment extends Fragment {
     private FragmentMainFilmBinding binding;
     private ViewPager2 vpFilm;
-    private TabLayout tabLayoutFilm;
-    private MainFilmViewModel mainFilmViewModel;
     private static ViewPagerListener viewPagerListener;
-
+    private static ViewPagerSetterPage viewPagerSetterPage;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentMainFilmBinding.inflate(inflater, container, false);
-        mainFilmViewModel = new ViewModelProvider(getActivity()).get(MainFilmViewModel.class);
+        MainFilmViewModel mainFilmViewModel = new ViewModelProvider(getActivity()).get(MainFilmViewModel.class);
         int kinopoisk_id = getArguments().getInt("kinopoisk_id");
         mainFilmViewModel.setKinopoiskId(kinopoisk_id);
         vpFilm = binding.vpFilm;
-        tabLayoutFilm = binding.tabLayoutFilm;
+        TabLayout tabLayoutFilm = binding.tabLayoutFilm;
 
-        addTabLayout();
-        
         ViewPagerFilmAdapter viewPagerFilmAdapter = new ViewPagerFilmAdapter(getChildFragmentManager(), getLifecycle(), getContext());
         vpFilm.setAdapter(viewPagerFilmAdapter);
 
@@ -57,53 +54,44 @@ public class MainFilmFragment extends Fragment {
             vpFilm.setPageTransformer(new DepthPageTransformer());
         }
 
+        new TabLayoutMediator(tabLayoutFilm, vpFilm, (tab, position) -> {
+            switch (position) {
+                case 0:
+                    tab.setText("Описание");
+                    break;
+                case 1:
+                    tab.setText("Видео");
+                    break;
+                case 2:
+                    if (SettingsUtils.getParamSearchTorrent(getContext())) {
+                        tab.setText("Торрент");
+                    }
+                    break;
+            }
+        }).attach();
+
         vpFilm.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
                 onTransitionListener();
-                tabLayoutFilm.setScrollPosition(position, positionOffset, true);
                 requireActivity().invalidateOptionsMenu();
             }
         });
         onTransitionListener();
 
+        viewPagerSetterPage = new ViewPagerSetterPage() {
+            @Override
+            public void setPage(int page) {
+                vpFilm.setCurrentItem(page);
+            }
+        };
+        
+
         // Максимальное кол-во фрагментов хранящихся в памяти
         vpFilm.setOffscreenPageLimit(3);
-        tabLayoutFilm.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                vpFilm.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-
-
-
 
         return binding.getRoot();
-    }
-
-    /**
-     * Добавляет вкладки в TabLayout.
-     */
-    private void addTabLayout() {
-        tabLayoutFilm.addTab(tabLayoutFilm.newTab().setText("Описание"));
-        tabLayoutFilm.addTab(tabLayoutFilm.newTab().setText("Видео"));
-        // Если вкл\откл поиск по торрентам, то нужно показать или скрыть вкладку с торрентами
-        if (SettingsUtils.getParamSearchTorrent(getContext())) {
-            tabLayoutFilm.addTab(tabLayoutFilm.newTab().setText("Торрент"));
-        }
     }
 
     /**
@@ -117,6 +105,7 @@ public class MainFilmFragment extends Fragment {
 
     /**
      * Интерфейс для прослушивания переходов ViewPager.
+     * Устанавливается в дочернем фрагменте где необходимо получить информацию о текущей странице.
      */
     public interface ViewPagerListener {
         /**
@@ -136,4 +125,16 @@ public class MainFilmFragment extends Fragment {
     public static void setViewPagerListener(ViewPagerListener viewPagerListener) {
         MainFilmFragment.viewPagerListener = viewPagerListener;
     }
+
+    private interface ViewPagerSetterPage {
+        void setPage(int page);
+    }
+
+    public static void setTransition(int page){
+        if (viewPagerSetterPage == null) return;
+        viewPagerSetterPage.setPage(page);
+    }
+    
+
+
 }

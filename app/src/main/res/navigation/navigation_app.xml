@@ -146,4 +146,13 @@
         android:name="com.alaka_ala.florafilm.ui.fragments.ContactFragment"
         android:label="Контакты"
         tools:layout="@layout/fragment_contact" />
+    <fragment
+        android:id="@+id/geminiMovieFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.geminiMovie.GeminiMovieFragment"
+        android:label="Похожие фильмы"
+        tools:layout="@layout/fragment_gemini_movie" >
+        <action
+            android:id="@+id/action_geminiMovieFragment_to_mainFilmFragment"
+            app:destination="@id/mainFilmFragment" />
+    </fragment>
 </navigation>

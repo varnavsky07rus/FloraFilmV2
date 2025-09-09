@@ -10,16 +10,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:orientation="horizontal">
 
         <androidx.cardview.widget.CardView
             android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
-            app:cardCornerRadius="100dp">
+            app:cardCornerRadius="16dp">
 
             <ImageView
                 android:id="@+id/imageViewActor"

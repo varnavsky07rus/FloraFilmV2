@@ -5,6 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.activities.MainActivity">
 
     <LinearLayout
@@ -13,13 +14,11 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbarDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:fitsSystemWindows="true"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/Theme.FloraFilm.PopupOverlay" />
+            app:layout_scrollFlags="scroll|enterAlways" />
 
         <fragment
             android:id="@+id/nav_host_fragment_activity_main"

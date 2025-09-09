@@ -28,6 +28,7 @@ public class JacredTor {
     private String query;
     private SearchCallback sc;
 
+    /**Можно отправить в параметр query - kinopoisk_id в формате: kp666 либо название фильма или сериала*/
     public void query(String query, SearchCallback sc) {
         this.sc = sc;
         if (query.isEmpty()) {

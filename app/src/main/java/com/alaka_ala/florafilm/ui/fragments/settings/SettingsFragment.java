@@ -1,6 +1,7 @@
 package com.alaka_ala.florafilm.ui.fragments.settings;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.alaka_ala.florafilm.databinding.FragmentSettingsBinding;
 import com.alaka_ala.florafilm.ui.activities.MainActivity;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -92,7 +94,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 AppUpdater appUpdater = new AppUpdater(getActivity(), false);
-                appUpdater.checkForUpdate();
+                appUpdater.checkForUpdate(null);
             }
         });
 
@@ -140,6 +142,48 @@ public class SettingsFragment extends Fragment {
                 switch_off_effect_animation.setText(isChecked ? "Выключить анимации" : "Включить анимации");
             }
         });
+
+
+        // Инициализация и настройка переключателя для включения нового макета описания фильма
+        MaterialSwitch switch_off_layout_description_film = binding.switchOffLayoutDescriptionFilm;
+        boolean isActiveLayoutDescriptionFilm = SettingsUtils.getParamLayoutDescriptionFilm(getContext());
+        switch_off_layout_description_film.setChecked(isActiveLayoutDescriptionFilm);
+        switch_off_layout_description_film.setText(isActiveLayoutDescriptionFilm ? "Выключить новый макет описания фильма" : "Включить новый макет описания фильма");
+        switch_off_layout_description_film.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsUtils.setParamLayoutDescriptionFilm(getContext(), isChecked);
+                switch_off_layout_description_film.setText(isChecked ? "Выключить новый макет описания фильма" : "Включить новый макет описания фильма");
+            }
+        });
+
+
+        // Очистка кэша
+        TextView txtSizeCache = binding.txtSizeCache;
+        txtSizeCache.setText(SettingsUtils.getSizeCacheApp(getContext()));
+        Button btnClearCache = binding.btnClearCache;
+
+
+        btnClearCache.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getContext() == null) return;
+                new MaterialAlertDialogBuilder(getContext()).setItems(new String[]{"Очистить кэш", "Очистить все данные"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (i == 0) {
+                            SettingsUtils.clearCache(getContext(), false);
+                            txtSizeCache.setText(SettingsUtils.getSizeCacheApp(getContext()));
+                        } else {
+                            SettingsUtils.clearCache(getContext(), true);
+                            txtSizeCache.setText(SettingsUtils.getSizeCacheApp(getContext()));
+                        }
+                    }
+                }).show();
+
+            }
+        });
+
 
 
         if (isNtVersion()) {

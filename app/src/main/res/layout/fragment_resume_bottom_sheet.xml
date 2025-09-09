@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/gray"
     tools:context=".ui.fragments.resumeView.ResumeBottomSheetFragment">
 
     <LinearLayout
@@ -20,6 +21,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="Недавно смотрели"
+            android:textColor="@color/white"
             android:textSize="20sp" />
 
         <androidx.cardview.widget.CardView
@@ -43,6 +45,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:singleLine="true"
+            android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
             tools:text="Побег из Шоушенка" />
@@ -54,6 +57,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="32dp"
             android:text="Перейти"
+            android:textColor="@color/white"
             app:backgroundTint="@color/button_resume_view_tint"
             app:cornerRadius="50dp" />
     </LinearLayout>

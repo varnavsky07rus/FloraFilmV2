@@ -39,7 +39,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:tint="?attr/IconsTintTheme"
+                android:tint="?attr/IconsTintThemeInverse"
                 app:srcCompat="@drawable/baseline_keyboard_arrow_right_24" />
         </LinearLayout>
 

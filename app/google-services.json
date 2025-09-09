@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "50128289891",
+    "firebase_url": "https://filmix-70688-default-rtdb.firebaseio.com",
+    "project_id": "filmix-70688",
+    "storage_bucket": "filmix-70688.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50128289891:android:bd3836bf09b1508ab2f856",
+        "android_client_info": {
+          "package_name": "com.alaka_ala.florafilm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA27q-NMqFfCjxPOkZWqc__YgR03LmCIAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
