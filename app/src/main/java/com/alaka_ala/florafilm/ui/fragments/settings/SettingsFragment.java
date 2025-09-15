@@ -83,7 +83,7 @@ public class SettingsFragment extends Fragment {
         switch_off_search_lumex.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SettingsUtils.setParamSearchTorrent(getContext(), isChecked);
+                SettingsUtils.setParamSearchLumex(getContext(), isChecked);
                 switch_off_search_lumex.setText(isChecked ? "Выключить поиск LUMEX" : "Включить поиск LUMEX");
             }
         });
