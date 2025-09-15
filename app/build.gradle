@@ -11,12 +11,12 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 40
+        versionCode 41
         // 1.0.0_rs Версия RuStore
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.40_nt"
+        versionName "1.0.41_nt"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -94,6 +94,15 @@ dependencies {
 
 
     implementation 'com.google.firebase:firebase-database:22.0.0' // Или актуальная версия
+
+
+    // https://mvnrepository.com/artifact/com.github.sv244/torrentstream-android
+    implementation("com.github.sv244:torrentstream-android:3.0.0")
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+    // https://mvnrepository.com/artifact/org.libtorrent4j/libtorrent4j
+    implementation("org.libtorrent4j:libtorrent4j-android-x86_64:2.0.5-23")
+
+
 
 
 

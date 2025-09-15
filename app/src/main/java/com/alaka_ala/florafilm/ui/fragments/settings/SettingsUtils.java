@@ -35,6 +35,10 @@ public class SettingsUtils {
     //==============================================================================================
     public static final boolean DEF_LAYOUT_DESCRIPTION_FILM = true; // Если TRUE то используется новый макет описания фильма
     public static final String KEY_LAYOUT_DESCRIPTION_FILM = "KEY_LAYOUT_DESCRIPTION_FILM_7x00000";
+    //==============================================================================================
+    public static final boolean DEF_SEARCH_MODE_LUMEX = false;
+    public static final String KEY_SEARCH_MODE_LUMEX = "KEY_SEARCH_MODE_LUMEX_8x00000";
+    //==============================================================================================
 
 
     /**Взять параметр: Включен или отключен поиск сериалов по VIBIX*/
@@ -119,7 +123,20 @@ public class SettingsUtils {
     }
 
     //==============================================================================================
-    
+
+    public static boolean getParamSearchLumex(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(KEY_SEARCH_MODE_LUMEX, DEF_SEARCH_MODE_LUMEX);
+    }
+
+    public static void setParamSearchLumex(Context context, boolean param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(KEY_SEARCH_MODE_LUMEX, param).apply();
+    }
+
+    //==============================================================================================
+
+
     public static String getSizeCacheApp(Context context) {
         long size = FileUtils.sizeOf(new File(context.getCacheDir().getPath()));
         long sizeFilesDir = FileUtils.sizeOf(context.getFilesDir());
@@ -150,4 +167,7 @@ public class SettingsUtils {
         int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
         return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
+
+
+
 }

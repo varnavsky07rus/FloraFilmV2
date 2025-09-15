@@ -53,12 +53,12 @@ public class SettingsFragment extends Fragment {
         MaterialSwitch switch_off_search_vibix = binding.switchOffSearchVibix;
         boolean isActiveSearchSerialVibix = SettingsUtils.getParamSearchVIBIX(getContext());
         switch_off_search_vibix.setChecked(isActiveSearchSerialVibix);
-        switch_off_search_vibix.setText(isActiveSearchSerialVibix ? "Выключить поиск Vibix" : "Включить поиск Vibix");
+        switch_off_search_vibix.setText(isActiveSearchSerialVibix ? "Выключить поиск VIBIX" : "Включить поиск VIBIX");
         switch_off_search_vibix.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingsUtils.setParamSearchVibix(getContext(), isChecked);
-                switch_off_search_vibix.setText(isChecked ? "Выключить поиск Vibix" : "Включить поиск Vibix");
+                switch_off_search_vibix.setText(isChecked ? "Выключить поиск VIBIX" : "Включить поиск VIBIX");
             }
         });
 
@@ -72,6 +72,19 @@ public class SettingsFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingsUtils.setParamSearchHDVB(getContext(), isChecked);
                 switch_off_search_hdvb.setText(isChecked ? "Выключить поиск HDVB" : "Включить поиск HDVB");
+            }
+        });
+
+        // Инициализация и настройка переключателя для поиска LUMEX
+        MaterialSwitch switch_off_search_lumex = binding.switchOffSearchLumex;
+        boolean isActiveSearchLumex = SettingsUtils.getParamSearchLumex(getContext());
+        switch_off_search_lumex.setChecked(isActiveSearchLumex);
+        switch_off_search_lumex.setText(isActiveSearchLumex ? "Выключить поиск LUMEX" : "Включить поиск LUMEX");
+        switch_off_search_lumex.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsUtils.setParamSearchTorrent(getContext(), isChecked);
+                switch_off_search_lumex.setText(isChecked ? "Выключить поиск LUMEX" : "Включить поиск LUMEX");
             }
         });
 
@@ -134,12 +147,12 @@ public class SettingsFragment extends Fragment {
         MaterialSwitch switch_off_effect_animation = binding.switchOffEffectAnimation;
         boolean isActiveEffectAnimation = SettingsUtils.getParamPageEffectAnimation(getContext());
         switch_off_effect_animation.setChecked(isActiveEffectAnimation);
-        switch_off_effect_animation.setText(isActiveEffectAnimation ? "Выключить анимации" : "Включить анимации");
+        switch_off_effect_animation.setText(isActiveEffectAnimation ? "Выключить анимации LOTTIE" : "Включить анимации LOTTIE");
         switch_off_effect_animation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingsUtils.setParamPageEffectAnimation(getContext(), isChecked);
-                switch_off_effect_animation.setText(isChecked ? "Выключить анимации" : "Включить анимации");
+                switch_off_effect_animation.setText(isChecked ? "Выключить анимации LOTTIE" : "Включить анимации LOTTIE");
             }
         });
 

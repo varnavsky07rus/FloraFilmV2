@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EPData implements Serializable{
+public class EPData implements Serializable {
 
     public static final String TYPE_CONTENT_FILM = "FILM";
     public static final String TYPE_CONTENT_SERIAL = "SERIAL";

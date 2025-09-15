@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentDescriptionDeptBinding;
-import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilm2Binding;
-import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
@@ -33,6 +31,7 @@ import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -65,7 +64,7 @@ public class DescriptionDeptFragment extends Fragment {
 
     private boolean isLoadHDVB = false;
     private boolean isLoadVibix = false;
-
+    private boolean isLoadLumex = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -148,12 +147,33 @@ public class DescriptionDeptFragment extends Fragment {
             }
 
             @Override
+            public void successLumexFilm(EPData.Film film) {
+                isLoadLumex = true;
+                mainFilmViewModel.getFilmMutableLiveDataLUMEX().setValue(film);
+                if (balancer.equals("LUMEX")) {
+                    buttonResumeView.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void successLumexSerial(EPData.Serial serial) {
+                isLoadLumex = true;
+                mainFilmViewModel.getSerialMutableLiveDataLUMEX().setValue(serial);
+                if (balancer.equals("LUMEX")) {
+                    buttonResumeView.setEnabled(true);
+                }
+            }
+
+            @Override
             public void error(String balancer, String err) {
                 if (getContext() != null) {
                     Toast.makeText(getContext(), balancer + ": " + err, Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+
+
 
 
         return binding.getRoot();
@@ -311,19 +331,28 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
-                if (balancer.equals("HDVB")) {
-                    if (!isLoadHDVB) {
-                        Toast.makeText(getContext(), "Загрузка HDVB", Toast.LENGTH_SHORT).show();
+                switch (balancer) {
+                    case "HDVB":
+                        if (!isLoadHDVB) {
+                            Toast.makeText(getContext(), "Загрузка данных HDVB", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        break;
+                    case "VIBIX":
+                        if (!isLoadVibix) {
+                            Toast.makeText(getContext(), "Загрузка данных VIBIX", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        break;
+                    case "LUMEX":
+                        if (!isLoadLumex) {
+                            Toast.makeText(getContext(), "Загрузка данных LUMEX", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        break;
+                    default:
+                        new MaterialAlertDialogBuilder(getContext()).setTitle(balancer).setMessage("Упс. с балансером: " + balancer + " продолжить пока что не получится!\nНо мы это скоро исправим!").show();
                         return;
-                    }
-                } else if (balancer.equals("VIBIX")) {
-                    if (!isLoadVibix) {
-                        Toast.makeText(getContext(), "Загрузка Vibix", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Ошибка балансера: " + balancer, Toast.LENGTH_SHORT).show();
-                    return;
                 }
                 Intent intent = new Intent(getActivity(), PlayerExoActivity.class);
                 EPData.Builder builderEPData = new EPData.Builder();
@@ -333,6 +362,12 @@ public class DescriptionDeptFragment extends Fragment {
                         builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue());
                     } else {
                         builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue());
+                    }
+                } else if (balancer.equals("LUMEX")) {
+                    if (itemFilmInfo.isSerial()) {
+                        builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue());
+                    } else {
+                        builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue());
                     }
                 } else {
                     if (itemFilmInfo.isSerial()) {

@@ -133,13 +133,10 @@ public class MainFilmViewModel extends ViewModel {
 
     // HDVB
     private final MutableLiveData<EPData.Film> filmMutableLiveDataHDVB = new MutableLiveData<>();
-
     private final MutableLiveData<EPData.Serial> serialMutableLiveDataHDVB = new MutableLiveData<>();
-
     public MutableLiveData<EPData.Serial> getSerialMutableLiveDataHDVB() {
         return serialMutableLiveDataHDVB;
     }
-
     public MutableLiveData<EPData.Film> getFilmMutableLiveDataHDVB() {
         return filmMutableLiveDataHDVB;
     }
@@ -152,6 +149,16 @@ public class MainFilmViewModel extends ViewModel {
     }
     public MutableLiveData<EPData.Film> getFilmMutableLiveDataVibix() {
         return filmMutableLiveDataVibix;
+    }
+
+    // LUMEX
+    private final MutableLiveData<EPData.Film> filmMutableLiveDataLUMEX = new MutableLiveData<>();
+    private final MutableLiveData<EPData.Serial> serialMutableLiveDataLUMEX = new MutableLiveData<>();
+    public MutableLiveData<EPData.Serial> getSerialMutableLiveDataLUMEX() {
+        return serialMutableLiveDataLUMEX;
+    }
+    public MutableLiveData<EPData.Film> getFilmMutableLiveDataLUMEX() {
+        return filmMutableLiveDataLUMEX;
     }
 
 }

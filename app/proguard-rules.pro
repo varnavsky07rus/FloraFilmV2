@@ -51,3 +51,5 @@
 
 # Также рекомендуется сохранить сам класс, чтобы он не был удален, если R8 посчитает его неиспользуемым.
 -keep class com.alaka_ala.florafilm.ui.util.api.firebase.FilmDataModel
+
+-keep class org.libtorrent4j.swig.libtorrent_jni {*;}

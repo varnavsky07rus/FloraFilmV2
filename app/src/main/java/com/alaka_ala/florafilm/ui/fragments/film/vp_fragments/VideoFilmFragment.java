@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
@@ -26,6 +27,8 @@ import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVBSelector;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.models.HDVBFilm;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.models.HDVBSerial;
+import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
+import com.alaka_ala.florafilm.ui.util.api.lumex.LumexSelector;
 import com.alaka_ala.florafilm.ui.util.api.vibix.Vibix;
 import com.alaka_ala.florafilm.ui.util.api.vibix.VibixSelector;
 
@@ -48,6 +51,7 @@ public class VideoFilmFragment extends Fragment {
 
     private boolean isNotFountDataVibix = false;
     private boolean isNotFountDataHDVB = false;
+    private boolean isNotFoundDataLumex = false;
     private FrameLayout rootNotFound;
     private LottieAnimationView lottieNotFound;
 
@@ -60,6 +64,13 @@ public class VideoFilmFragment extends Fragment {
         rootNotFound = binding.rootNotFound;
         lottieNotFound = binding.lottieNotFound;
 
+        chekBanFilm();
+        printNotFoundFile();
+
+        return binding.getRoot();
+    }
+
+    private void chekBanFilm() {
         BanCheker banCheker = new BanCheker(getContext());
         if (!banCheker.isBan(mainFilmViewModel.getKinopoiskId())) {
             if (SettingsUtils.getParamSearchVIBIX(getContext())) {
@@ -68,15 +79,14 @@ public class VideoFilmFragment extends Fragment {
             if (SettingsUtils.getParamSeeachHDVB(getContext())) {
                 parseHdvb();
             }
+            if (SettingsUtils.getParamSearchLumex(getContext())) {
+                parseLumex();
+            }
         } else {
             isNotFountDataVibix = true;
             isNotFountDataHDVB = true;
+            isNotFoundDataLumex = true;
         }
-
-
-        printNotFoundFile();
-
-        return binding.getRoot();
     }
 
     private void printNotFoundFile() {
@@ -91,7 +101,6 @@ public class VideoFilmFragment extends Fragment {
             lottieNotFound.pauseAnimation();
         }
     }
-
 
     private void parseHdvb() {
         HDVB hdvb = new HDVB(getResources().getString(R.string.api_key_hdvb));
@@ -167,6 +176,42 @@ public class VideoFilmFragment extends Fragment {
         });
     }
 
+    private void parseLumex() {
+        LumexApi lumexApi = new LumexApi();
+        lumexApi.getFromKinopoiskId(mainFilmViewModel.getCurrentFilmInfo(), new LumexApi.CallbackLumex() {
+            @Override
+            public void success(EPData.Film film, EPData.Serial serial) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                LumexSelector lumexSelector;
+                if (film != null) {
+                    lumexSelector = new LumexSelector(binding.linearLayoutRoot, film, mainFilmViewModel.getCurrentFilmInfo());
+                } else {
+                    lumexSelector = new LumexSelector(binding.linearLayoutRoot, serial, mainFilmViewModel.getCurrentFilmInfo());
+                }
+                handler.post(() ->lumexSelector.buildSelector(getActivity()));
+                if (film == null) {
+                    if (callbackLoaderData != null) {
+                        handler.post(() ->callbackLoaderData.successLumexSerial(serial));
+                        isNotFountDataVibix = false;
+                    }
+                } else {
+                    if (callbackLoaderData != null) {
+                        handler.post(() ->callbackLoaderData.successLumexFilm(film));
+                        isNotFountDataVibix = false;
+                    }
+                }
+
+            }
+
+            @Override
+            public void error(String err) {
+                new Handler(Looper.getMainLooper()).post(() ->onError("LUMEX", err));
+                isNotFoundDataLumex = true;
+            }
+        });
+    }
+
+
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -186,6 +231,11 @@ public class VideoFilmFragment extends Fragment {
         void successHDVBSerial(EPData.Serial serial);
 
         void successVibixSerial(EPData.Serial serial);
+
+        void successLumexFilm(EPData.Film film);
+
+        void successLumexSerial(EPData.Serial serial);
+
 
         void error(String balancer, String err);
     }

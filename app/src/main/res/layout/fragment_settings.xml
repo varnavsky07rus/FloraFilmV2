@@ -103,7 +103,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="Включить поиск Vibix"
+                        android:text="Включить поиск VIBIX"
                         app:thumbTint="@color/switchersSettings"
                         app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
@@ -114,6 +114,16 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Включить поиск HDVB"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
+                        app:trackTint="?attr/SwitchTintTrack" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_off_search_lumex"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Включить поиск LUMEX"
                         app:thumbTint="@color/switchersSettings"
                         app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
@@ -170,7 +180,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="Включить анимации"
+                        android:text="Включить анимации LOTTIE"
                         app:thumbTint="@color/switchersSettings"
                         app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
@@ -254,7 +264,8 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
                         android:backgroundTint="@color/butonUpdateColor"
-                        android:text="Очистить данные" />
+                        android:text="Очистить данные"
+                        android:textColor="@color/white" />
 
                 </LinearLayout>
             </FrameLayout>

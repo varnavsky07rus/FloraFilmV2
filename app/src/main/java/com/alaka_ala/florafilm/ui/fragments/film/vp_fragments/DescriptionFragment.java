@@ -7,11 +7,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,29 +22,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
-import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilm2Binding;
 import com.alaka_ala.florafilm.databinding.FragmentDescriptionFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
-import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
-import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.firebase.DataLikes;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Country;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Genre;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
+import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.divider.MaterialDivider;
-import com.google.android.material.snackbar.Snackbar;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -84,6 +78,7 @@ public class DescriptionFragment extends Fragment {
 
     private boolean isLoadHDVB = false;
     private boolean isLoadVibix = false;
+    private boolean isLoadLumex = false;
 
 
     @Override
@@ -188,13 +183,30 @@ public class DescriptionFragment extends Fragment {
             }
 
             @Override
+            public void successLumexFilm(EPData.Film film) {
+                isLoadLumex = true;
+                mainFilmViewModel.getFilmMutableLiveDataLUMEX().setValue(film);
+                if (balancer.equals("LUMEX")) {
+                    buttonResumeView.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void successLumexSerial(EPData.Serial serial) {
+                isLoadLumex = true;
+                mainFilmViewModel.getSerialMutableLiveDataLUMEX().setValue(serial);
+                if (balancer.equals("LUMEX")) {
+                    buttonResumeView.setEnabled(true);
+                }
+            }
+
+            @Override
             public void error(String balancer, String err) {
                 if (getContext() != null) {
                     Toast.makeText(getContext(), balancer + ": " + err, Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
 
         return binding.getRoot();
     }
@@ -307,36 +319,6 @@ public class DescriptionFragment extends Fragment {
 
 
     private void loadPicassoPoster() {
-        Target target = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                // Изображение успешно загружено в виде Bitmap
-                // Теперь применяем эффект размытия
-                if (getContext() != null) {
-                    Blurry.with(getContext())
-                            .radius(20)     // Радиус размытия (от 0 до 25)
-                            .sampling(5)    // Качество (чем меньше, тем выше качество и медленнее обработка)
-                            .from(bitmap)   // Указываем исходный Bitmap
-                            .into(imageViewPosterFilm); // Указываем, в какой ImageView поместить результат
-                }
-            }
-
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                // Вызывается, если не удалось загрузить изображение
-                // Можно установить изображение-заглушку
-                binding.imageViewPosterFilm.setImageDrawable(errorDrawable);
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                // Вызывается перед началом загрузки
-                // Можно установить изображение-заглушку
-                binding.imageViewPosterFilm.setImageDrawable(placeHolderDrawable);
-            }
-        };
-        binding.imageViewPosterFilm.setTag(target);
-        Picasso.get().load(itemFilmInfo.getPosterUrl()).into(target);
         Picasso.get().load(itemFilmInfo.getPosterUrl()).into(binding.imageViewPosterFilm);
         imageViewPosterFilm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -355,25 +337,34 @@ public class DescriptionFragment extends Fragment {
                 playbackPositionManager.getSavedIndexEpisode(kinopoisk_id),
                 playbackPositionManager.getSavedIndexSeason(kinopoisk_id)
         );
+        buttonResumeView.setVisibility(View.VISIBLE);
         if (positionView != 0) {
-            buttonResumeView.setVisibility(View.VISIBLE);
             buttonResumeView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
-                    if (balancer.equals("HDVB")) {
-                        if (!isLoadHDVB) {
-                            Toast.makeText(getContext(), "Загрузка HDVB", Toast.LENGTH_SHORT).show();
+                    switch (balancer) {
+                        case "HDVB":
+                            if (!isLoadHDVB) {
+                                Toast.makeText(getContext(), "Загрузка данных HDVB", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            break;
+                        case "VIBIX":
+                            if (!isLoadVibix) {
+                                Toast.makeText(getContext(), "Загрузка данных VIBIX", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            break;
+                        case "LUMEX":
+                            if (!isLoadLumex) {
+                                Toast.makeText(getContext(), "Загрузка данных LUMEX", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            break;
+                        default:
+                            new MaterialAlertDialogBuilder(getContext()).setTitle(balancer).setMessage("Упс. с балансером: " + balancer + " продолжить пока что не получится!\nНо мы это скоро исправим!").show();
                             return;
-                        }
-                    } else if (balancer.equals("VIBIX")) {
-                        if (!isLoadVibix) {
-                            Toast.makeText(getContext(), "Загрузка Vibix", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    } else {
-                        Toast.makeText(getContext(), "Ошибка балансера: " + balancer, Toast.LENGTH_SHORT).show();
-                        return;
                     }
                     Intent intent = new Intent(getActivity(), PlayerExoActivity.class);
                     EPData.Builder builderEPData = new EPData.Builder();
@@ -383,6 +374,12 @@ public class DescriptionFragment extends Fragment {
                             builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue());
                         } else {
                             builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue());
+                        }
+                    } else if (balancer.equals("LUMEX")) {
+                        if (itemFilmInfo.isSerial()) {
+                            builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue());
+                        } else {
+                            builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue());
                         }
                     } else {
                         if (itemFilmInfo.isSerial()) {
@@ -412,7 +409,6 @@ public class DescriptionFragment extends Fragment {
                 buttonResumeView.setText("Продолжить: " + formatTime(positionView));
             }
         } else {
-            buttonResumeView.setVisibility(View.VISIBLE);
             buttonResumeView.setText("Выбрать озвучку");
             buttonResumeView.setEnabled(true);
             buttonResumeView.setOnClickListener(new View.OnClickListener() {
