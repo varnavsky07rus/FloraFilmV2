@@ -25,8 +25,14 @@ import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class BanCheker {
     private final boolean isDebug = true;
@@ -54,12 +60,34 @@ public class BanCheker {
                 return false;
             }
         });
+
         new Thread(() -> {
             Map<Integer, Boolean> banList = new HashMap<>();
-            try {
-                URL url = new URL(FILE_URL_PATH);
-                InputStream inputStream = url.openStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.SECONDS)
+                    .writeTimeout(10, TimeUnit.SECONDS)
+                    .build();
+
+            Request request = new Request.Builder()
+                    .url(FILE_URL_PATH)
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    Log.e(TAG, "Ошибка при загрузке бан листа: " + response.code());
+                    handler.sendEmptyMessage(1);
+                    return;
+                }
+
+                ResponseBody responseBody = response.body();
+                if (responseBody == null) {
+                    Log.e(TAG, "Пустое тело ответа");
+                    handler.sendEmptyMessage(1);
+                    return;
+                }
+
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(responseBody.byteStream()));
                 String id;
                 while ((id = bufferedReader.readLine()) != null) {
                     String idTrim = id.trim();
@@ -67,6 +95,7 @@ public class BanCheker {
                         banList.put(Integer.parseInt(idTrim), true);
                     }
                 }
+
                 if (cacheList(banList)) {
                     Log.d(TAG, "Бан лист успешно загружен");
                     handler.sendEmptyMessage(0);
@@ -76,7 +105,8 @@ public class BanCheker {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.e(TAG, Objects.requireNonNull(e.getMessage()));
+                Log.e(TAG, "Ошибка: " + e.getMessage());
+                handler.sendEmptyMessage(1);
             }
         }).start();
     }

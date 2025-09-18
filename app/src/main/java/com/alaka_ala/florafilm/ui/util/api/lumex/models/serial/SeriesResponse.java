@@ -39,9 +39,6 @@ public class SeriesResponse {
         private String add;
         private String year;
 
-        // translations — мапа с числовыми ключами, поэтому Map<String, String>
-        private Map<String, String> translations;
-
         @SerializedName("imdb_id")
         private String imdbId;
 
@@ -58,10 +55,6 @@ public class SeriesResponse {
 
         public String getImdbId() {
             return imdbId;
-        }
-
-        public Map<String, String> getTranslations() {
-            return translations;
         }
 
         public String getYear() {

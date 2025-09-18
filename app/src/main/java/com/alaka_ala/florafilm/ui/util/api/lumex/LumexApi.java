@@ -2,14 +2,20 @@ package com.alaka_ala.florafilm.ui.util.api.lumex;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
+import com.alaka_ala.florafilm.BuildConfig;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
 import com.alaka_ala.florafilm.ui.util.api.lumex.models.movie.MoviePlayerResponse;
 import com.alaka_ala.florafilm.ui.util.api.lumex.models.movie.MovieResponse;
+import com.alaka_ala.florafilm.ui.util.api.lumex.models.others.ApiRespInfo;
+import com.alaka_ala.florafilm.ui.util.api.lumex.models.others.TranslationsDeserializer;
 import com.alaka_ala.florafilm.ui.util.api.lumex.models.serial.SeriesPlayerResponse;
 import com.alaka_ala.florafilm.ui.util.api.lumex.models.serial.SeriesResponse;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -25,9 +31,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class LumexApi {
+    /**Максимальное колличество попыток запроса к серверу за получением прямой ссылки на поток (Используется в плеере) */
+    private static final int MAX_RETRIES = 5;
     private static final String API_TOKEN = "Fm4PitEIcN1zUvxT92jer99ybYFf9yHj";
     private static final String CLIENT_ID = "elIrHPVlNWOa";
-    private ItemFilmInfo filmInfo;
 
     private Response getRequest(String url) {
         OkHttpClient client = new OkHttpClient()
@@ -100,20 +107,42 @@ public class LumexApi {
      * Все ответы в callback приходят из отдельного потока.
      * Будьте осторожны при обновлении пользовательского интерфейса
      */
-    public void getFromKinopoiskId(ItemFilmInfo filmInfo, CallbackLumex callbackLumex) {
-        this.filmInfo = filmInfo;
+    public void getFromKinopoiskId(int kinopoisk_id, CallbackLumex callbackLumex) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String stringUrl = "https://portal.lumex.host/api/short?api_token=" + API_TOKEN + "&kinopoisk_id=" + filmInfo.getKinopoiskId();
+                String stringUrl = "https://portal.lumex.host/api/short?api_token=" + API_TOKEN + "&kinopoisk_id=" + kinopoisk_id;
                 try {
+                    String filmTitle = "";
                     Response getContentId = getRequest(stringUrl);
                     if (getContentId != null) {
                         if (getContentId.body() != null) {
                             String body = getContentId.body().string();
-                            // ответ с data, php, result
-                            if (filmInfo.isSerial()) {
+                            ApiRespInfo apiRespInfo = new Gson().fromJson(body, ApiRespInfo.class);
+                            if (apiRespInfo.getData() == null) {
+                                callbackLumex.error("Фильм отсутствует в базе");
+                                return;
+                            }
+                            String type = apiRespInfo.getData().get(0).getContentType();
+                            if (type.equals("movie")) {
+                                MovieResponse movieResponse = new Gson().fromJson(body, MovieResponse.class);
+                                stringUrl = "https://api.lumex.space/content?clientId=" + CLIENT_ID + "&contentType=movie&contentId=" + movieResponse.getData().get(0).getId();
+                                Response moviePlayerResponse = getRequest(stringUrl);
+                                if (moviePlayerResponse != null) {
+                                    if (moviePlayerResponse.body() != null) {
+                                        body = moviePlayerResponse.body().string();
+                                        MoviePlayerResponse moviePlayerResponseValid = new Gson().fromJson(body, MoviePlayerResponse.class);
+                                        EPData.Film film = createEPDataFilm(moviePlayerResponseValid, filmTitle);
+                                        callbackLumex.success(film, null);
+                                    } else {
+                                        callbackLumex.error("#2 Ошибка получения данных");
+                                    }
+                                } else {
+                                    callbackLumex.error("#3 Ошибка получения данных");
+                                }
+                            } else {
                                 SeriesResponse seriesResponse = new Gson().fromJson(body, SeriesResponse.class);
+                                filmTitle = seriesResponse.getData().get(0).getTitle();
                                 stringUrl = "https://api.lumex.space/content?clientId=" + CLIENT_ID + "&contentType=tv-series&contentId=" + seriesResponse.getData().get(0).getId();
                                 Response seriesPlayerResponse = getRequest(stringUrl);
                                 if (seriesPlayerResponse != null) {
@@ -123,40 +152,18 @@ public class LumexApi {
                                         EPData.Serial epDataSerial = createEPDataSerial(seriesResponseValid);
                                         callbackLumex.success(null, epDataSerial);
                                     } else {
-                                        callbackLumex.error("#5 Ошибка получения данных");
-                                    }
-                                } else {
-                                    callbackLumex.error("#4 Ошибка получения данных");
-                                }
-                            } else {
-                                MovieResponse movieResponse = new Gson().fromJson(body, MovieResponse.class);
-                                stringUrl = "https://api.lumex.space/content?clientId=" + CLIENT_ID + "&contentType=movie&contentId=" + movieResponse.getData().get(0).getId();
-                                Response moviePlayerResponse = getRequest(stringUrl);
-                                if (moviePlayerResponse != null) {
-                                    if (moviePlayerResponse.body() != null) {
-                                        body = moviePlayerResponse.body().string();
-                                        MoviePlayerResponse moviePlayerResponseValid = new Gson().fromJson(body, MoviePlayerResponse.class);
-                                        EPData.Film film = createEPDataFilm(moviePlayerResponseValid);
-                                        callbackLumex.success(film, null);
-                                    } else {
                                         callbackLumex.error("#4 Ошибка получения данных");
                                     }
                                 } else {
-                                    callbackLumex.error("#3 Ошибка получения данных");
-
+                                    callbackLumex.error("#5 Ошибка получения данных");
                                 }
-
-
                             }
-
-
-
                         } else {
-                            callbackLumex.error("#2 Ошибка получения данных");
+                            callbackLumex.error("#6 Ошибка получения данных");
 
                         }
                     } else {
-                        callbackLumex.error("#1 Ошибка получения данных");
+                        callbackLumex.error("#7 Ошибка получения данных");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -201,7 +208,7 @@ public class LumexApi {
             }
 
 
-            private EPData.Film createEPDataFilm(MoviePlayerResponse moviePlayerResponse) {
+            private EPData.Film createEPDataFilm(MoviePlayerResponse moviePlayerResponse, String filmTitle) {
                 //String contentType = apiResponseValid.getPlayer().getContentType();
                 //if (contentType.equals("movie") || contentType.equals("anime")) {
                 EPData.Film.Builder filmBuilder = new EPData.Film.Builder();
@@ -217,7 +224,7 @@ public class LumexApi {
                 }
                 filmBuilder.setTranslations(translationsArrayList);
                 // TODO: Корректно обработать имя (добавить разные варианты при отсуствуии русского названия)
-                filmBuilder.setNameFilm(filmInfo.getNameRu());
+                filmBuilder.setNameFilm(filmTitle);
                 filmBuilder.addBlock(null);
                 filmBuilder.setId(String.valueOf(moviePlayerResponse.getPlayer().getKinopoiskId()));
                 filmBuilder.setPoster("http://st.kinopoisk.ru/images/film_big/" + moviePlayerResponse.getPlayer().getKinopoiskId() + ".jpg");
@@ -231,27 +238,50 @@ public class LumexApi {
 
     }
 
-
     public static void getHls(String validateUrl, CallbackLumexHls callback) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Response response = postRequest(validateUrl);
-                    if (response != null) {
-                        if (response.body() != null) {
-                            String body = response.body().string();
-                            LumexHLS lumexHLS = new Gson().fromJson(body, LumexHLS.class);
-                            Handler handler = new Handler(Looper.getMainLooper());
-                            handler.post(() -> callback.success(lumexHLS));
+        getHls(validateUrl, callback, 0);
+    }
+
+    private static void getHls(String validateUrl, CallbackLumexHls callback, int retryCount) {
+        new Thread(() -> {
+            try {
+                Response response = postRequest(validateUrl);
+                if (response != null && response.body() != null) {
+                    String body = response.body().string();
+
+                    if (BuildConfig.DEBUG) Log.d("LumexApi", "response code: " + response.code());
+
+                    if (response.code() == 504) {
+                        if (retryCount < MAX_RETRIES) {
+                            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    getHls(validateUrl, callback, retryCount + 1), 1000);
+                        } else {
+                            // Макс. число попыток превышено — вернуть ошибку
+                            new Handler(Looper.getMainLooper()).post(() ->
+                                    callback.error("Max retries exceeded for 504 error"));
                         }
+                        return;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                    if (response.isSuccessful()) {
+                        LumexHLS lumexHLS = new Gson().fromJson(body, LumexHLS.class);
+                        new Handler(Looper.getMainLooper()).post(() -> callback.success(lumexHLS));
+                    } else {
+                        // Обработка других кодов ошибок (если надо)
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                callback.error("HTTP error code: " + response.code()));
+                    }
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            callback.error("Empty response"));
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> callback.error(e.getMessage()));
             }
         }).start();
     }
+
 
     public static class LumexHLS {
         public String getUrl() {

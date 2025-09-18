@@ -93,6 +93,7 @@
                             android:textAppearance="?attr/textAppearanceBody2"
                             android:textSize="16sp"
                             android:textStyle="bold"
+                            app:chipCornerRadius="8dp"
                             tools:text="7.8" />
 
                     </com.google.android.material.chip.ChipGroup>

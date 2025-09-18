@@ -41,6 +41,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class AppUpdater {
     private static final String TAG = "AppUpdater";
@@ -94,7 +99,7 @@ public class AppUpdater {
                 int currentVersionCode = pInfo.versionCode;
 
                 String versionUrl = isUpdateBetaVersion ? VERSION_URL_BETA : VERSION_URL;
-                Integer latestVersionCode = getLatestVersionCodeFromServer(versionUrl);
+                Integer latestVersionCode = getLatestVersionCodeFromServer(versionUrl, currentVersionCode);
 
                 // Возвращаем результат в основной поток
                 mainThreadHandler.post(() -> onVersionCheckComplete(latestVersionCode, currentVersionCode, cb));
@@ -106,33 +111,35 @@ public class AppUpdater {
         });
     }
 
-    private Integer getLatestVersionCodeFromServer(String urlString) {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
-            connection.setRequestMethod("GET");
+    private Integer getLatestVersionCodeFromServer(String urlString, int currentVersion) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .build();
 
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                return null;
+        Request request = new Request.Builder()
+                .url(urlString)
+                .get()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful() || response.body() == null) {
+                return currentVersion;  // Возвращаем текущую версию, если ошибка ответа
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder json = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                json.append(line);
-            }
-            reader.close();
-
-            JSONObject jsonObject = new JSONObject(json.toString());
+            String responseBody = response.body().string();
+            JSONObject jsonObject = new JSONObject(responseBody);
             return jsonObject.getJSONArray("elements")
                     .getJSONObject(0)
                     .getInt("versionCode");
 
         } catch (IOException | JSONException e) {
             Log.e(TAG, "Version check error", e);
-            return null;
+            return currentVersion;  // Возвращаем текущую версию, если ошибка запроса или парсинга
         }
     }
+
 
     /**
      * Выполняется в основном потоке после завершения проверки версии.

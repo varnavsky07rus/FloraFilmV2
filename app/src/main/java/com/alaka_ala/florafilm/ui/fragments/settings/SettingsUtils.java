@@ -15,7 +15,7 @@ import java.util.Locale;
 public class SettingsUtils {
     private static final String KEY_PREFERENCES= "KEY_SETTINGS_NAME_PREFERENCES";
     //==============================================================================================
-    public static final boolean DEF_SEARCH_MODE_VIBIX = true;
+    public static final boolean DEF_SEARCH_MODE_VIBIX = false;
     public static final String KEY_SEARCH_MODE_VIBIX = "KEY_SEARCH_MODE_SERIAL_1x00000";
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_HDVB = true;
@@ -39,6 +39,9 @@ public class SettingsUtils {
     public static final boolean DEF_SEARCH_MODE_LUMEX = false;
     public static final String KEY_SEARCH_MODE_LUMEX = "KEY_SEARCH_MODE_LUMEX_8x00000";
     //==============================================================================================
+    public static final boolean DEF_SEARCH_AUTO_UPDATE = false;
+    public static final String KEY_SEARCH_AUTO_UPDATE = "KEY_SEARCH_AUTO_UPDATE_9x00000";
+
 
 
     /**Взять параметр: Включен или отключен поиск сериалов по VIBIX*/
@@ -135,6 +138,17 @@ public class SettingsUtils {
     }
 
     //==============================================================================================
+
+    public static boolean getParamSearchAutoUpdate(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(KEY_SEARCH_AUTO_UPDATE, DEF_SEARCH_AUTO_UPDATE);
+    }
+
+    public static void setParamSearchAutoUpdate(Context context, boolean param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(KEY_SEARCH_AUTO_UPDATE, param).apply();
+    }
+
 
 
     public static String getSizeCacheApp(Context context) {

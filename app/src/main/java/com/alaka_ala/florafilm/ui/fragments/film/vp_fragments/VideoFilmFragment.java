@@ -90,7 +90,7 @@ public class VideoFilmFragment extends Fragment {
     }
 
     private void printNotFoundFile() {
-        if (isNotFountDataVibix && isNotFountDataHDVB) {
+        if (isNotFountDataVibix && isNotFountDataHDVB && isNotFoundDataLumex) {
             rootNotFound.setVisibility(View.VISIBLE);
             lottieNotFound.setAnimation(R.raw.not_found);
             if (SettingsUtils.getParamPageEffectAnimation(getContext())) {
@@ -178,7 +178,7 @@ public class VideoFilmFragment extends Fragment {
 
     private void parseLumex() {
         LumexApi lumexApi = new LumexApi();
-        lumexApi.getFromKinopoiskId(mainFilmViewModel.getCurrentFilmInfo(), new LumexApi.CallbackLumex() {
+        lumexApi.getFromKinopoiskId(mainFilmViewModel.getKinopoiskId(), new LumexApi.CallbackLumex() {
             @Override
             public void success(EPData.Film film, EPData.Serial serial) {
                 Handler handler = new Handler(Looper.getMainLooper());

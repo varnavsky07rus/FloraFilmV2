@@ -50,10 +50,6 @@ public class MovieResponse {
             return year;
         }
 
-        public List<String> getTranslations() {
-            return translations;
-        }
-
         public String getImdbId() {
             return imdbId;
         }
@@ -81,9 +77,6 @@ public class MovieResponse {
 
         private String add;
         private String year;
-
-        // translations — список строк, а не Map
-        private List<String> translations;
 
         @SerializedName("imdb_id")
         private String imdbId;

@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="[Vibix]"
+                android:text="[VIBIX]"
                 android:textSize="38sp" />
 
             <ImageView

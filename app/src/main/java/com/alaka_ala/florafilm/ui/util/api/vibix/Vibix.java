@@ -82,7 +82,8 @@ public class Vibix {
                                 parseHTML(IFRAME_URL, CURRENT_TYPE_CONTENT);
 
                             } catch (JSONException e) {
-                                throw new RuntimeException(e);
+                                e.printStackTrace();
+                                connectionVibix.errorParseVibix(new IOException("Ошибка парсинга JSON: " + e.getMessage()));
                             }
 
                         }

@@ -210,7 +210,7 @@ public class PlayerExoActivity extends AppCompatActivity {
             LumexApi.getHls(uriVideoData, new LumexApi.CallbackLumexHls() {
                 @Override
                 public void success(LumexApi.LumexHLS lumexHLS) {
-                    mediaItemBuilder.setUri(lumexHLS.getUrl());
+                    mediaItemBuilder.setUri(lumexHLS.getUrl().startsWith("//") ? "https:" + lumexHLS.getUrl() : lumexHLS.getUrl());
                     mediaItems.add(mediaItemBuilder.build());
                     exoPlayer.setMediaItems(
                             mediaItems,
