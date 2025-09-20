@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +20,7 @@ import android.widget.FrameLayout;
 import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentVideoFilmBinding;
+import com.alaka_ala.florafilm.ui.fragments.film.others.TreeItem;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.BanCheker;
@@ -33,6 +35,8 @@ import com.alaka_ala.florafilm.ui.util.api.vibix.Vibix;
 import com.alaka_ala.florafilm.ui.util.api.vibix.VibixSelector;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VideoFilmFragment extends Fragment {
     private FragmentVideoFilmBinding binding;
@@ -49,11 +53,18 @@ public class VideoFilmFragment extends Fragment {
         callbackLoaderData.error(balancer, err);
     }
 
+
+    // Пример создания данных
+    private List<TreeItem> allItems = new ArrayList<>();
+
+
     private boolean isNotFountDataVibix = false;
     private boolean isNotFountDataHDVB = false;
     private boolean isNotFoundDataLumex = false;
     private FrameLayout rootNotFound;
     private LottieAnimationView lottieNotFound;
+
+    private RecyclerView recyclerViewRoot;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,6 +74,8 @@ public class VideoFilmFragment extends Fragment {
 
         rootNotFound = binding.rootNotFound;
         lottieNotFound = binding.lottieNotFound;
+
+
 
         chekBanFilm();
         printNotFoundFile();
@@ -205,7 +218,7 @@ public class VideoFilmFragment extends Fragment {
 
             @Override
             public void error(String err) {
-                new Handler(Looper.getMainLooper()).post(() ->onError("LUMEX", err));
+                new Handler(Looper.getMainLooper()).post(() -> onError("LUMEX", err));
                 isNotFoundDataLumex = true;
             }
         });

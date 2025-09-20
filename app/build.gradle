@@ -16,7 +16,7 @@ android {
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.45_nt_beta"
+        versionName "1.0.46_nt_beta"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

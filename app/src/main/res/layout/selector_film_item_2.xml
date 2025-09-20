@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <!-- Горизонтальная линия, идущая от вертикальной -->
-    <View
-        android:layout_width="25dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="35dp"
-        android:background="?attr/IconsTintThemeInverse" />
+    android:layout_height="wrap_content"
+    android:focusable="auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +14,7 @@
         <LinearLayout
             android:id="@+id/linearLayoutTitleClick2"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:clickable="true"
             android:foreground="?attr/selectableItemBackground"
             android:orientation="horizontal">
@@ -32,7 +25,7 @@
                 android:layout_height="70dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="8dp"
-                android:padding="16dp"
+                android:layout_weight="1"
                 android:tint="?attr/IconsTintThemeInverse"
                 app:srcCompat="@drawable/rounded_play_circle_24" />
 
@@ -43,6 +36,7 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:lines="2"
                 android:maxLines="2"
@@ -53,7 +47,8 @@
         <LinearLayout
             android:id="@+id/linearLayoutFaF"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="0dp"
             android:orientation="vertical" />
     </LinearLayout>
-</RelativeLayout>
+</FrameLayout>

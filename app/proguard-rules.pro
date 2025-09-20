@@ -30,7 +30,13 @@
 # Сохраняем все классы в пакете models, их поля и методы.
 # Это необходимо для библиотек рефлексии, таких как GSON.
 -keep class com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.** { *; }
--keep class com.alaka_ala.florafilm.ui.util.api.lumex.**
+
+# Сохраняем классы моделей, используемые LumexApi, от обфускации и сжатия.
+# Это необходимо, так как Gson использует рефлексию для сопоставления JSON-ключей с именами полей.
+-keep class com.alaka_ala.florafilm.ui.util.api.lumex.models.** { *; }
+
+# Также сохраняем вложенный класс LumexHLS
+-keep class com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi$LumexHLS { *; }
 
 # Это самое важное правило для TypeToken.
 # Оно сохраняет generic-сигнатуры, которые R8 может удалить.
