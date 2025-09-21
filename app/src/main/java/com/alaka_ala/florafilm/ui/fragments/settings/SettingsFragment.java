@@ -171,12 +171,24 @@ public class SettingsFragment extends Fragment {
         });
 
 
+        // Инициализация и настройка переключателя для включения поиска фильмов по COLLAPSE
+        MaterialSwitch switch_off_search_collapse = binding.switchOffSearchCollapse;
+        boolean isActiveSearchCollapse = SettingsUtils.getParamSearchCollapse(getContext());
+        switch_off_search_collapse.setChecked(isActiveSearchCollapse);
+        switch_off_search_collapse.setText(isActiveSearchCollapse ? "Выключить поиск по COLLAPSE" : "Включить поиск по COLLAPSE");
+        switch_off_search_collapse.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingsUtils.setParamSearchCollapse(getContext(), isChecked);
+                switch_off_search_collapse.setText(isChecked ? "Выключить поиск по COLLAPSE" : "Включить поиск по COLLAPSE");
+            }
+        });
+
+
         // Очистка кэша
         TextView txtSizeCache = binding.txtSizeCache;
         txtSizeCache.setText(SettingsUtils.getSizeCacheApp(getContext()));
         Button btnClearCache = binding.btnClearCache;
-
-
         btnClearCache.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

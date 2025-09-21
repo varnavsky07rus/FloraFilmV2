@@ -28,6 +28,9 @@ import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
+import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
+import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
+import com.alaka_ala.florafilm.ui.util.api.collapse.models.ApiResponse;
 import com.alaka_ala.florafilm.ui.util.api.firebase.DataLikes;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Country;
@@ -207,6 +210,8 @@ public class DescriptionFragment extends Fragment {
                 }
             }
         });
+
+
 
         return binding.getRoot();
     }

@@ -1,6 +1,7 @@
 package com.alaka_ala.florafilm.ui.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +26,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
+import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
+import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
@@ -35,13 +38,30 @@ import com.alaka_ala.florafilm.ui.util.torrents.main.Torrent;
 import com.alaka_ala.florafilm.ui.util.torrents.main.TorrentOptions;
 import com.alaka_ala.florafilm.ui.util.torrents.main.TorrentStream;
 import com.alaka_ala.florafilm.ui.util.torrents.server.LocalHttpServer;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -161,6 +181,7 @@ public class PlayerExoActivity extends AppCompatActivity {
     }
 
     private TorrentStream torrentStream;
+
     private void preparePlayer() {
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
 
@@ -348,8 +369,10 @@ public class PlayerExoActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+
                 private int steps = 0;
                 private int maxSteps = 1500;
+
                 @Override
                 public void onStreamProgress(Torrent torrent, StreamStatus status) {
                     // Обработка прогресса загрузки торрента
@@ -444,7 +467,62 @@ public class PlayerExoActivity extends AppCompatActivity {
             exoPlayer.prepare();
             exoPlayer.play();
         }
-        else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL)) {
+        else if (epData.getBalancer().equals("COLLAPSE")) {
+            DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
+
+            String iframe;
+            if (epData.getFilm() == null) {
+                iframe = epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(epData.getIndexEpisode()).getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();
+            } else {
+                iframe = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
+            }
+
+
+            CollapseAPI.getHls(iframe, new HlsProcessor.CallbackGetHls() {
+                @Override
+                public void success(JSONObject jsonObject) {
+
+                    String urlHls = null;
+                    try {
+                        urlHls = jsonObject.getJSONObject("source").getString("hls");
+                    } catch (JSONException e) {
+                        try {
+                            urlHls = jsonObject.getJSONObject("playlist").getJSONArray("seasons").getJSONObject(epData.getIndexSeason()).getJSONArray("episodes").getJSONObject(epData.getIndexEpisode()).getString("hls");
+                        } catch (JSONException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+
+                    Map<String, String> headers = new HashMap<>();
+                    //headers.put("GET", "");
+                    //headers.put("Accept", "*/*");
+                    //headers.put("Accept-Encoding", "gzip, deflate, br, zstd");
+                    //headers.put("Accept-Language", "ru,en;q=0.9");
+                    //headers.put("Host", "");
+                    //headers.put("Connection", "keep-alive");
+                    //headers.put("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36");
+                    //headers.put("Sec-Ch-Ua", "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"YaBrowser\";v=\"25.8\", \"Yowser\";v=\"2.5\"");
+                    //headers.put("Sec-Ch-Ua-Mobile", "?1");
+                    //headers.put("Sec-Ch-Ua-Platform", "Android");
+                    // Добавляйте любые заголовки, которые нужны вашему серверу
+                    HttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                            .setDefaultRequestProperties(headers);
+                    HlsMediaSource.Factory mediaSourceFactory = new HlsMediaSource.Factory(httpDataSourceFactory);
+                    MediaSource mediaSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(urlHls));
+                    exoPlayer.setTrackSelectionParameters(trackSelector.getParameters());
+                    exoPlayer.setMediaSource(mediaSource);
+                    exoPlayer.prepare();
+                    exoPlayer.play();
+                }
+
+                @Override
+                public void error(String err) {
+
+                }
+            });
+
+
+        } else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL)) {
             for (int i = 0; i < epData.getSerial().getSeasons().size(); i++) {
                 for (int j = 0; j < epData.getSerial().getSeasons().get(i).getEpisodes().size(); j++) {
                     for (int k = 0; k < epData.getSerial().getSeasons().get(i).getEpisodes().get(j).getTranslations().size(); k++) {
@@ -634,7 +712,6 @@ public class PlayerExoActivity extends AppCompatActivity {
         thread.start();
 
     }
-
 
 
     @Override

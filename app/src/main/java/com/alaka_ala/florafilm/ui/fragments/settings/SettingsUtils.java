@@ -39,6 +39,9 @@ public class SettingsUtils {
     public static final boolean DEF_SEARCH_MODE_LUMEX = false;
     public static final String KEY_SEARCH_MODE_LUMEX = "KEY_SEARCH_MODE_LUMEX_8x00000";
     //==============================================================================================
+    public static final boolean DEF_SEARCH_MODE_COLLAPSE = false;
+    public static final String KEY_SEARCH_MODE_COLLAPSE = "KEY_SEARCH_MODE_COLLAPSE_9x00000";
+    //==============================================================================================
     public static final boolean DEF_SEARCH_AUTO_UPDATE = false;
     public static final String KEY_SEARCH_AUTO_UPDATE = "KEY_SEARCH_AUTO_UPDATE_9x00000";
 
@@ -135,6 +138,17 @@ public class SettingsUtils {
     public static void setParamSearchLumex(Context context, boolean param) {
         SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
         preferences.edit().putBoolean(KEY_SEARCH_MODE_LUMEX, param).apply();
+    }
+
+    //==============================================================================================
+    public static boolean getParamSearchCollapse(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(KEY_SEARCH_MODE_COLLAPSE, DEF_SEARCH_MODE_COLLAPSE);
+    }
+
+    public static void setParamSearchCollapse(Context context, boolean param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(KEY_SEARCH_MODE_COLLAPSE, param).apply();
     }
 
     //==============================================================================================

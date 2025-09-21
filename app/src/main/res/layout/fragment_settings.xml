@@ -122,8 +122,18 @@
                         android:id="@+id/switch_off_search_lumex"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:checked="true"
+                        android:checked="false"
                         android:text="Включить поиск LUMEX"
+                        app:thumbTint="@color/switchersSettings"
+                        app:trackDecorationTint="@color/switchersSettings"
+                        app:trackTint="?attr/SwitchTintTrack" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_off_search_collapse"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:text="Включить поиск COLLAPSE"
                         app:thumbTint="@color/switchersSettings"
                         app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />

@@ -1,5 +1,8 @@
 package com.alaka_ala.florafilm.ui.util.api.collapse;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -15,25 +18,34 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HlsProcessor {
 
     private static final String MAPPING = "DlChEXitLONYRkFjAsnBbymWzSHMqKPgQZpvwerofJTVdIuUcxaG";
 
-    public static void getHls() {
-        // Исходный URL
-        String iframeUrl = "https://api.embess.ws/embed/movie/255";
-        iframeUrl += "?showPreNext=false&sharing=false&noPreview=true&showMenu=false";
-
-        // Получаем HLS-ссылку
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = getJson(iframeUrl);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("JSON: " + jsonObject);
-
+    public static void getHls(String iframeUrl, CallbackGetHls callbackGetHls) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Исходный URL
+                // String iframeUrl = "https://api.embess.ws/embed/movie/255";
+                //String iframeUrls = iframeUrl;
+                //iframeUrls += "?showPreNext=false&sharing=false&noPreview=true&showMenu=false";
+                // Получаем HLS-ссылку
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = getJson(iframeUrl);
+                    JSONObject finalJsonObject = jsonObject;
+                    handler.post(() -> callbackGetHls.success(finalJsonObject));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    handler.post(() -> callbackGetHls.error("Ошибка получения HLS-ссылки"));
+                }
+            }
+        }).start();
 
     }
 
@@ -88,14 +100,42 @@ public class HlsProcessor {
         return result.toString();
     }
 
+    // Преобразование JSON в валидный JSON из объекта javascripty
+    public static String fixJsObjectToJson(String input) {
+        // 1. Заменяем одинарные кавычки на двойные
+        String fixed = input.replace('\'', '"');
+
+        // 2. Добавляем кавычки к ключам без кавычек
+        String keyPattern = "(?<=\\{|,|\\s)(\\w+)\\s*:";
+        fixed = fixed.replaceAll(keyPattern, "\"$1\":");
+
+        // 3. Заменяем выражения вида "число * число" на результат
+        Pattern mulPattern = Pattern.compile("(\\d+)\\s*\\*\\s*(\\d+)");
+        Matcher matcher = mulPattern.matcher(fixed);
+
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            int a = Integer.parseInt(matcher.group(1));
+            int b = Integer.parseInt(matcher.group(2));
+            int product = a * b;
+            matcher.appendReplacement(sb, String.valueOf(product));
+        }
+        matcher.appendTail(sb);
+
+        return sb.toString();
+    }
+
     // Извлекаем JSON из содержимого страницы
     private static String extractJson(String content) {
         String startMarker = "makePlayer({";
         String endMarker = "});";
         int startIndex = content.indexOf(startMarker) + startMarker.length();
         int endIndex = content.indexOf(endMarker, startIndex);
-        return "{" + content.substring(startIndex, endIndex) + "}";
+        String jsObject = "{" + content.substring(startIndex, endIndex) + "}";
+        // Преобразуем JS-объект в валидный JSON
+        return fixJsObjectToJson(jsObject);
     }
+
 
     // Извлекаем HLS-ссылку из JSON
     private static JSONObject extractJSON(String jsonString) {
@@ -116,7 +156,7 @@ public class HlsProcessor {
     private static String fetchUrlContent(String url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestMethod("GET");
-
+        connection.addRequestProperty("Cookie", "_uid=7d84418c-ac4d-4086-9656-a277398538d7");
         StringBuilder content = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String line;
@@ -125,5 +165,11 @@ public class HlsProcessor {
             }
         }
         return content.toString();
+    }
+
+
+    public interface CallbackGetHls {
+        void success(JSONObject jsonObject);
+        void error(String err);
     }
 }

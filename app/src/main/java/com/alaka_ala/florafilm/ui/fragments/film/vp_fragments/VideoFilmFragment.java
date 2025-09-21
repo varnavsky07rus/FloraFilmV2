@@ -25,6 +25,9 @@ import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
+import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
+import com.alaka_ala.florafilm.ui.util.api.collapse.models.ApiResponse;
+import com.alaka_ala.florafilm.ui.util.api.collapse.selectors.CollapseSelector;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVBSelector;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.models.HDVBFilm;
@@ -76,7 +79,6 @@ public class VideoFilmFragment extends Fragment {
         lottieNotFound = binding.lottieNotFound;
 
 
-
         chekBanFilm();
         printNotFoundFile();
 
@@ -95,6 +97,10 @@ public class VideoFilmFragment extends Fragment {
             if (SettingsUtils.getParamSearchLumex(getContext())) {
                 parseLumex();
             }
+            if (SettingsUtils.getParamSearchCollapse(getContext())) {
+                parseCollapse();
+            }
+
         } else {
             isNotFountDataVibix = true;
             isNotFountDataHDVB = true;
@@ -201,15 +207,15 @@ public class VideoFilmFragment extends Fragment {
                 } else {
                     lumexSelector = new LumexSelector(binding.linearLayoutRoot, serial, mainFilmViewModel.getCurrentFilmInfo());
                 }
-                handler.post(() ->lumexSelector.buildSelector(getActivity()));
+                handler.post(() -> lumexSelector.buildSelector(getActivity()));
                 if (film == null) {
                     if (callbackLoaderData != null) {
-                        handler.post(() ->callbackLoaderData.successLumexSerial(serial));
+                        handler.post(() -> callbackLoaderData.successLumexSerial(serial));
                         isNotFountDataVibix = false;
                     }
                 } else {
                     if (callbackLoaderData != null) {
-                        handler.post(() ->callbackLoaderData.successLumexFilm(film));
+                        handler.post(() -> callbackLoaderData.successLumexFilm(film));
                         isNotFountDataVibix = false;
                     }
                 }
@@ -222,6 +228,28 @@ public class VideoFilmFragment extends Fragment {
                 isNotFoundDataLumex = true;
             }
         });
+    }
+
+    private void parseCollapse() {
+        CollapseAPI collapseAPI = new CollapseAPI();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                collapseAPI.getFromKinopoiskId(mainFilmViewModel.getKinopoiskId(), new CollapseAPI.CallbackFromKinopoiskId() {
+                    @Override
+                    public void onSuccess(ApiResponse apiResponse) {
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        CollapseSelector selectorCollapse = new CollapseSelector(apiResponse, binding.linearLayoutRoot, mainFilmViewModel.getCurrentFilmInfo() );
+                        handler.post(() -> selectorCollapse.createSelector(getActivity()));
+                    }
+
+                    @Override
+                    public void onFailure(IOException e) {
+
+                    }
+                });
+            }
+        }).start();
     }
 
 
