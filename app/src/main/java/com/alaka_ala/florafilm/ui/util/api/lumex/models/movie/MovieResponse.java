@@ -84,6 +84,7 @@ public class MovieResponse {
         @SerializedName("iframe_src")
         private String iframeSrc;
 
+        @SerializedName("iframe")
         private String iframe;
     }
 

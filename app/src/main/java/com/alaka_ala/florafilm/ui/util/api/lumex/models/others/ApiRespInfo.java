@@ -6,8 +6,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class ApiRespInfo {
+    @SerializedName("result")
     private boolean result;
+    @SerializedName("php")
     private double php;
+    @SerializedName("data")
     private List<SeriesResponse.SeriesData> data;
 
     public boolean isResult() {
@@ -23,6 +26,8 @@ public class ApiRespInfo {
     }
 
     public static class SeriesData {
+
+        @SerializedName("id")
         private int id;
 
         @SerializedName("content_type")
@@ -31,12 +36,16 @@ public class ApiRespInfo {
         @SerializedName("kp_id")
         private int kpId;
 
+        @SerializedName("title")
         private String title;
 
         @SerializedName("orig_title")
         private String origTitle;
 
+        @SerializedName("add")
         private String add;
+
+        @SerializedName("year")
         private String year;
 
         @SerializedName("imdb_id")
@@ -44,6 +53,9 @@ public class ApiRespInfo {
 
         @SerializedName("iframe_src")
         private String iframeSrc;
+
+        @SerializedName("iframe")
+        private String iframe;
 
         public String getIframe() {
             return iframe;
@@ -85,7 +97,7 @@ public class ApiRespInfo {
             return id;
         }
 
-        private String iframe;
+
 
         // Геттеры и сеттеры (по желанию)
     }
