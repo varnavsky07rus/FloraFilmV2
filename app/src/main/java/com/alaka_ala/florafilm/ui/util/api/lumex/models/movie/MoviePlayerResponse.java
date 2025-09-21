@@ -16,11 +16,8 @@ public class MoviePlayerResponse {
         return meta;
     }
 
-    @SerializedName("ads")
     private Ads ads;
-    @SerializedName("player")
     private Player player;
-    @SerializedName("meta")
     private String meta;
 
     public static class Ads {
@@ -87,10 +84,7 @@ public class MoviePlayerResponse {
         @SerializedName("kinopoisk_id")
         private int kinopoiskId;
 
-        @SerializedName("poster")
         private String poster;
-
-        @SerializedName("media")
         private List<Media> media;
 
         public static class Media {
@@ -123,10 +117,8 @@ public class MoviePlayerResponse {
             @SerializedName("max_quality")
             private int maxQuality;
 
-            @SerializedName("playlist")
             private String playlist;
 
-            @SerializedName("tracks")
             private List<Track> tracks;
 
             public static class Track {
@@ -146,16 +138,12 @@ public class MoviePlayerResponse {
                     return label;
                 }
 
-                @SerializedName("kind")
                 private String kind;
-
-                @SerializedName("src")
                 private String src;
 
                 @SerializedName("srlang")
                 private String srLang;
 
-                @SerializedName("label")
                 private String label;
             }
         }

@@ -17,11 +17,8 @@ public class SeriesPlayerResponse {
         return meta;
     }
 
-    @SerializedName("ads")
     private Ads ads;
-    @SerializedName("player")
     private Player player;
-    @SerializedName("meta")
     private String meta;
 
     public static class Ads {
@@ -33,9 +30,7 @@ public class SeriesPlayerResponse {
             return banners;
         }
 
-        @SerializedName("rolls")
         private List<Roll> rolls;
-        @SerializedName("banners")
         private Banners banners;
 
         public static class Roll {
@@ -63,9 +58,7 @@ public class SeriesPlayerResponse {
                 return endtag;
             }
 
-            @SerializedName("pausebanner")
             private boolean pausebanner;
-            @SerializedName("endtag")
             private boolean endtag;
         }
     }
@@ -100,10 +93,7 @@ public class SeriesPlayerResponse {
         @SerializedName("kinopoisk_id")
         private int kinopoiskId;
 
-        @SerializedName("poster")
         private String poster;
-
-        @SerializedName("media")
         private List<Season> media;
 
         public static class Season {
@@ -125,7 +115,6 @@ public class SeriesPlayerResponse {
             @SerializedName("season_name")
             private String seasonName;
 
-            @SerializedName("episodes")
             private List<Episode> episodes;
 
             public static class Episode {
@@ -148,13 +137,8 @@ public class SeriesPlayerResponse {
                 @SerializedName("episode_id")
                 private int episodeId;
 
-                @SerializedName("name")
                 private String name;
-
-                @SerializedName("poster")
                 private String poster;
-
-                @SerializedName("media")
                 private List<Translation> media;
 
                 public static class Translation {
@@ -184,10 +168,7 @@ public class SeriesPlayerResponse {
                     @SerializedName("translation_name")
                     private String translationName;
 
-                    @SerializedName("playlist")
                     private String playlist;
-
-                    @SerializedName("tracks")
                     private List<Object> tracks; // Пустой список, неизвестна структура — можно оставить как Object или создать класс если будет нужна
 
                     @SerializedName("max_quality")

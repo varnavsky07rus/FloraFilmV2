@@ -85,7 +85,6 @@ public class SeriesResponse {
             return id;
         }
 
-        @SerializedName("iframe")
         private String iframe;
 
         // Геттеры и сеттеры (по желанию)
