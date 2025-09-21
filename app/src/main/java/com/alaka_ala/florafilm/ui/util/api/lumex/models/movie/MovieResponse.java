@@ -17,8 +17,11 @@ public class MovieResponse {
         return data;
     }
 
+    @SerializedName("result")
     private boolean result;
+    @SerializedName("php")
     private double php;
+    @SerializedName("data")
     private List<MovieData> data;
 
     public static class MovieData {
@@ -62,6 +65,7 @@ public class MovieResponse {
             return iframe;
         }
 
+        @SerializedName("id")
         private int id;
 
         @SerializedName("content_type")
@@ -70,12 +74,16 @@ public class MovieResponse {
         @SerializedName("kp_id")
         private int kpId;
 
+        @SerializedName("title")
         private String title;
 
         @SerializedName("orig_title")
         private String origTitle;
 
+        @SerializedName("add")
         private String add;
+
+        @SerializedName("year")
         private String year;
 
         @SerializedName("imdb_id")

@@ -97,8 +97,5 @@ public class ApiRespInfo {
             return id;
         }
 
-
-
-        // Геттеры и сеттеры (по желанию)
     }
 }
