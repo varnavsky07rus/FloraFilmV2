@@ -30,8 +30,8 @@ public class PermissionManager {
     private final Context context;
     private final Activity activity;
     private final Fragment fragment;
-    private PermissionResultCallback callback;
-    private List<String> permissionsToRequest;
+    private final PermissionResultCallback callback;
+    private final List<String> permissionsToRequest;
 
     public PermissionManager(Context context, Activity activity, Fragment fragment, PermissionResultCallback callback) {
         this.context = context;

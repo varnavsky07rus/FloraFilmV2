@@ -12,6 +12,16 @@
         android:fitsSystemWindows="true"
         android:orientation="vertical">
 
+        <ProgressBar
+            android:id="@+id/progressBar4"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_marginTop="-4dp"
+            android:indeterminate="true"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayoutFilm"
             android:layout_width="match_parent"

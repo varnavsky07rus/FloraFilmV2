@@ -131,9 +131,13 @@ public class LumexApi {
                                 if (moviePlayerResponse != null) {
                                     if (moviePlayerResponse.body() != null) {
                                         body = moviePlayerResponse.body().string();
-                                        MoviePlayerResponse moviePlayerResponseValid = new Gson().fromJson(body, MoviePlayerResponse.class);
-                                        EPData.Film film = createEPDataFilm(moviePlayerResponseValid, filmTitle);
-                                        callbackLumex.success(film, null);
+                                        if (moviePlayerResponse.code() == 200) {
+                                            MoviePlayerResponse moviePlayerResponseValid = new Gson().fromJson(body, MoviePlayerResponse.class);
+                                            EPData.Film film = createEPDataFilm(moviePlayerResponseValid, filmTitle);
+                                            callbackLumex.success(film, null);
+                                        } else {
+                                            callbackLumex.error("#1 Фильм отсутствует в базе");
+                                        }
                                     } else {
                                         callbackLumex.error("#2 Ошибка получения данных");
                                     }

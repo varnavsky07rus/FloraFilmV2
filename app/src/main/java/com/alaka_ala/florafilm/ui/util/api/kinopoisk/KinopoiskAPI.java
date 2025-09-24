@@ -9,12 +9,14 @@ import android.os.Message;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.StringDef;
 
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Country;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.FilmRelation;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.FilmTrailer;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Genre;
+import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmImage;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ListFilmItem;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ListStaffItem;
@@ -178,6 +180,15 @@ public class KinopoiskAPI {
          */
         void finishRequestPrequel();
     }
+
+    public interface RequestCallbackImagesFilm {
+        void onSuccessImagesFilm(ItemFilmImage itemFilmImage);
+
+        void onFailureImagesFilm(IOException e);
+
+        void finish();
+    }
+
 
     private interface ConntectCallback {
         void onSuccess(String responseJson);
@@ -785,6 +796,35 @@ public class KinopoiskAPI {
             }
         });
     }
+
+    public void getListImage(int kinopoisk_id, int page, @ImagesTypeConstant.ImagesTypes String type, RequestCallbackImagesFilm rcif) {
+        String base_url = "https://kinopoiskapiunofficial.tech/api/v2.2/films/" + kinopoisk_id + "/images?type=" + type +"&page=" + page;
+        connect(base_url, new ConntectCallback() {
+            @Override
+            public void onSuccess(String response) {
+                if (!response.isEmpty()) {
+                    if (JsonParser.parseString(response).isJsonObject()) {
+                        ItemFilmImage images = new Gson().fromJson(response, ItemFilmImage.class);
+                        rcif.onSuccessImagesFilm(images);
+                    }
+                } else {
+                    onFailure(new IOException("Пустой ответ!"));
+                }
+
+            }
+
+            @Override
+            public void onFailure(IOException e) {
+                rcif.onFailureImagesFilm(e);
+            }
+
+            @Override
+            public void finish() {
+                rcif.finish();
+            }
+        });
+    }
+
 
     private ArrayList<FilmTrailer> createListVieosClass(String response) throws JSONException {
         ArrayList<FilmTrailer> filmTrailers = new ArrayList<>();
@@ -2120,6 +2160,38 @@ public class KinopoiskAPI {
         public static int getCountryId(String countryName) {
             return COUNTRY_TO_ID.getOrDefault(countryName.toLowerCase(), EMPTY);
         }
+
+    }
+
+    public static class ImagesTypeConstant {
+        public static final String TYPE_STILL = "STILL";
+        public static final String TYPE_SHOOTING = "SHOOTING";
+        public static final String TYPE_POSTER = "POSTER";
+        public static final String TYPE_FAN_ART = "FAN_ART";
+        public static final String TYPE_PROMO = "PROMO";
+        public static final String TYPE_CONCEPT = "CONCEPT";
+        public static final String TYPE_WALLPAPER = "WALLPAPER";
+        public static final String TYPE_COVER = "COVER";
+        public static final String TYPE_SCREENSHOT = "SCREENSHOT";
+
+        @StringDef({TYPE_STILL, TYPE_SHOOTING, TYPE_POSTER, TYPE_FAN_ART, TYPE_PROMO, TYPE_CONCEPT, TYPE_WALLPAPER, TYPE_COVER, TYPE_SCREENSHOT})
+        public @interface ImagesTypes {}
+
+        public static List<String> getListImageTypes () {
+            List<String> list = new ArrayList<>();
+            list.add(TYPE_STILL);
+            list.add(TYPE_SHOOTING);
+            list.add(TYPE_POSTER);
+            list.add(TYPE_FAN_ART);
+            list.add(TYPE_PROMO);
+            list.add(TYPE_CONCEPT);
+            list.add(TYPE_WALLPAPER);
+            list.add(TYPE_COVER);
+            list.add(TYPE_SCREENSHOT);
+            return list;
+        }
+
+
 
     }
 

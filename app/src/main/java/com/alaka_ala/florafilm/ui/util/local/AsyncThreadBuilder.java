@@ -46,6 +46,4 @@ public abstract class AsyncThreadBuilder {
         handler.removeCallbacks(runnable);
     }
 
-
-
 }

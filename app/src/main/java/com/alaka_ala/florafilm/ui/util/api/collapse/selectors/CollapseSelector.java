@@ -55,20 +55,22 @@ public class CollapseSelector {
         int ssn = 0;
         for (Season season : apiResponse.getResults().get(0).getSeasons()) {
             EPData.Serial.Season.Builder builderSeason = new EPData.Serial.Season.Builder();
-            builderSeason.setTitle("Сезон " + ++ssn);
+            builderSeason.setTitle("Сезон " + season.getSeason());
             // Создаем эпизоды
             ArrayList<EPData.Serial.Episode> episodeArrayList = new ArrayList<>();
             int ep = 0;
             for (Episode episode : season.getEpisodes()) {
                 EPData.Serial.Episode.Builder builderEpisode = new EPData.Serial.Episode.Builder();
-                builderEpisode.setTitle("Серия " + ++ep);
+                builderEpisode.setTitle("Серия " + episode.getEpisode());
                 // Создаем переводы
                 ArrayList<EPData.Serial.Translations> translations = new ArrayList<>();
                 EPData.Serial.Translations.Builder builderTranslations = new EPData.Serial.Translations.Builder();
-                builderTranslations.setTitle("Не определенно");
+                builderTranslations.setTitle("Авто");
+
                 List<Map.Entry<String, String>> videData = new ArrayList<>();
                 videData.add(new AbstractMap.SimpleEntry<>("HLS", episode.getIframeUrl()));
                 builderTranslations.setVideoData(videData);
+
                 translations.add(builderTranslations.build());
                 builderEpisode.setTranslations(translations);
                 episodeArrayList.add(builderEpisode.build());

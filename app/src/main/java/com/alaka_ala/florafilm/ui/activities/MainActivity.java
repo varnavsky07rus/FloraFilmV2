@@ -29,6 +29,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
+import com.alaka_ala.florafilm.BuildConfig;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
 import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             resumeLastMovie.setNotLaunched();
             new Handler().postDelayed(() -> {
                 ResumeBottomSheetFragment.newInstance().show(getSupportFragmentManager(), ResumeBottomSheetFragment.TAG);
-            }, 1500);
+            }, 1100);
         }
     }
 
@@ -171,14 +172,14 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
     @Override
     public void onPermissionsGranted() {
         // Все разрешения предоставлены
-        Log.d(PermissionManager.TAG, "onPermissionsGranted: All permissions granted");
+        if (BuildConfig.DEBUG) Log.d(PermissionManager.TAG, "onPermissionsGranted: All permissions granted");
         Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onPermissionsDenied(List<String> deniedPermissions) {
         // Некоторые разрешения отклонены
-        Log.d(PermissionManager.TAG, "onPermissionsDenied: Some permissions denied: " + deniedPermissions);
+        if (BuildConfig.DEBUG) Log.d(PermissionManager.TAG, "onPermissionsDenied: Some permissions denied: " + deniedPermissions);
         Toast.makeText(this, "Some permissions denied", Toast.LENGTH_SHORT).show();
         // Обработать отклоненные разрешения
         // Например, показать сообщение пользователю
@@ -188,15 +189,15 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
                     permission.equals(Manifest.permission.READ_MEDIA_AUDIO) ||
                     permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 // Обработка отклоненного разрешения на чтение
-                Log.d(PermissionManager.TAG, "onPermissionsDenied: Read permission denied");
+                if (BuildConfig.DEBUG) Log.d(PermissionManager.TAG, "onPermissionsDenied: Read permission denied");
                 Toast.makeText(this, "Read permission denied", Toast.LENGTH_SHORT).show();
             } else if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // Обработка отклоненного разрешения на запись
-                Log.d(PermissionManager.TAG, "onPermissionsDenied: Write permission denied");
+                if (BuildConfig.DEBUG) Log.d(PermissionManager.TAG, "onPermissionsDenied: Write permission denied");
                 Toast.makeText(this, "Write permission denied", Toast.LENGTH_SHORT).show();
             } else if (permission.equals(Manifest.permission.POST_NOTIFICATIONS)) {
                 // Обработка отклоненного разрешения на уведомления
-                Log.d(PermissionManager.TAG, "onPermissionsDenied: Notification permission denied");
+                if (BuildConfig.DEBUG) Log.d(PermissionManager.TAG, "onPermissionsDenied: Notification permission denied");
                 Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
             }
         }

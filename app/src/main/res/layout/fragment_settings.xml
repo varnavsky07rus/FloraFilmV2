@@ -40,7 +40,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Обновление"
-                            android:textSize="34sp" />
+                            android:textSize="34sp"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/textViewVersionName"
@@ -66,8 +67,17 @@
                         android:layout_marginTop="16dp"
                         android:backgroundTint="@color/butonUpdateColor"
                         android:text="Проверить обновления"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/white"
                         app:cornerRadius="50dp" />
+
+                    <Button
+                        android:id="@+id/buttonDownloadInBrowser"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#007776A2"
+                        android:text="Скачать через браузер"
+                        android:textColor="#6F6F6F"
+                        app:rippleColor="#C35564A9" />
                 </LinearLayout>
 
             </FrameLayout>
@@ -96,7 +106,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Поиск"
-                        android:textSize="34sp" />
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switch_off_search_vibix"
@@ -134,6 +145,7 @@
                         android:layout_height="wrap_content"
                         android:checked="false"
                         android:text="Включить поиск COLLAPSE"
+                        android:visibility="gone"
                         app:thumbTint="@color/switchersSettings"
                         app:trackDecorationTint="@color/switchersSettings"
                         app:trackTint="?attr/SwitchTintTrack" />
@@ -173,7 +185,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Эффекты"
-                        android:textSize="34sp" />
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switch_off_effect_scroll_page"
@@ -220,7 +233,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Экраны"
-                        android:textSize="34sp" />
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/switch_off_layout_description_film"
@@ -258,7 +272,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Память"
-                        android:textSize="34sp" />
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/txtSizeCache"

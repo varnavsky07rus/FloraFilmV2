@@ -11,12 +11,12 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 52
+        versionCode 53
         // 1.0.0_rs Версия RuStore
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.52_nt"
+        versionName "1.0.53_nt"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,6 +52,7 @@ dependencies {
     implementation libs.firebase.auth
     implementation libs.androidx.recyclerview
     implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.viewpager2
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

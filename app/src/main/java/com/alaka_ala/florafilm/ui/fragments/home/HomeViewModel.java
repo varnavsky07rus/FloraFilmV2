@@ -51,6 +51,14 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<Collection> collectionMutableLiveDataKids;
     private final MutableLiveData<Integer> pageKidsMutableLiveData;
 
+    public MutableLiveData<Integer> getPositionViewPagerHomePopularAllMutableLiveData() {
+        return positionViewPagerHomePopularAllMutableLiveData;
+    }
+
+    // Позиция ViewPager
+    private final MutableLiveData<Integer> positionViewPagerHomePopularAllMutableLiveData;
+
+
     private final boolean isDebug;
     private final String TAG = "HomeViewModel";
     private static final String CACHE_DIR_NAME = "cache";
@@ -82,6 +90,9 @@ public class HomeViewModel extends ViewModel {
         this.collectionMutableLiveDataKids = new MutableLiveData<>();
 
         this.isDebug = BuildConfig.DEBUG;
+        // Позиция ViewPager
+        this.positionViewPagerHomePopularAllMutableLiveData = new MutableLiveData<>();
+        this.positionViewPagerHomePopularAllMutableLiveData.setValue(0);
 
     }
 

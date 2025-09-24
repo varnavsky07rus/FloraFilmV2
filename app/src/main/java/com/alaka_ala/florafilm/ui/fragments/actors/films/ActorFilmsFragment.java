@@ -119,7 +119,7 @@ public class ActorFilmsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("url", staffInfo.getPosterUrl());
+                    bundle.putInt("staffId", staffInfo.getPersonId());
                     Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
                 }
             });

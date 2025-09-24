@@ -3,6 +3,7 @@ package com.alaka_ala.florafilm.ui.fragments.home;
 import static com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI.GenreConstants.ANIMATION;
 
 import android.annotation.SuppressLint;
+import android.graphics.Rect;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -26,6 +28,8 @@ import android.widget.TextView;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentHomeBinding;
+import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.ViewPagerFilmAdapter;
+import com.alaka_ala.florafilm.ui.fragments.home.vpager.adapters.ViewPagerAdapterHome;
 import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem1;
 import com.alaka_ala.florafilm.ui.util.api.BanCheker;
@@ -52,16 +56,14 @@ public class HomeFragment extends Fragment {
     private int pageDrama = 0;
     private int pageKids = 0;
 
-
-    private AdapterRecyclerViewItem1 adapterPopAll;
+    private ViewPagerAdapterHome viewPagerAdapterPopAll;
     private AdapterRecyclerViewItem1 adapterMovie;
     private AdapterRecyclerViewItem1 adapterSerial;
     private AdapterRecyclerViewItem1 adapterAnimations;
     private AdapterRecyclerViewItem1 adapterDrama;
     private AdapterRecyclerViewItem1 adapterKids;
 
-
-    private RecyclerView recyclerViewPopAll;
+    private ViewPager2 vpPopularAll;
     private RecyclerView recyclerViewTitleHomeCategoryMovie;
     private RecyclerView recyclerViewTitleHomeCategorySerial;
     private RecyclerView recyclerViewHomeCategoryAnimations;
@@ -70,6 +72,7 @@ public class HomeFragment extends Fragment {
 
 
     private AppUpdater appUpdater;
+
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -96,8 +99,7 @@ public class HomeFragment extends Fragment {
 
         KinopoiskAPI kinopoiskAPI = new KinopoiskAPI(getResources().getString(R.string.api_key_kinopoisk));
 
-
-        recyclerViewPopAll = binding.fragmentHomeIncludePopularAl.recyclerViewTitleHomeCategory;
+        vpPopularAll = binding.fragmentHomeIncludePopularAl.vpPopAll;
         recyclerViewTitleHomeCategoryMovie = binding.fragmentHomeIncludeMovie.recyclerViewTitleHomeCategoryMovie;
         recyclerViewTitleHomeCategorySerial = binding.fragmentHomeIncludeSerial.recyclerViewTitleHomeCategorySerial;
         recyclerViewHomeCategoryAnimations = binding.fragmentHomeIncludeAnimations.recyclerViewTitleHomeCategoryAnimations;
@@ -174,19 +176,67 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Фильмы/сериалы
+
+        // Фильмы/Сериалы ViewPager
         if (viewModel.getPagePopularAllMutableLiveData().getValue() != null) {
-            if (adapterPopAll == null) {
-                adapterPopAll = new AdapterRecyclerViewItem1();
-            }
-            viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), adapterPopAll::setCollection);
-            if (recyclerViewPopAll.getLayoutManager() == null) {
-                recyclerViewPopAll.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-            }
-            if (recyclerViewPopAll.getAdapter() == null) {
-                recyclerViewPopAll.setAdapter(adapterPopAll);
-            }
-            adapterPopAll.notifyDataSetChanged();
+            viewPagerAdapterPopAll = new ViewPagerAdapterHome(getChildFragmentManager(), getLifecycle(), getContext());
+            vpPopularAll.setAdapter(viewPagerAdapterPopAll);
+            viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), collection -> {
+                viewPagerAdapterPopAll.setCollection(collection);
+                // Восстанавливаем позицию после обновления данных
+                Integer currentPosition = viewModel.getPositionViewPagerHomePopularAllMutableLiveData().getValue();
+                if (currentPosition != null) {
+                    vpPopularAll.setCurrentItem(currentPosition, false);
+                }
+            });
+
+
+            // Конвертация dp в пиксели
+            int pageMarginPx = (int) (16 * getResources().getDisplayMetrics().density);
+            int offsetPx = (int) (32 * getResources().getDisplayMetrics().density);
+            vpPopularAll.setOffscreenPageLimit(3);
+            RecyclerView recyclerView = (RecyclerView) vpPopularAll.getChildAt(0);
+            recyclerView.setClipToPadding(false);
+            recyclerView.setClipChildren(false);
+            recyclerView.setPadding(offsetPx, 0, offsetPx, 0);
+
+            recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                @Override
+                public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                    outRect.left = pageMarginPx;
+                    outRect.right = pageMarginPx;
+                }
+            });
+
+            vpPopularAll.setPageTransformer(new ViewPager2.PageTransformer() {
+                @Override
+                public void transformPage(@NonNull View page, float position) {
+                    float scale = Math.max(0.85f, 1 - Math.abs(position));
+
+                    float offset = position * -(2 * offsetPx + pageMarginPx);
+                    if (vpPopularAll.getOrientation() == ViewPager2.ORIENTATION_HORIZONTAL) {
+                        page.setTranslationX(offset);
+                    } else {
+                        page.setTranslationY(offset);
+                    }
+
+                    page.setScaleY(scale);
+                    page.setScaleX(scale);
+
+
+                }
+            });
+
+            vpPopularAll.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    super.onPageSelected(position);
+                    if (position == 0) return;
+                    viewModel.getPositionViewPagerHomePopularAllMutableLiveData().setValue(position);
+
+                }
+            });
+
         }
         // Фильмы
         if (viewModel.getPageMovieMutableLiveData().getValue() != null) {
@@ -268,20 +318,9 @@ public class HomeFragment extends Fragment {
                         // Новинки (Фильмы/Сериалы)
                         viewModel.addDataCollectionPopularAll(collection);
                         viewModel.getPagePopularAllMutableLiveData().setValue(pagePopularAll);
-                        if (adapterPopAll == null) {
-                            adapterPopAll = new AdapterRecyclerViewItem1();
-                        }
-                        if (recyclerViewPopAll.getLayoutManager() == null) {
-                            recyclerViewPopAll.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-                        }
-                        if (recyclerViewPopAll.getAdapter() == null) {
-                            recyclerViewPopAll.setAdapter(adapterPopAll);
-                        }
                         if (getView() != null) {
-                            viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), adapterPopAll::setCollection);
-                        }
-                        if (adapterPopAll != null) {
-                            adapterPopAll.notifyDataSetChanged();
+                            viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), viewPagerAdapterPopAll::setCollection);
+                            viewPagerAdapterPopAll.notifyDataSetChanged();
                         }
                         break;
                     case "Топ 250 фильмов":
@@ -405,7 +444,65 @@ public class HomeFragment extends Fragment {
 
         // Фильмы Сериалы
         pagePopularAll = viewModel.getPagePopularAllMutableLiveData().getValue() == null ? 0 : viewModel.getPagePopularAllMutableLiveData().getValue();
-        recyclerViewPopAll.addOnScrollListener(new MyRecyclerViewScrollListener(MyRecyclerViewScrollListener.HORIZONTAL) {
+        viewPagerAdapterPopAll = new ViewPagerAdapterHome(getChildFragmentManager(), getLifecycle(), getContext());
+        vpPopularAll.setAdapter(viewPagerAdapterPopAll);
+        viewModel.getCollectionMutableLiveDataPopularAll().observe(getViewLifecycleOwner(), collection -> {
+            viewPagerAdapterPopAll.setCollection(collection);
+            // Восстанавливаем позицию после обновления данных
+            Integer currentPosition = viewModel.getPositionViewPagerHomePopularAllMutableLiveData().getValue();
+            if (currentPosition != null) {
+                vpPopularAll.setCurrentItem(currentPosition, false);
+            }
+        });
+
+
+        // Конвертация dp в пиксели
+        int pageMarginPx = (int) (16 * getResources().getDisplayMetrics().density);
+        int offsetPx = (int) (32 * getResources().getDisplayMetrics().density);
+        vpPopularAll.setOffscreenPageLimit(3);
+        RecyclerView recyclerView = (RecyclerView) vpPopularAll.getChildAt(0);
+        recyclerView.setClipToPadding(false);
+        recyclerView.setClipChildren(false);
+        recyclerView.setPadding(offsetPx, 0, offsetPx, 0);
+
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                outRect.left = pageMarginPx;
+                outRect.right = pageMarginPx;
+            }
+        });
+
+        vpPopularAll.setPageTransformer(new ViewPager2.PageTransformer() {
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                float scale = Math.max(0.85f, 1 - Math.abs(position));
+
+                float offset = position * -(2 * offsetPx + pageMarginPx);
+                if (vpPopularAll.getOrientation() == ViewPager2.ORIENTATION_HORIZONTAL) {
+                    page.setTranslationX(offset);
+                } else {
+                    page.setTranslationY(offset);
+                }
+
+                page.setScaleY(scale);
+                page.setScaleX(scale);
+
+
+            }
+        });
+
+        vpPopularAll.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (position == 0) return;
+                viewModel.getPositionViewPagerHomePopularAllMutableLiveData().setValue(position);
+
+            }
+        });
+
+        recyclerView.addOnScrollListener(new MyRecyclerViewScrollListener(MyRecyclerViewScrollListener.HORIZONTAL) {
             @Override
             public void onStart() {
 
@@ -416,7 +513,7 @@ public class HomeFragment extends Fragment {
                 kinopoiskAPI.getListTopPopularAll(++pagePopularAll, requestCallbackCollection);
             }
         });
-        recyclerViewPopAll.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), recyclerViewPopAll, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
+        recyclerView.addOnItemTouchListener(new MyRecyclerViewItemTouchListener(getContext(), recyclerView, new MyRecyclerViewItemTouchListener.OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerView.ViewHolder holder, View view, int position) {
                 Bundle bundle = new Bundle();
@@ -430,8 +527,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        if (pagePopularAll == 0) kinopoiskAPI.getListTopPopularAll(++pagePopularAll, requestCallbackCollection);
-
+        if (pagePopularAll == 0)
+            kinopoiskAPI.getListTopPopularAll(++pagePopularAll, requestCallbackCollection);
 
 
         // Фильмы
@@ -461,8 +558,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        if (pageMovie == 0) kinopoiskAPI.getListTop250Movies(++pageMovie, requestCallbackCollection);
-
+        if (pageMovie == 0)
+            kinopoiskAPI.getListTop250Movies(++pageMovie, requestCallbackCollection);
 
 
         // Сериалы
@@ -492,8 +589,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        if (pageSerial == 0) kinopoiskAPI.getListTop250TVShows(++pageSerial, requestCallbackCollection);
-
+        if (pageSerial == 0)
+            kinopoiskAPI.getListTop250TVShows(++pageSerial, requestCallbackCollection);
 
 
         // Мультфильмы
@@ -523,7 +620,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        if (pageAnimations == 0) kinopoiskAPI.getListFromGenre(ANIMATION, ++pageAnimations, requestCallbackCollection);
+        if (pageAnimations == 0)
+            kinopoiskAPI.getListFromGenre(ANIMATION, ++pageAnimations, requestCallbackCollection);
 
 
         // Драмы
@@ -553,7 +651,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        if (pageDrama == 0) kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++pageDrama, requestCallbackCollection);
+        if (pageDrama == 0)
+            kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.DRAMA, ++pageDrama, requestCallbackCollection);
 
 
         // Детям
@@ -583,7 +682,8 @@ public class HomeFragment extends Fragment {
 
             }
         }));
-        if (pageKids == 0) kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++pageKids, requestCallbackCollection);
+        if (pageKids == 0)
+            kinopoiskAPI.getListFromGenre(KinopoiskAPI.GenreConstants.KIDS, ++pageKids, requestCallbackCollection);
 
         return binding.getRoot();
     }
@@ -595,7 +695,6 @@ public class HomeFragment extends Fragment {
         menu.add("Избранное").setIcon(getContext().getDrawable(R.drawable.round_favorite_border_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add("Поиск").setIcon(getContext().getDrawable(R.drawable.rounded_search_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

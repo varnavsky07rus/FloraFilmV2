@@ -2,8 +2,10 @@ package com.alaka_ala.florafilm.ui.fragments.settings;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -110,6 +112,17 @@ public class SettingsFragment extends Fragment {
                 appUpdater.checkForUpdate(null);
             }
         });
+
+        Button buttonDownloadInBrowser = binding.buttonDownloadInBrowser;
+        buttonDownloadInBrowser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/varnavsky07rus/FloraFilmV2/raw/refs/heads/master/app/release/app-release.apk"));
+                startActivity(intent);
+            }
+        });
+
+
 
         // Отображение имени версии приложения
         TextView textViewVersionName = binding.textViewVersionName;

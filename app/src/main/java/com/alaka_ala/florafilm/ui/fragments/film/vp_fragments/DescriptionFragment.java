@@ -2,8 +2,6 @@ package com.alaka_ala.florafilm.ui.fragments.film.vp_fragments;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -28,15 +26,11 @@ import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
-import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
-import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
-import com.alaka_ala.florafilm.ui.util.api.collapse.models.ApiResponse;
 import com.alaka_ala.florafilm.ui.util.api.firebase.DataLikes;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Country;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Genre;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.ItemFilmInfo;
-import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
 import com.alaka_ala.florafilm.ui.util.local.FavoriteMoviesManager;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
 import com.google.android.material.button.MaterialButton;
@@ -45,11 +39,8 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.divider.MaterialDivider;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.IOException;
-
-import jp.wasabeef.blurry.Blurry;
 
 public class DescriptionFragment extends Fragment {
     private FragmentDescriptionFilmBinding binding;
@@ -147,7 +138,7 @@ public class DescriptionFragment extends Fragment {
 
         String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
 
-        VideoFilmFragment.setCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
+        VideoFilmFragment.addCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
 
             @Override
             public void successHDVBFilm(EPData.Film film) {
@@ -205,9 +196,9 @@ public class DescriptionFragment extends Fragment {
 
             @Override
             public void error(String balancer, String err) {
-                if (getContext() != null) {
+                /*if (getContext() != null) {
                     Toast.makeText(getContext(), balancer + ": " + err, Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
 
@@ -230,7 +221,6 @@ public class DescriptionFragment extends Fragment {
         chipSequels = binding.chipSequels;
         chipGeminiMovie = binding.chipGeminiMovie;
         chipGroupGenresAndCountry = binding.chipGroupGenresAndCountry;
-
     }
 
     @NonNull
@@ -324,12 +314,13 @@ public class DescriptionFragment extends Fragment {
 
 
     private void loadPicassoPoster() {
-        Picasso.get().load(itemFilmInfo.getPosterUrl()).into(binding.imageViewPosterFilm);
+        String posterUrl = itemFilmInfo.getCoverUrl().equals("null") ? itemFilmInfo.getPosterUrl() : itemFilmInfo.getCoverUrl();
+        Picasso.get().load(posterUrl).fit().centerInside().into(binding.imageViewPosterFilm);
         imageViewPosterFilm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putString("url", itemFilmInfo.getPosterUrl());
+                bundle.putInt("kinopoisk_id", kinopoisk_id);
                 Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
             }
         });

@@ -3,6 +3,8 @@ package com.alaka_ala.florafilm.ui.util.api.collapse;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.alaka_ala.florafilm.ui.util.api.collapse.models.PlayerData;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -38,8 +40,12 @@ public class HlsProcessor {
                 JSONObject jsonObject = null;
                 try {
                     jsonObject = getJson(iframeUrl);
-                    JSONObject finalJsonObject = jsonObject;
-                    handler.post(() -> callbackGetHls.success(finalJsonObject));
+                    if (jsonObject != null) {
+                        PlayerData playerData = new Gson().fromJson(jsonObject.toString(), PlayerData.class);
+                        handler.post(() -> callbackGetHls.success(playerData));
+                    } else {
+                        handler.post(() -> callbackGetHls.error("Ошибка создания JSON-объекта"));
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     handler.post(() -> callbackGetHls.error("Ошибка получения HLS-ссылки"));
@@ -147,7 +153,8 @@ public class HlsProcessor {
         try {
             j = new JSONObject(json.toString());
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return null;
         }
         return j;
     }
@@ -169,7 +176,7 @@ public class HlsProcessor {
 
 
     public interface CallbackGetHls {
-        void success(JSONObject jsonObject);
+        void success(PlayerData jsonObject);
         void error(String err);
     }
 }

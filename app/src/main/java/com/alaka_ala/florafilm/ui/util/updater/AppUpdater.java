@@ -25,6 +25,7 @@ import androidx.core.content.FileProvider;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -169,9 +170,8 @@ public class AppUpdater {
 
     private void showUpdateDialog() {
         if (!isSilentFindUpdate) {
-            new AlertDialog.Builder(activity)
-                    .setTitle("Доступно обновление")
-                    .setMessage("Доступна новая версия приложения, установить сейчас?")
+            new MaterialAlertDialogBuilder(activity)
+                    .setTitle("Доступно обновление").setMessage("Доступна новая версия приложения, установить сейчас?")
                     .setPositiveButton("Да", (dialog, which) -> prepareDownload())
                     .setNegativeButton("Позже", null)
                     .show();
@@ -321,7 +321,7 @@ public class AppUpdater {
     }
 
     private void showInstallDialog() {
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity)
                 .setTitle("Установка обновления")
                 .setMessage("Обновление загружено. Установить сейчас?")
                 .setPositiveButton("Установить", (dialog, which) -> installApk())
@@ -343,7 +343,7 @@ public class AppUpdater {
     }
 
     private void requestInstallPermission() {
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity)
                 .setTitle("Требуется разрешение")
                 .setMessage("Разрешите установку из неизвестных источников")
                 .setPositiveButton("К настройкам", (dialog, which) -> {
@@ -371,7 +371,7 @@ public class AppUpdater {
             Intent installIntent = getIntentInstall(apkUri);
 
             activity.startActivity(installIntent);
-            new android.os.Handler(Looper.getMainLooper()).postDelayed(this::cleanupTempFiles, 100000);
+            new Handler(Looper.getMainLooper()).postDelayed(this::cleanupTempFiles, 100000);
         } catch (Exception e) {
             Log.e(TAG, "Installation error", e);
             showErrorDialog("Ошибка установки: " + e.getMessage());
@@ -401,14 +401,14 @@ public class AppUpdater {
     }
 
     private void showMessageDialog(String message) {
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity)
                 .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show();
     }
 
     private void showErrorDialog(String message) {
-        new AlertDialog.Builder(activity)
+        new MaterialAlertDialogBuilder(activity)
                 .setTitle("Ошибка")
                 .setMessage(message)
                 .setPositiveButton("OK", null)

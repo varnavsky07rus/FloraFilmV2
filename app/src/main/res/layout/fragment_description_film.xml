@@ -42,6 +42,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="-180dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -50,130 +51,138 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/textViewMainTitleFilm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline5"
-                android:textStyle="bold"
-                android:transitionName="title_transition"
-                tools:text="Берлинская неотложка" />
-
-            <TextView
-                android:id="@+id/textViewOriginalTitleFilm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:textColor="?android:attr/textColorSecondary"
-                tools:text="Krank: Berlin" />
-
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="160dp"
+                android:orientation="vertical">
 
-                <HorizontalScrollView
+                <TextView
+                    android:id="@+id/textViewMainTitleFilm"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scrollbars="none">
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    android:textStyle="bold"
+                    android:transitionName="title_transition"
+                    tools:text="Берлинская неотложка" />
 
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroupGenresAndCountry"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:singleLine="true">
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipViewRatingKpFilm"
-                            style="@style/Widget.MaterialComponents.Chip.Action"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?attr/textAppearanceBody2"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            app:chipCornerRadius="8dp"
-                            tools:text="7.8" />
-
-                    </com.google.android.material.chip.ChipGroup>
-                </HorizontalScrollView>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    app:cardCornerRadius="16dp">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/chipLike"
-                            style="?attr/materialIconButtonStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="?attr/TextViewColorThemeInverse"
-                            android:textSize="12sp"
-                            app:icon="@drawable/rounded_thumb_up_24"
-                            app:iconPadding="8dp"
-                            app:iconSize="14dp"
-                            app:iconTint="?attr/IconsTintThemeInverse" />
-
-                        <View
-                            android:id="@+id/divider11"
-                            android:layout_width="1dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="?android:attr/listDivider" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/chipDislike"
-                            style="?attr/materialIconButtonStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="?attr/TextViewColorThemeInverse"
-                            android:textSize="12sp"
-                            app:icon="@drawable/rounded_thumb_down_24"
-                            app:iconPadding="8dp"
-                            app:iconSize="14dp"
-                            app:iconTint="?attr/IconsTintThemeInverse" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonResumeView"
+                <TextView
+                    android:id="@+id/textViewOriginalTitleFilm"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:text="Продолжить"
-                    android:textColor="@color/white"
-                    android:visibility="gone"
-                    app:backgroundTint="@color/button_resume_view_tint"
-                    app:cornerRadius="24dp"
-                    tools:visibility="visible" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="Krank: Berlin" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupGenresAndCountry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:singleLine="true">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipViewRatingKpFilm"
+                                style="@style/Widget.MaterialComponents.Chip.Action"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:backgroundTint="@color/ic_launcher_background"
+                                android:textAppearance="?attr/textAppearanceBody2"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                app:chipCornerRadius="8dp"
+                                tools:text="7.8" />
+
+                        </com.google.android.material.chip.ChipGroup>
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="16dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chipLike"
+                                style="?attr/materialIconButtonStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="?attr/TextViewColorThemeInverse"
+                                android:textSize="12sp"
+                                app:icon="@drawable/rounded_thumb_up_24"
+                                app:iconPadding="8dp"
+                                app:iconSize="14dp"
+                                app:iconTint="?attr/IconsTintThemeInverse" />
+
+                            <View
+                                android:id="@+id/divider11"
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="?android:attr/listDivider" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/chipDislike"
+                                style="?attr/materialIconButtonStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="?attr/TextViewColorThemeInverse"
+                                android:textSize="12sp"
+                                app:icon="@drawable/rounded_thumb_down_24"
+                                app:iconPadding="8dp"
+                                app:iconSize="14dp"
+                                app:iconTint="?attr/IconsTintThemeInverse" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonResumeView"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="Продолжить"
+                        android:textColor="@color/white"
+                        android:visibility="gone"
+                        app:backgroundTint="@color/button_resume_view_tint"
+                        app:cornerRadius="16dp"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 

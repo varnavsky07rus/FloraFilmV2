@@ -20,14 +20,10 @@ import android.widget.FrameLayout;
 import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentVideoFilmBinding;
-import com.alaka_ala.florafilm.ui.fragments.film.others.TreeItem;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
-import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
-import com.alaka_ala.florafilm.ui.util.api.collapse.models.ApiResponse;
-import com.alaka_ala.florafilm.ui.util.api.collapse.selectors.CollapseSelector;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVBSelector;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.models.HDVBFilm;
@@ -39,26 +35,22 @@ import com.alaka_ala.florafilm.ui.util.api.vibix.VibixSelector;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class VideoFilmFragment extends Fragment {
     private FragmentVideoFilmBinding binding;
     private MainFilmViewModel mainFilmViewModel;
 
-    public static void setCallbackLoaderData(CallbackLoaderData callbackLoaderData) {
-        VideoFilmFragment.callbackLoaderData = callbackLoaderData;
+    public static void addCallbackLoaderData(CallbackLoaderData callbackLoaderData) {
+        VideoFilmFragment.callbackLoaderDatas.add(callbackLoaderData);
     }
 
-    private static CallbackLoaderData callbackLoaderData;
+    private static ArrayList<CallbackLoaderData> callbackLoaderDatas = new ArrayList<>();
 
     private void onError(String balancer, String err) {
-        if (callbackLoaderData == null) return;
-        callbackLoaderData.error(balancer, err);
+        for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+            callbackLoaderData.error(balancer, err);
+        }
     }
-
-
-    // Пример создания данных
-    private List<TreeItem> allItems = new ArrayList<>();
 
 
     private boolean isNotFountDataVibix = false;
@@ -68,6 +60,7 @@ public class VideoFilmFragment extends Fragment {
     private LottieAnimationView lottieNotFound;
 
     private RecyclerView recyclerViewRoot;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,6 +78,7 @@ public class VideoFilmFragment extends Fragment {
         return binding.getRoot();
     }
 
+
     private void chekBanFilm() {
         BanCheker banCheker = new BanCheker(getContext());
         if (!banCheker.isBan(mainFilmViewModel.getKinopoiskId())) {
@@ -97,10 +91,6 @@ public class VideoFilmFragment extends Fragment {
             if (SettingsUtils.getParamSearchLumex(getContext())) {
                 parseLumex();
             }
-            if (SettingsUtils.getParamSearchCollapse(getContext())) {
-                parseCollapse();
-            }
-
         } else {
             isNotFountDataVibix = true;
             isNotFountDataHDVB = true;
@@ -109,6 +99,16 @@ public class VideoFilmFragment extends Fragment {
     }
 
     private void printNotFoundFile() {
+        if (getContext() == null) return;
+        if (!SettingsUtils.getParamSearchVIBIX(getContext())) {
+            isNotFountDataVibix = true;
+        }
+        if (!SettingsUtils.getParamSeeachHDVB(getContext())) {
+            isNotFountDataHDVB = true;
+        }
+        if (!SettingsUtils.getParamSearchLumex(getContext())) {
+            isNotFoundDataLumex = true;
+        }
         if (isNotFountDataVibix && isNotFountDataHDVB && isNotFoundDataLumex) {
             rootNotFound.setVisibility(View.VISIBLE);
             lottieNotFound.setAnimation(R.raw.not_found);
@@ -122,33 +122,55 @@ public class VideoFilmFragment extends Fragment {
     }
 
     private void parseHdvb() {
+
         HDVB hdvb = new HDVB(getResources().getString(R.string.api_key_hdvb));
         hdvb.parse(mainFilmViewModel.getKinopoiskId(), new HDVB.ResultParseCallback() {
             @Override
             public void finish() {
                 HDVB.ResultParseCallback.super.finish();
-
             }
 
             @Override
             public void film(HDVBFilm film, EPData.Film filmEP) {
-                if (filmEP == null) return;
+                if (filmEP == null) {
+                    for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                        if (callbackLoaderData != null) {
+                            error("Фильм не найден");
+                            isNotFountDataHDVB = true;
+                        }
+                    }
+                    return;
+                }
                 HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, filmEP, mainFilmViewModel.getCurrentFilmInfo());
                 hdvbSelector.buildSelector(getActivity());
-                if (callbackLoaderData != null) {
-                    callbackLoaderData.successHDVBFilm(filmEP);
-                    isNotFountDataHDVB = false;
+                for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                    if (callbackLoaderData != null) {
+                        callbackLoaderData.successHDVBFilm(filmEP);
+                        isNotFountDataHDVB = false;
+                    }
                 }
+
             }
 
             @Override
             public void serial(HDVBSerial serial, EPData.Serial serialEP) {
+                if (serialEP == null) {
+                    for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                        if (callbackLoaderData != null) {
+                            error("Сериал не найден");
+                            isNotFountDataHDVB = true;
+                        }
+                    }
+                }
                 HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, serialEP, mainFilmViewModel.getCurrentFilmInfo());
                 hdvbSelector.buildSelector(getActivity());
-                if (callbackLoaderData != null) {
-                    callbackLoaderData.successHDVBSerial(serialEP);
-                    isNotFountDataHDVB = false;
+                for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                    if (callbackLoaderData != null) {
+                        callbackLoaderData.successHDVBSerial(serialEP);
+                        isNotFountDataHDVB = false;
+                    }
                 }
+
             }
 
             @Override
@@ -171,9 +193,11 @@ public class VideoFilmFragment extends Fragment {
             public void finishParseFilmVibix(EPData.Film vibixFilm) {
                 VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, vibixFilm, mainFilmViewModel.getCurrentFilmInfo());
                 vibixSelector.buildSelector(getActivity());
-                if (callbackLoaderData != null) {
-                    callbackLoaderData.successVibixFilm(vibixFilm);
-                    isNotFountDataVibix = false;
+                for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                    if (callbackLoaderData != null) {
+                        callbackLoaderData.successVibixFilm(vibixFilm);
+                        isNotFountDataVibix = false;
+                    }
                 }
             }
 
@@ -181,9 +205,11 @@ public class VideoFilmFragment extends Fragment {
             public void finishParseSerialVibix(EPData.Serial vibixSerial) {
                 VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, vibixSerial, mainFilmViewModel.getCurrentFilmInfo());
                 vibixSelector.buildSelector(getActivity());
-                if (callbackLoaderData != null) {
-                    callbackLoaderData.successVibixSerial(vibixSerial);
-                    isNotFountDataVibix = false;
+                for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                    if (callbackLoaderData != null) {
+                        callbackLoaderData.successVibixSerial(vibixSerial);
+                        isNotFountDataVibix = false;
+                    }
                 }
             }
 
@@ -209,14 +235,18 @@ public class VideoFilmFragment extends Fragment {
                 }
                 handler.post(() -> lumexSelector.buildSelector(getActivity()));
                 if (film == null) {
-                    if (callbackLoaderData != null) {
-                        handler.post(() -> callbackLoaderData.successLumexSerial(serial));
-                        isNotFountDataVibix = false;
+                    for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                        if (callbackLoaderData != null) {
+                            handler.post(() -> callbackLoaderData.successLumexSerial(serial));
+                            isNotFountDataVibix = false;
+                        }
                     }
                 } else {
-                    if (callbackLoaderData != null) {
-                        handler.post(() -> callbackLoaderData.successLumexFilm(film));
-                        isNotFountDataVibix = false;
+                    for (CallbackLoaderData callbackLoaderData : callbackLoaderDatas) {
+                        if (callbackLoaderData != null) {
+                            handler.post(() -> callbackLoaderData.successLumexFilm(film));
+                            isNotFountDataVibix = false;
+                        }
                     }
                 }
 
@@ -228,28 +258,6 @@ public class VideoFilmFragment extends Fragment {
                 isNotFoundDataLumex = true;
             }
         });
-    }
-
-    private void parseCollapse() {
-        CollapseAPI collapseAPI = new CollapseAPI();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                collapseAPI.getFromKinopoiskId(mainFilmViewModel.getKinopoiskId(), new CollapseAPI.CallbackFromKinopoiskId() {
-                    @Override
-                    public void onSuccess(ApiResponse apiResponse) {
-                        Handler handler = new Handler(Looper.getMainLooper());
-                        CollapseSelector selectorCollapse = new CollapseSelector(apiResponse, binding.linearLayoutRoot, mainFilmViewModel.getCurrentFilmInfo() );
-                        handler.post(() -> selectorCollapse.createSelector(getActivity()));
-                    }
-
-                    @Override
-                    public void onFailure(IOException e) {
-
-                    }
-                });
-            }
-        }).start();
     }
 
 
@@ -285,5 +293,11 @@ public class VideoFilmFragment extends Fragment {
     public void onResume() {
         super.onResume();
         printNotFoundFile();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        callbackLoaderDatas = new ArrayList<>();
     }
 }

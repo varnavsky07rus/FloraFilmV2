@@ -1,13 +1,12 @@
 package com.alaka_ala.florafilm.ui.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,8 +25,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
-import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
-import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
@@ -38,47 +35,24 @@ import com.alaka_ala.florafilm.ui.util.torrents.main.Torrent;
 import com.alaka_ala.florafilm.ui.util.torrents.main.TorrentOptions;
 import com.alaka_ala.florafilm.ui.util.torrents.main.TorrentStream;
 import com.alaka_ala.florafilm.ui.util.torrents.server.LocalHttpServer;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Tracks;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-
-import io.appmetrica.analytics.AppMetrica;
-import io.appmetrica.analytics.AppMetricaConfig;
 
 public class PlayerExoActivity extends AppCompatActivity {
     private ActivityPlayerExoBinding binding;
     private ExoPlayer exoPlayer;
     private PlaybackPositionManager playbackPositionManager;
     private EPData epData;
+    private TorrentStream torrentStream;
 
-    private int count_send_event = 0;
+    private int currentResizeMode = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +62,6 @@ public class PlayerExoActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -100,64 +73,42 @@ public class PlayerExoActivity extends AppCompatActivity {
         epData = (EPData) intent.getSerializableExtra("epData");
         if (epData == null) {
             Toast.makeText(this, "Ошибка получения данных!", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
-        // Создаем LoadControl с увеличенным буфером для стабильности при стриминге торрентов
-        DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
-                .setBufferDurationsMs(
-                        60 * 1000, // Минимальная длительность буфера (1 минута)
-                        120 * 1000, // Максимальная длительность буфера (2 минуты)
-                        15 * 1000,  // Длительность для начала воспроизведения (15 секунд)
-                        30 * 1000   // Длительность для возобновления после ребуферизации (30 секунд)
-                )
-                .build();
 
-        exoPlayer = new ExoPlayer.Builder(this)
-                .setLoadControl(loadControl)
-                .build();
+        exoPlayer = new ExoPlayer.Builder(this).build();
         binding.playerExoView.setPlayer(exoPlayer);
-        appMetrica();
         updateTitleName();
         preparePlayer();
 
-        resizeMode();
-
+        setupResizeModeToggle();
         saveToLastMovie();
-
-
     }
 
+    /** Созранение последнего просмотренного фильма для всплывающего фрагмента для продолжения просмотра */
     private void saveToLastMovie() {
-        Context context = this;
-        ResumeLastMovie resumeLastMovie = new ResumeLastMovie(context);
+        ResumeLastMovie resumeLastMovie = new ResumeLastMovie(this);
         resumeLastMovie.saveLastMovie(epData.getFilmInfo().getKinopoiskId(), epData.getFilmInfo().getNameRu(), epData.getFilmInfo().getPosterUrl());
         resumeLastMovie.setLaunched();
-
     }
 
-    private void resizeMode() {
-        int[] count = {0};
+    private void setupResizeModeToggle() {
         ImageView imageViewResizeVideo = binding.playerExoView.findViewById(R.id.imageViewResizeVideo);
-        imageViewResizeVideo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (count[0]) {
-                    case 0:
-                        binding.playerExoView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
-                        count[0] = 1;
-                        break;
-                    case 1:
-                        binding.playerExoView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
-                        count[0] = 2;
-                        break;
-                    case 2:
-                        binding.playerExoView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
-                        count[0] = 0;
-                        break;
-                }
+        imageViewResizeVideo.setOnClickListener(view -> {
+            currentResizeMode = (currentResizeMode + 1) % 3;
+            switch (currentResizeMode) {
+                case 0:
+                    binding.playerExoView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+                    break;
+                case 1:
+                    binding.playerExoView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FILL);
+                    break;
+                case 2:
+                    binding.playerExoView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
+                    break;
             }
         });
-
     }
 
     @Override
@@ -180,59 +131,42 @@ public class PlayerExoActivity extends AppCompatActivity {
         );
     }
 
-    private TorrentStream torrentStream;
-
     private void preparePlayer() {
         ArrayList<MediaItem> mediaItems = new ArrayList<>();
 
         if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL) && epData.getBalancer().equals("HDVB")) {
             ArrayList<MediaItem> mediaItemsToken = new ArrayList<>();
             for (int j = 0; j < epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().size(); j++) {
-                // На некоторые серии нет какой-либо серии в определенной озвучке, для этого необходимо получить дугую озвучку
                 String token = getTokenHdvb(j);
                 mediaItemsToken.add(new MediaItem.Builder()
-                        .setMediaId(String.valueOf(j)) // Индекс серии
+                        .setMediaId(String.valueOf(j))
                         .setCustomCacheKey(token)
-                        .setUri(Uri.EMPTY) // Пока пусто
+                        .setUri(Uri.EMPTY)
                         .build());
             }
-
-            // Создали все MediaItem токены и добавили в плеер
             exoPlayer.setMediaItems(mediaItemsToken);
-
-            // Обработчик плеера для постепенной загрузки медиа по токенам
             exoPlayer.addListener(new Player.Listener() {
                 @Override
                 public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
-                    // reason 1 = если автоматически переключается на след. серию а reason = 2 если пользователь переключает
-                    if (mediaItem != null && exoPlayer.getCurrentMediaItemIndex() != epData.getIndexEpisode() && reason == 1 || reason == 2) {
-                        onRequareMediaItem(mediaItemsToken, exoPlayer.getCurrentMediaItemIndex(), epData.getBalancer());
-
-                        playbackPositionManager.savePositionEpisode(
-                                epData.getFilmInfo().getKinopoiskId(),
-                                exoPlayer.getCurrentMediaItemIndex(),
-                                epData.getIndexSeason(),
-                                epData.getIndexTranslation(),
-                                epData.getIndexQuality(),
-                                exoPlayer.getCurrentPosition(),
-                                epData.getBalancer());
+                    if (mediaItem != null && exoPlayer.getCurrentMediaItemIndex() != epData.getIndexEpisode() && (reason == 1 || reason == 2)) {
+                        loadMediaItemByToken(mediaItemsToken, exoPlayer.getCurrentMediaItemIndex(), epData.getBalancer());
+                        saveCurrentPlaybackPosition();
                     }
                     updateTitleName();
                 }
             });
-
-            // Загрузка первой серии
-            onRequareMediaItem(mediaItemsToken, epData.getBalancer());
+            loadMediaItemByToken(mediaItemsToken, epData.getIndexEpisode(), epData.getBalancer());
 
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("LUMEX")) {
-            MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
             String uriVideoData = epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(0).getValue();
             LumexApi.getHls(uriVideoData, new LumexApi.CallbackLumexHls() {
                 @Override
                 public void success(LumexApi.LumexHLS lumexHLS) {
-                    mediaItemBuilder.setUri(lumexHLS.getUrl().startsWith("//") ? "https:" + lumexHLS.getUrl() : lumexHLS.getUrl());
-                    mediaItems.add(mediaItemBuilder.build());
+                    MediaItem mediaItem = new MediaItem.Builder()
+                            .setUri(lumexHLS.getUrl().startsWith("//") ? "https:" + lumexHLS.getUrl() : lumexHLS.getUrl())
+                            .build();
+                    mediaItems.add(mediaItem);
                     exoPlayer.setMediaItems(
                             mediaItems,
                             epData.getIndexEpisode(),
@@ -245,15 +179,7 @@ public class PlayerExoActivity extends AppCompatActivity {
                         @Override
                         public void onMediaItemTransition(@NonNull EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
                             AnalyticsListener.super.onMediaItemTransition(eventTime, mediaItem, reason);
-                            playbackPositionManager.
-                                    savePositionEpisode(
-                                            epData.getFilmInfo().getKinopoiskId(),
-                                            exoPlayer.getCurrentMediaItemIndex(),
-                                            epData.getIndexSeason(),
-                                            epData.getIndexTranslation(),
-                                            epData.getIndexQuality(),
-                                            exoPlayer.getCurrentPosition(),
-                                            epData.getBalancer());
+                            saveCurrentPlaybackPosition();
                             updateTitleName();
                         }
                     });
@@ -263,7 +189,7 @@ public class PlayerExoActivity extends AppCompatActivity {
 
                 @Override
                 public void error(String err) {
-
+                    Toast.makeText(PlayerExoActivity.this, "Ошибка загрузки видео: " + err, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -271,43 +197,28 @@ public class PlayerExoActivity extends AppCompatActivity {
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL) && epData.getBalancer().equals("LUMEX")) {
             ArrayList<MediaItem> mediaItemsToken = new ArrayList<>();
             for (int j = 0; j < epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().size(); j++) {
-                // На некоторые серии нет какой-либо серии в определенной озвучке, для этого необходимо получить дугую озвучку
-                String token = getTokenHdvb(j);
+                String token = getTokenLumex(j);
                 mediaItemsToken.add(new MediaItem.Builder()
-                        .setMediaId(String.valueOf(j)) // Индекс серии
+                        .setMediaId(String.valueOf(j))
                         .setCustomCacheKey(token)
-                        .setUri(Uri.EMPTY) // Пока пусто
+                        .setUri(Uri.EMPTY)
                         .build());
             }
-            // Создали все MediaItem токены и добавили в плеер
             exoPlayer.setMediaItems(mediaItemsToken);
-
-            // Обработчик плеера для постепенной загрузки медиа по токенам
             exoPlayer.addListener(new Player.Listener() {
                 @Override
                 public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
-                    // reason 1 = если автоматически переключается на след. серию а reason = 2 если пользователь переключает
-                    if (mediaItem != null && exoPlayer.getCurrentMediaItemIndex() != epData.getIndexEpisode() && reason == 1 || reason == 2) {
-                        onRequareMediaItem(mediaItemsToken, exoPlayer.getCurrentMediaItemIndex(), epData.getBalancer());
-
-                        playbackPositionManager.savePositionEpisode(
-                                epData.getFilmInfo().getKinopoiskId(),
-                                exoPlayer.getCurrentMediaItemIndex(),
-                                epData.getIndexSeason(),
-                                epData.getIndexTranslation(),
-                                epData.getIndexQuality(),
-                                exoPlayer.getCurrentPosition(),
-                                epData.getBalancer());
+                    if (mediaItem != null && exoPlayer.getCurrentMediaItemIndex() != epData.getIndexEpisode() && (reason == 1 || reason == 2)) {
+                        loadMediaItemByToken(mediaItemsToken, exoPlayer.getCurrentMediaItemIndex(), epData.getBalancer());
+                        saveCurrentPlaybackPosition();
                     }
                     updateTitleName();
                 }
             });
+            loadMediaItemByToken(mediaItemsToken, epData.getIndexEpisode(), epData.getBalancer());
 
-            // Загружаем первую серию
-            onRequareMediaItem(mediaItemsToken, epData.getBalancer());
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("magnet")) {
-            // Запуск торрента и сервера
             String magnet = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
             TorrentOptions torrentOptions = new TorrentOptions.Builder()
                     .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
@@ -318,27 +229,24 @@ public class PlayerExoActivity extends AppCompatActivity {
                 @Override
                 public void onStreamPrepared(Torrent torrent) {
                     Log.d("Torrent", "Torrent prepared. File: " + torrent.getVideoFile().getName());
-
                 }
 
                 @Override
                 public void onStreamStarted(Torrent torrent) {
-
                 }
 
                 @Override
                 public void onStreamError(Torrent torrent, Exception e) {
                     e.printStackTrace();
+                    Toast.makeText(PlayerExoActivity.this, "Ошибка торрента: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onStreamReady(Torrent torrent) {
                     try {
-                        // 1. Создаем и запускаем локальный HTTP сервер
                         LocalHttpServer server = new LocalHttpServer(8080, torrent);
                         server.start();
 
-                        // 2. Создаем MediaItem с локальным URL и передаем в ExoPlayer
                         MediaItem mediaItem = new MediaItem.Builder()
                                 .setUri("http://127.0.0.1:8080/" + torrent.getVideoFile().getName())
                                 .build();
@@ -347,17 +255,17 @@ public class PlayerExoActivity extends AppCompatActivity {
                         exoPlayer.prepare();
                         exoPlayer.addAnalyticsListener(new AnalyticsListener() {
                             @Override
-                            public void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
+                            public void onIsLoadingChanged(@NonNull EventTime eventTime, boolean isLoading) {
                                 AnalyticsListener.super.onIsLoadingChanged(eventTime, isLoading);
                             }
 
                             @Override
-                            public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
+                            public void onIsPlayingChanged(@NonNull EventTime eventTime, boolean isPlaying) {
                                 AnalyticsListener.super.onIsPlayingChanged(eventTime, isPlaying);
                             }
 
                             @Override
-                            public void onPlaybackStateChanged(EventTime eventTime, int state) {
+                            public void onPlaybackStateChanged(@NonNull EventTime eventTime, int state) {
                                 AnalyticsListener.super.onPlaybackStateChanged(eventTime, state);
                                 if (state == ExoPlayer.STATE_READY) {
                                     exoPlayer.play();
@@ -367,6 +275,7 @@ public class PlayerExoActivity extends AppCompatActivity {
 
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Toast.makeText(PlayerExoActivity.this, "Ошибка локального сервера: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -375,7 +284,6 @@ public class PlayerExoActivity extends AppCompatActivity {
 
                 @Override
                 public void onStreamProgress(Torrent torrent, StreamStatus status) {
-                    // Обработка прогресса загрузки торрента
                     if (steps == maxSteps) {
                         Log.d("Torrent", "\n\n\nTorrent progress: " + status.progress);
                         Log.d("Torrent", "Torrent buffer: " + status.bufferProgress);
@@ -396,12 +304,10 @@ public class PlayerExoActivity extends AppCompatActivity {
 
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("HDVB")) {
-
-            MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
-            String uriVideoData = epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();
-            mediaItemBuilder.setUri(uriVideoData);
-            mediaItems.add(mediaItemBuilder.build());
-
+            MediaItem mediaItem = new MediaItem.Builder()
+                    .setUri(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue())
+                    .build();
+            mediaItems.add(mediaItem);
             exoPlayer.setMediaItems(
                     mediaItems,
                     epData.getIndexEpisode(),
@@ -410,34 +316,22 @@ public class PlayerExoActivity extends AppCompatActivity {
                             epData.getIndexEpisode(),
                             epData.getIndexSeason()
                     ));
-
             exoPlayer.addAnalyticsListener(new AnalyticsListener() {
                 @Override
                 public void onMediaItemTransition(@NonNull EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
                     AnalyticsListener.super.onMediaItemTransition(eventTime, mediaItem, reason);
-                    playbackPositionManager.
-                            savePositionEpisode(
-                                    epData.getFilmInfo().getKinopoiskId(),
-                                    exoPlayer.getCurrentMediaItemIndex(),
-                                    epData.getIndexSeason(),
-                                    epData.getIndexTranslation(),
-                                    epData.getIndexQuality(),
-                                    exoPlayer.getCurrentPosition(),
-                                    epData.getBalancer());
+                    saveCurrentPlaybackPosition();
                     updateTitleName();
                 }
             });
-
             exoPlayer.prepare();
             exoPlayer.play();
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("VIBIX")) {
-
-            MediaItem.Builder mediaItemBuilder = new MediaItem.Builder();
-            String uriVideoData = replaceIncorrectProtocol(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue());
-            mediaItemBuilder.setUri(uriVideoData);
-            mediaItems.add(mediaItemBuilder.build());
-
+            MediaItem mediaItem = new MediaItem.Builder()
+                    .setUri(replaceIncorrectProtocol(epData.getFilm().getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue()))
+                    .build();
+            mediaItems.add(mediaItem);
             exoPlayer.setMediaItems(
                     mediaItems,
                     epData.getIndexEpisode(),
@@ -446,83 +340,18 @@ public class PlayerExoActivity extends AppCompatActivity {
                             epData.getIndexEpisode(),
                             epData.getIndexSeason()
                     ));
-
             exoPlayer.addAnalyticsListener(new AnalyticsListener() {
                 @Override
                 public void onMediaItemTransition(@NonNull EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
                     AnalyticsListener.super.onMediaItemTransition(eventTime, mediaItem, reason);
-                    playbackPositionManager.
-                            savePositionEpisode(
-                                    epData.getFilmInfo().getKinopoiskId(),
-                                    exoPlayer.getCurrentMediaItemIndex(),
-                                    epData.getIndexSeason(),
-                                    epData.getIndexTranslation(),
-                                    epData.getIndexQuality(),
-                                    exoPlayer.getCurrentPosition(),
-                                    epData.getBalancer());
+                    saveCurrentPlaybackPosition();
                     updateTitleName();
                 }
             });
-
             exoPlayer.prepare();
             exoPlayer.play();
         }
-        else if (epData.getBalancer().equals("COLLAPSE")) {
-            DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
-
-            String iframe;
-            if (epData.getFilm() == null) {
-                iframe = epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(epData.getIndexEpisode()).getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();
-            } else {
-                iframe = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
-            }
-
-
-            CollapseAPI.getHls(iframe, new HlsProcessor.CallbackGetHls() {
-                @Override
-                public void success(JSONObject jsonObject) {
-
-                    String urlHls = null;
-                    try {
-                        urlHls = jsonObject.getJSONObject("source").getString("hls");
-                    } catch (JSONException e) {
-                        try {
-                            urlHls = jsonObject.getJSONObject("playlist").getJSONArray("seasons").getJSONObject(epData.getIndexSeason()).getJSONArray("episodes").getJSONObject(epData.getIndexEpisode()).getString("hls");
-                        } catch (JSONException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-
-                    Map<String, String> headers = new HashMap<>();
-                    //headers.put("GET", "");
-                    //headers.put("Accept", "*/*");
-                    //headers.put("Accept-Encoding", "gzip, deflate, br, zstd");
-                    //headers.put("Accept-Language", "ru,en;q=0.9");
-                    //headers.put("Host", "");
-                    //headers.put("Connection", "keep-alive");
-                    //headers.put("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36");
-                    //headers.put("Sec-Ch-Ua", "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"YaBrowser\";v=\"25.8\", \"Yowser\";v=\"2.5\"");
-                    //headers.put("Sec-Ch-Ua-Mobile", "?1");
-                    //headers.put("Sec-Ch-Ua-Platform", "Android");
-                    // Добавляйте любые заголовки, которые нужны вашему серверу
-                    HttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
-                            .setDefaultRequestProperties(headers);
-                    HlsMediaSource.Factory mediaSourceFactory = new HlsMediaSource.Factory(httpDataSourceFactory);
-                    MediaSource mediaSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(urlHls));
-                    exoPlayer.setTrackSelectionParameters(trackSelector.getParameters());
-                    exoPlayer.setMediaSource(mediaSource);
-                    exoPlayer.prepare();
-                    exoPlayer.play();
-                }
-
-                @Override
-                public void error(String err) {
-
-                }
-            });
-
-
-        } else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL)) {
+        else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_SERIAL)) {
             for (int i = 0; i < epData.getSerial().getSeasons().size(); i++) {
                 for (int j = 0; j < epData.getSerial().getSeasons().get(i).getEpisodes().size(); j++) {
                     for (int k = 0; k < epData.getSerial().getSeasons().get(i).getEpisodes().get(j).getTranslations().size(); k++) {
@@ -542,17 +371,9 @@ public class PlayerExoActivity extends AppCompatActivity {
                     ));
             exoPlayer.addAnalyticsListener(new AnalyticsListener() {
                 @Override
-                public void onMediaItemTransition(EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
+                public void onMediaItemTransition(@NonNull EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
                     AnalyticsListener.super.onMediaItemTransition(eventTime, mediaItem, reason);
-                    playbackPositionManager.
-                            savePositionEpisode(
-                                    epData.getFilmInfo().getKinopoiskId(),
-                                    exoPlayer.getCurrentMediaItemIndex(),
-                                    epData.getIndexSeason(),
-                                    epData.getIndexTranslation(),
-                                    epData.getIndexQuality(),
-                                    exoPlayer.getCurrentPosition(),
-                                    epData.getBalancer());
+                    saveCurrentPlaybackPosition();
                     updateTitleName();
                 }
             });
@@ -561,23 +382,89 @@ public class PlayerExoActivity extends AppCompatActivity {
         }
     }
 
-    private String replaceIncorrectProtocol(String value) {
-        return value.replaceFirst(".+:", "https:");
+    private void saveCurrentPlaybackPosition() {
+        playbackPositionManager.savePositionEpisode(
+                epData.getFilmInfo().getKinopoiskId(),
+                exoPlayer.getCurrentMediaItemIndex(),
+                epData.getIndexSeason(),
+                epData.getIndexTranslation(),
+                epData.getIndexQuality(),
+                exoPlayer.getCurrentPosition(),
+                epData.getBalancer());
     }
 
-    private String getTokenHdvb(int j) {
-        int countTranslationIndexes = (epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(j).getTranslations().size() - 1);
+    private String getTokenHdvb(int episodeIndex) {
+        int countTranslationIndexes = (epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(episodeIndex).getTranslations().size() - 1);
         int requareTranslationIndex = epData.getIndexTranslation();
         if (requareTranslationIndex > countTranslationIndexes) {
-
             return epData.getSerial()
                     .getSeasons().get(epData.getIndexSeason())
-                    .getEpisodes().get(j)
+                    .getEpisodes().get(episodeIndex)
                     .getTranslations().get(countTranslationIndexes)
                     .getVideoData().get(epData.getIndexQuality()).getValue();
         }
+        return epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(episodeIndex).getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();
+    }
 
-        return epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(j).getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();
+    private String getTokenLumex(int episodeIndex) {
+        // Assuming Lumex also uses a similar token fetching logic, adjust if different
+        int countTranslationIndexes = (epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(episodeIndex).getTranslations().size() - 1);
+        int requareTranslationIndex = epData.getIndexTranslation();
+        if (requareTranslationIndex > countTranslationIndexes) {
+            return epData.getSerial()
+                    .getSeasons().get(epData.getIndexSeason())
+                    .getEpisodes().get(episodeIndex)
+                    .getTranslations().get(countTranslationIndexes)
+                    .getVideoData().get(epData.getIndexQuality()).getValue();
+        }
+        return epData.getSerial().getSeasons().get(epData.getIndexSeason()).getEpisodes().get(episodeIndex).getTranslations().get(epData.getIndexTranslation()).getVideoData().get(epData.getIndexQuality()).getValue();
+    }
+
+    private void loadMediaItemByToken(ArrayList<MediaItem> mediaItemsToken, int indexEpisode, String balancer) {
+        MediaItem mediaItem = exoPlayer.getMediaItemAt(indexEpisode);
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        new Thread(() -> {
+            String uri = null;
+            if (balancer.equals("LUMEX")) {
+                LumexApi.getHls(String.valueOf(mediaItem.localConfiguration.customCacheKey), new LumexApi.CallbackLumexHls() {
+                    @Override
+                    public void success(LumexApi.LumexHLS lumexHLS) {
+                        String newUri = lumexHLS.getUrl().startsWith("//") ? "https:" + lumexHLS.getUrl() : lumexHLS.getUrl();
+                        handler.post(() -> updateMediaItemAndPlay(mediaItemsToken, indexEpisode, newUri));
+                    }
+
+                    @Override
+                    public void error(String err) {
+                        handler.post(() -> Toast.makeText(PlayerExoActivity.this, "Ошибка загрузки HLS Lumex: " + err, Toast.LENGTH_SHORT).show());
+                    }
+                });
+            } else if (balancer.equals("HDVB")) {
+                uri = HDVB.getFileSerial(String.valueOf(mediaItem.localConfiguration.customCacheKey));
+                String finalUri = uri;
+                handler.post(() -> updateMediaItemAndPlay(mediaItemsToken, indexEpisode, finalUri));
+            }
+        }).start();
+    }
+
+    private void updateMediaItemAndPlay(ArrayList<MediaItem> mediaItemsToken, int indexEpisode, String newUri) {
+        MediaItem updatedMediaItem = MediaItem.fromUri(newUri);
+        mediaItemsToken.set(indexEpisode, updatedMediaItem);
+
+        exoPlayer.setMediaItems(
+                mediaItemsToken,
+                indexEpisode,
+                playbackPositionManager.getSavedPositionEpisode(
+                        epData.getFilmInfo().getKinopoiskId(),
+                        epData.getIndexEpisode(),
+                        epData.getIndexSeason()
+                ));
+        exoPlayer.prepare();
+        exoPlayer.play();
+    }
+
+    private String replaceIncorrectProtocol(String value) {
+        return value.replaceFirst(".+:", "https:");
     }
 
     private void updateTitleName() {
@@ -593,141 +480,11 @@ public class PlayerExoActivity extends AppCompatActivity {
 
     }
 
-    // Воспроизводит сначала то, что требует пользователь
-    private void onRequareMediaItem(ArrayList<MediaItem> mediaItemsToken, String balancer) {
-        MediaItem mediaItem = exoPlayer.getMediaItemAt(epData.getIndexEpisode());
-        Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(@NonNull Message message) {
-                String newUri = message.getData().getString("m3u8");
-                MediaItem updatedMediaItem = MediaItem.fromUri(newUri);
-
-                mediaItemsToken.remove(epData.getIndexEpisode());
-                mediaItemsToken.add(epData.getIndexEpisode(), updatedMediaItem);
-
-                exoPlayer.setMediaItems(
-                        mediaItemsToken,
-                        epData.getIndexEpisode(),
-                        playbackPositionManager.getSavedPositionEpisode(
-                                epData.getFilmInfo().getKinopoiskId(),
-                                epData.getIndexEpisode(),
-                                epData.getIndexSeason()
-                        ));
-                exoPlayer.prepare();
-                exoPlayer.play();
-                return false;
-            }
-        });
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (balancer.equals("LUMEX")) {
-                    LumexApi.getHls(String.valueOf(mediaItem.localConfiguration.customCacheKey), new LumexApi.CallbackLumexHls() {
-                        @Override
-                        public void success(LumexApi.LumexHLS lumexHLS) {
-                            Bundle bundle = new Bundle();
-                            bundle.putString("m3u8", lumexHLS.getUrl().startsWith("//") ? "https:" + lumexHLS.getUrl() : lumexHLS.getUrl());
-                            Message msg = Message.obtain();
-                            msg.setData(bundle);
-                            handler.sendMessage(msg);
-                        }
-
-                        @Override
-                        public void error(String err) {
-
-                        }
-                    });
-                } else if (balancer.equals("HDVB")) {
-                    String newUri = HDVB.getFileSerial(String.valueOf(mediaItem.localConfiguration.customCacheKey));
-                    Bundle bundle = new Bundle();
-                    bundle.putString("m3u8", newUri);
-                    Message msg = Message.obtain();
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);
-                }
-
-            }
-        });
-        thread.start();
-    }
-
-    // Далее если в спискке есть еще MediaItem (в плеере) то воспроизводит далее и их
-    private void onRequareMediaItem(ArrayList<MediaItem> mediaItemsToken, int indexEpisode, String balancer) {
-        MediaItem mediaItem = exoPlayer.getMediaItemAt(indexEpisode);
-        Handler handler = new Handler(new Handler.Callback() {
-            @Override
-            public boolean handleMessage(@NonNull Message message) {
-                String newUri = message.getData().getString("m3u8");
-                MediaItem updatedMediaItem = MediaItem.fromUri(newUri);
-
-                mediaItemsToken.remove(indexEpisode);
-                mediaItemsToken.add(indexEpisode, updatedMediaItem);
-
-                exoPlayer.setMediaItems(
-                        mediaItemsToken,
-                        indexEpisode,
-                        playbackPositionManager.getSavedPositionEpisode(
-                                epData.getFilmInfo().getKinopoiskId(),
-                                epData.getIndexEpisode(),
-                                epData.getIndexSeason()
-                        ));
-                exoPlayer.prepare();
-                exoPlayer.play();
-                return false;
-            }
-        });
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String newUri;
-                if (balancer.equals("LUMEX")) {
-                    LumexApi.getHls(String.valueOf(mediaItem.localConfiguration.customCacheKey), new LumexApi.CallbackLumexHls() {
-                        @Override
-                        public void success(LumexApi.LumexHLS lumexHLS) {
-                            Bundle bundle = new Bundle();
-                            bundle.putString("m3u8", lumexHLS.getUrl().startsWith("//") ? "https:" + lumexHLS.getUrl() : lumexHLS.getUrl());
-                            Message msg = Message.obtain();
-                            msg.setData(bundle);
-                            handler.sendMessage(msg);
-                        }
-
-                        @Override
-                        public void error(String err) {
-
-                        }
-                    });
-                } else if (balancer.equals("HDVB")) {
-                    newUri = HDVB.getFileSerial(String.valueOf(mediaItem.localConfiguration.customCacheKey));
-                    Bundle bundle = new Bundle();
-                    bundle.putString("m3u8", newUri);
-                    Message msg = Message.obtain();
-                    msg.setData(bundle);
-                    handler.sendMessage(msg);
-                }
-
-            }
-        });
-        thread.start();
-
-    }
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (exoPlayer != null) {
-
-            playbackPositionManager.savePositionEpisode(
-                    epData.getFilmInfo().getKinopoiskId(),
-                    exoPlayer.getCurrentMediaItemIndex(),
-                    epData.getIndexSeason(),
-                    epData.getIndexTranslation(),
-                    epData.getIndexQuality(),
-                    exoPlayer.getCurrentPosition(),
-                    epData.getBalancer());
-
+            saveCurrentPlaybackPosition();
             exoPlayer.stop();
             exoPlayer.release();
         }
@@ -735,23 +492,5 @@ public class PlayerExoActivity extends AppCompatActivity {
         if (torrentStream != null) {
             torrentStream.stopStream();
         }
-
-    }
-
-    private void appMetrica() {
-        AppMetricaConfig config = AppMetricaConfig.newConfigBuilder("1945eb04-4fda-4a26-9fcc-4d36e0f34551").build();
-        // Initializing the AppMetrica SDK.
-        AppMetrica.activate(this, config);
-        sendEventMetrica();
-    }
-
-    private void sendEventMetrica() {
-        // С параметрами (например, название фильма и жанр)
-        Map<String, Object> eventParams = new HashMap<>();
-        eventParams.put("movie_id", epData.getFilmInfo().getKinopoiskId());
-        eventParams.put("title", epData.getFilmInfo().getNameRu());
-        eventParams.put("genre", epData.getFilmInfo().getGenres());
-        eventParams.put("timestamp", System.currentTimeMillis());
-        AppMetrica.reportEvent("Старт Просмотра фильма", eventParams);
     }
 }

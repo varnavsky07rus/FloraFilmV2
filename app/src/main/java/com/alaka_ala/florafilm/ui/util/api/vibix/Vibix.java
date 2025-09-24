@@ -151,7 +151,10 @@ public class Vibix {
                 Bundle bundle = msg.getData();
                 if (bundle == null) return false;
                 boolean ok = bundle.getBoolean("ok", false);
-                if (!ok) return false;
+                if (!ok) {
+                    connectionVibix.errorParseVibix(new IOException(bundle.getString("error")));
+                    return false;
+                }
                 String typeContent = bundle.getString("type", "");
                 if (typeContent.isEmpty()) {
                     connectionVibix.errorParseVibix(new IOException("Пустой тип контента при парсинге"));
@@ -334,17 +337,24 @@ public class Vibix {
             JSONArray translations = jsonObject.getJSONArray("file");
             ArrayList<EPData.Film.Translations> translationsList = new ArrayList<>();
 
-            for (int translationIndex = 0; translationIndex < translations.length(); translationIndex++) {
+            // TODO: Почему то возвращает в массиве значение null, но если убрать значение translations.length() на меньше 1 единицу то все ок
+            //  обработал на значение isNull в цикле. ИСПРАВЛЕНО ВРОДЕ КАК.
+            //  Видимо балансер начал чистить дубликаты озвучек
+            for (int translationIndex = 0; translationIndex < (translations.length()); translationIndex++) {
+                if (translations.isNull(translationIndex)){
+                    continue;
+                }
                 JSONObject translation = translations.getJSONObject(translationIndex);
                 List<Map.Entry<String, String>> videoData = new ArrayList<>();
                 String title = translation.getString("title");
                 String file = translation.getString("file");
-                String[] entries = file.split(",");
+                String removeSpace = file.replace(" ", "");
+                String[] entries = removeSpace.split(",");
                 for (String entry : entries) {
                     String[] parts = entry.split("]");
                     if (parts.length == 2) {
                         String quality = parts[0].substring(1); // Remove the opening bracket
-                        String url = parts[1].replaceFirst("http", "https");
+                        String url = parts[1].replace("http:", "https:");
                         videoData.add(new AbstractMap.SimpleEntry<>(quality, url));
                     }
                 }

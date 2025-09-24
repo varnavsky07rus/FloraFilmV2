@@ -108,7 +108,7 @@ public class DescriptionDeptFragment extends Fragment {
 
         String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
 
-        VideoFilmFragment.setCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
+        VideoFilmFragment.addCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
 
             @Override
             public void successHDVBFilm(EPData.Film film) {
@@ -166,9 +166,9 @@ public class DescriptionDeptFragment extends Fragment {
 
             @Override
             public void error(String balancer, String err) {
-                if (getContext() != null) {
+                /*if (getContext() != null) {
                     Toast.makeText(getContext(), balancer + ": " + err, Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
 
@@ -262,7 +262,7 @@ public class DescriptionDeptFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                             Bundle bundle = new Bundle();
-                            bundle.putString("url", itemFilmInfo.getPosterUrl());
+                            bundle.putInt("kinopoisk_id", kinopoisk_id);
                             Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
                         }
                     });
@@ -306,7 +306,7 @@ public class DescriptionDeptFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("url", itemFilmInfo.getPosterUrl());
+                    bundle.putInt("kinopoisk_id", kinopoisk_id);
                     Navigation.findNavController(v).navigate(R.id.imageViewerFragment, bundle);
                 }
             });

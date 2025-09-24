@@ -40,7 +40,7 @@ public class SettingsUtils {
     public static final String KEY_SEARCH_MODE_LUMEX = "KEY_SEARCH_MODE_LUMEX_8x00000";
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_COLLAPSE = false;
-    public static final String KEY_SEARCH_MODE_COLLAPSE = "KEY_SEARCH_MODE_COLLAPSE_9x00000";
+    public static final String KEY_SEARCH_MODE_COLLAPSE = "KEY_SEARCH_MODE_COLLAPSE_10x00000";
     //==============================================================================================
     public static final boolean DEF_SEARCH_AUTO_UPDATE = false;
     public static final String KEY_SEARCH_AUTO_UPDATE = "KEY_SEARCH_AUTO_UPDATE_9x00000";

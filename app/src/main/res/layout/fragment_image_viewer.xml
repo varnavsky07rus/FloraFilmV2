@@ -6,11 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.imgViewer.ImageViewerFragment">
 
-    <com.github.chrisbanes.photoview.PhotoView
-        android:id="@+id/photo_view"
+    <WebView
+        android:id="@+id/webView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter" />
+        android:layout_height="0dp" />
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vp2Images"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </FrameLayout>
