@@ -83,13 +83,37 @@ public class VideoFilmFragment extends Fragment {
         BanCheker banCheker = new BanCheker(getContext());
         if (!banCheker.isBan(mainFilmViewModel.getKinopoiskId())) {
             if (SettingsUtils.getParamSearchVIBIX(getContext())) {
-                parseVibix();
+                if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null) {
+                    VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmMutableLiveDataVibix().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                    vibixSelector.buildSelector(getActivity());
+                } else if (mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
+                    VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialMutableLiveDataVibix().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                    vibixSelector.buildSelector(getActivity());
+                } else {
+                    parseVibix();
+                }
             }
             if (SettingsUtils.getParamSeeachHDVB(getContext())) {
-                parseHdvb();
+                if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null) {
+                    HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                    hdvbSelector.buildSelector(getActivity());
+                } else if (mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
+                    HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                    hdvbSelector.buildSelector(getActivity());
+                } else {
+                    parseHdvb();
+                }
             }
             if (SettingsUtils.getParamSearchLumex(getContext())) {
-                parseLumex();
+                if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null) {
+                    LumexSelector lumexSelector = new LumexSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                    lumexSelector.buildSelector(getActivity());
+                } else if (mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
+                    LumexSelector lumexSelector = new LumexSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                    lumexSelector.buildSelector(getActivity());
+                } else {
+                    parseLumex();
+                }
             }
         } else {
             isNotFountDataVibix = true;

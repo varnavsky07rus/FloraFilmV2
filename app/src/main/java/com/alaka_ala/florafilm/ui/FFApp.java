@@ -10,6 +10,8 @@ import io.appmetrica.analytics.AppMetricaConfig;
 
 public class FFApp extends Application {
 
+    private boolean isFirstLaunch = true;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -27,5 +29,13 @@ public class FFApp extends Application {
         } else {
             Log.d("FFApp", "AppMetrica is DISABLED for DEBUG build.");
         }
+    }
+
+    public boolean isFirstLaunch() {
+        return isFirstLaunch;
+    }
+
+    public void setNotFirstLaunch() {
+        isFirstLaunch = false;
     }
 }

@@ -88,6 +88,7 @@ public class DescriptionFragment extends Fragment {
         findViewByBinding();
 
         buttonResumeView.setEnabled(false);
+        checkCachedData();
         loadDataDescription();
 
         DataLikes dataLikes = getDataLikes();
@@ -221,6 +222,34 @@ public class DescriptionFragment extends Fragment {
         chipSequels = binding.chipSequels;
         chipGeminiMovie = binding.chipGeminiMovie;
         chipGroupGenresAndCountry = binding.chipGroupGenresAndCountry;
+    }
+
+    private void checkCachedData() {
+        String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
+        if (balancer == null || balancer.isEmpty()) {
+            return;
+        }
+
+        switch (balancer) {
+            case "HDVB":
+                if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
+                    buttonResumeView.setEnabled(true);
+                    isLoadHDVB = true;
+                }
+                break;
+            case "VIBIX":
+                if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
+                    buttonResumeView.setEnabled(true);
+                    isLoadVibix = true;
+                }
+                break;
+            case "LUMEX":
+                if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
+                    buttonResumeView.setEnabled(true);
+                    isLoadLumex = true;
+                }
+                break;
+        }
     }
 
     @NonNull

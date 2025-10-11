@@ -50,7 +50,11 @@
         android:id="@+id/navSettingsFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.settings.SettingsFragment"
         android:label="@string/settings_title_fragment"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_navSettingsFragment_to_changeLogAppFragment"
+            app:destination="@id/changeLogAppFragment" />
+    </fragment>
     <fragment
         android:id="@+id/mainFilmFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment"
@@ -155,4 +159,9 @@
             android:id="@+id/action_geminiMovieFragment_to_mainFilmFragment"
             app:destination="@id/mainFilmFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/changeLogAppFragment"
+        android:name="com.alaka_ala.florafilm.ui.fragments.changelog.ChangeLogAppFragment"
+        android:label="fragment_change_log_app"
+        tools:layout="@layout/fragment_change_log_app" />
 </navigation>

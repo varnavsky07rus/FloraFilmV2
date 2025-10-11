@@ -11,12 +11,12 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 53
+        versionCode 54
         // 1.0.0_rs Версия RuStore
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.53_nt"
+        versionName "1.0.54_nt"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

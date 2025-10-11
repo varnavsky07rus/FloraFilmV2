@@ -1,5 +1,6 @@
 package com.alaka_ala.florafilm.ui.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -8,9 +9,13 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +34,7 @@ import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
+import com.alaka_ala.florafilm.ui.util.player.PlayerGestureListener;
 import com.alaka_ala.florafilm.ui.util.torrents.listeners.TorrentListener;
 import com.alaka_ala.florafilm.ui.util.torrents.main.StreamStatus;
 import com.alaka_ala.florafilm.ui.util.torrents.main.Torrent;
@@ -51,9 +57,12 @@ public class PlayerExoActivity extends AppCompatActivity {
     private PlaybackPositionManager playbackPositionManager;
     private EPData epData;
     private TorrentStream torrentStream;
+    private GestureDetector gestureDetector;
+    private PlayerGestureListener gestureListener;
 
     private int currentResizeMode = 0;
 
+    @SuppressLint({"ClickableViewAccessibility", "CutPasteId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +88,25 @@ public class PlayerExoActivity extends AppCompatActivity {
 
         exoPlayer = new ExoPlayer.Builder(this).build();
         binding.playerExoView.setPlayer(exoPlayer);
+
+        LinearLayout centerFeedbackLayout = findViewById(R.id.center_feedback_layout);
+        ImageView centerFeedbackIcon = findViewById(R.id.center_feedback_icon);
+        TextView centerFeedbackText = findViewById(R.id.center_feedback_text);
+        ProgressBar centerFeedbackProgress = findViewById(R.id.center_feedback_progress);
+        TextView speed2xText = findViewById(R.id.speed_2x_text);
+
+        gestureListener = new PlayerGestureListener(this, exoPlayer, binding.playerExoView,
+                centerFeedbackLayout, centerFeedbackIcon, centerFeedbackText, centerFeedbackProgress, speed2xText);
+        gestureDetector = new GestureDetector(this, gestureListener);
+
+        binding.playerExoView.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                gestureListener.onUp(event);
+            }
+            return true;
+        });
+
         updateTitleName();
         preparePlayer();
 

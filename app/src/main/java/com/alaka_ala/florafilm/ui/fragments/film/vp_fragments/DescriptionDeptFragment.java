@@ -172,11 +172,33 @@ public class DescriptionDeptFragment extends Fragment {
             }
         });
 
-
+        checkCachedData();
 
 
 
         return binding.getRoot();
+    }
+
+    private void checkCachedData() {
+        String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
+        if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
+            isLoadHDVB = true;
+            if (balancer.equals("HDVB")) {
+                buttonResumeView.setEnabled(true);
+            }
+        }
+        if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
+            isLoadVibix = true;
+            if (balancer.equals("VIBIX")) {
+                buttonResumeView.setEnabled(true);
+            }
+        }
+        if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
+            isLoadLumex = true;
+            if (balancer.equals("LUMEX")) {
+                buttonResumeView.setEnabled(true);
+            }
+        }
     }
 
     private void findViewByBinding() {

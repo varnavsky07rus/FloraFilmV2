@@ -89,36 +89,42 @@ public class MainFilmFragment extends Fragment {
         VideoFilmFragment.addCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
             @Override
             public void successHDVBFilm(EPData.Film film) {
+                mainFilmViewModel.getFilmMutableLiveDataHDVB().setValue(film);
                 isLoadingMap.put("HDVB", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successVibixFilm(EPData.Film film) {
+                mainFilmViewModel.getFilmMutableLiveDataVibix().setValue(film);
                 isLoadingMap.put("VIBIX", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successHDVBSerial(EPData.Serial serial) {
+                mainFilmViewModel.getSerialMutableLiveDataHDVB().setValue(serial);
                 isLoadingMap.put("HDVB", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successVibixSerial(EPData.Serial serial) {
+                mainFilmViewModel.getSerialMutableLiveDataVibix().setValue(serial);
                 isLoadingMap.put("VIBIX", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successLumexFilm(EPData.Film film) {
+                mainFilmViewModel.getFilmMutableLiveDataLUMEX().setValue(film);
                 isLoadingMap.put("LUMEX", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successLumexSerial(EPData.Serial serial) {
+                mainFilmViewModel.getSerialMutableLiveDataLUMEX().setValue(serial);
                 isLoadingMap.put("LUMEX", false);
                 checkAndHideProgressBar();
             }
@@ -132,8 +138,22 @@ public class MainFilmFragment extends Fragment {
 
         initParams();
         showProgressbarLoading();
+        checkCachedData();
 
         return binding.getRoot();
+    }
+
+    private void checkCachedData() {
+        if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
+            isLoadingMap.put("HDVB", false);
+        }
+        if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
+            isLoadingMap.put("VIBIX", false);
+        }
+        if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
+            isLoadingMap.put("LUMEX", false);
+        }
+        checkAndHideProgressBar();
     }
 
     private void initParams() {

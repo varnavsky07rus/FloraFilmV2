@@ -3,6 +3,10 @@
     <style name="Base.Theme.FloraFilm" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your dark theme here. -->
         <item name="colorPrimary">@color/colorPrimaryDark</item>
+        <!-- Цвет текста на компонентах, использующих colorPrimary (например, MaterialButton) -->
+        <item name="colorOnPrimary">@color/button_resume_view_tint</item>
+        <!-- Цвет текста для компонентов на основной поверхности (например, текст у SwitchMaterial) -->
+        <item name="colorOnSurface">@color/switchersSettings</item>
         <item name="IconsTintThemeInverse">@color/iconsTintDark</item>
         <item name="TextViewColorThemeInverse">@color/white</item>
         <item name="SwitchTintTrack">@color/colorPrimaryDark</item>

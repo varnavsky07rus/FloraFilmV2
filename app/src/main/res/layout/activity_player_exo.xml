@@ -28,4 +28,73 @@
             android:visibility="gone" />
     </com.google.android.exoplayer2.ui.PlayerView>
 
+    <!-- Center Feedback Layout -->
+    <LinearLayout
+        android:id="@+id/center_feedback_layout"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:background="@drawable/rounded_corners"
+        android:gravity="center"
+        android:minWidth="100dp"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/center_feedback_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="gone"
+            tools:src="@drawable/ic_brightness"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/center_feedback_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="+15s"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/center_feedback_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            tools:progress="50"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+    <!-- 2x Speed Feedback -->
+    <TextView
+        android:id="@+id/speed_2x_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_corners"
+        android:paddingStart="12dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="8dp"
+        android:text="2x"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

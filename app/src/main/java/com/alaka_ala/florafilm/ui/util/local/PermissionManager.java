@@ -3,24 +3,24 @@ package com.alaka_ala.florafilm.ui.util.local;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class PermissionManager {
 
     public static final String TAG = "PermissionManager";
     private static final int PERMISSION_REQUEST_CODE = 100;
+    private static final String PREFS_NAME = "PermissionManagerPrefs";
+    private static final String PREF_FIRST_LAUNCH = "isFirstLaunch";
 
     public interface PermissionResultCallback {
         void onPermissionsGranted();
@@ -28,66 +28,106 @@ public class PermissionManager {
     }
 
     private final Context context;
-    private final Activity activity;
-    private final Fragment fragment;
     private final PermissionResultCallback callback;
-    private final List<String> permissionsToRequest;
 
-    public PermissionManager(Context context, Activity activity, Fragment fragment, PermissionResultCallback callback) {
+    public PermissionManager(Context context, PermissionResultCallback callback) {
         this.context = context;
-        this.activity = activity;
-        this.fragment = fragment;
         this.callback = callback;
-        this.permissionsToRequest = new ArrayList<>();
     }
 
-    public void requestPermissions() {
-        permissionsToRequest.clear();
+    private boolean isFirstLaunch() {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(PREF_FIRST_LAUNCH, true);
+    }
 
-        // Запрос разрешения на чтение файлов
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_IMAGES);
-            }
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_VIDEO);
-            }
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_MEDIA_AUDIO);
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+    private void setFirstLaunchDone() {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(PREF_FIRST_LAUNCH, false);
+        editor.apply();
+    }
+
+    public void requestPermissionsIfNeeded(Activity activity) {
+        if (isFirstLaunch()) {
+            requestPermissions(activity);
+            setFirstLaunchDone();
+        } else if (callback != null) {
+            if (hasAllPermissions()) {
+                callback.onPermissionsGranted();
+            } else {
+                requestPermissions(activity);
             }
         }
+    }
 
-        // Запрос разрешения на запись файлов
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    public void requestPermissionsIfNeeded(Fragment fragment) {
+        if (isFirstLaunch()) {
+            requestPermissions(fragment);
+            setFirstLaunchDone();
+        } else if (callback != null) {
+            if (hasAllPermissions()) {
+                callback.onPermissionsGranted();
+            } else {
+                requestPermissions(fragment);
             }
         }
+    }
 
-        // Запрос разрешения на уведомления
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS);
-            }
-        }
-
+    public void requestPermissions(Activity activity) {
+        List<String> permissionsToRequest = getPermissionsToRequest();
         if (!permissionsToRequest.isEmpty()) {
             String[] permissionsArray = permissionsToRequest.toArray(new String[0]);
-            if (fragment != null) {
-                fragment.requestPermissions(permissionsArray, PERMISSION_REQUEST_CODE);
-            } else {
-                ActivityCompat.requestPermissions(activity, permissionsArray, PERMISSION_REQUEST_CODE);
-            }
+            ActivityCompat.requestPermissions(activity, permissionsArray, PERMISSION_REQUEST_CODE);
         } else {
             Log.d(TAG, "All permissions already granted");
             if (callback != null) {
                 callback.onPermissionsGranted();
             }
         }
+    }
+
+    public void requestPermissions(Fragment fragment) {
+        List<String> permissionsToRequest = getPermissionsToRequest();
+        if (!permissionsToRequest.isEmpty()) {
+            String[] permissionsArray = permissionsToRequest.toArray(new String[0]);
+            fragment.requestPermissions(permissionsArray, PERMISSION_REQUEST_CODE);
+        } else {
+            Log.d(TAG, "All permissions already granted");
+            if (callback != null) {
+                callback.onPermissionsGranted();
+            }
+        }
+    }
+
+    private List<String> getPermissionsToRequest() {
+        List<String> requiredPermissions = new ArrayList<>();
+
+        // Add permissions based on Android version
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // For Android 13 (API 33) and above, use granular media permissions
+            requiredPermissions.add(Manifest.permission.READ_MEDIA_IMAGES);
+            requiredPermissions.add(Manifest.permission.READ_MEDIA_VIDEO);
+            requiredPermissions.add(Manifest.permission.READ_MEDIA_AUDIO);
+            requiredPermissions.add(Manifest.permission.POST_NOTIFICATIONS);
+        } else {
+            // For older versions, use legacy storage permission
+            requiredPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+
+        // WRITE_EXTERNAL_STORAGE is only needed for apps targeting below Android 10 (API 29)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        // Filter out the permissions that are already granted
+        List<String> permissionsToRequest = new ArrayList<>();
+        for (String permission : requiredPermissions) {
+            if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(permission);
+            }
+        }
+
+        return permissionsToRequest;
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -113,33 +153,6 @@ public class PermissionManager {
     }
 
     public boolean hasAllPermissions() {
-        List<String> permissionsToCheck = new ArrayList<>();
-
-        // Проверка разрешения на чтение файлов
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionsToCheck.add(Manifest.permission.READ_MEDIA_IMAGES);
-            permissionsToCheck.add(Manifest.permission.READ_MEDIA_VIDEO);
-            permissionsToCheck.add(Manifest.permission.READ_MEDIA_AUDIO);
-        } else {
-            permissionsToCheck.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
-
-        // Проверка разрешения на запись файлов
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            permissionsToCheck.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-
-        // Проверка разрешения на уведомления
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionsToCheck.add(Manifest.permission.POST_NOTIFICATIONS);
-        }
-
-        for (String permission : permissionsToCheck) {
-            if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-
-        return true;
+        return getPermissionsToRequest().isEmpty();
     }
 }

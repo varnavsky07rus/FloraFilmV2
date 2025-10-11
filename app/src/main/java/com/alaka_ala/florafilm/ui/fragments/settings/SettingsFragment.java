@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,9 +20,11 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentSettingsBinding;
 import com.alaka_ala.florafilm.ui.activities.MainActivity;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.snackbar.Snackbar;
@@ -123,10 +126,15 @@ public class SettingsFragment extends Fragment {
         });
 
 
+        Chip chipChangeLog = binding.chipChangeLog;
+        chipChangeLog.setText("Версия:" + getAppVersionName());
+        chipChangeLog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(view).navigate(R.id.action_navSettingsFragment_to_changeLogAppFragment);
+            }
+        });
 
-        // Отображение имени версии приложения
-        TextView textViewVersionName = binding.textViewVersionName;
-        textViewVersionName.setText("Текущая: " + getAppVersionName());
 
         // Инициализация и настройка переключателя для бета-версий
         MaterialSwitch switch_off_beta_version = binding.switchOffBetaVersion;
@@ -226,7 +234,6 @@ public class SettingsFragment extends Fragment {
 
         if (isNtVersion()) {
             binding.frameLayoutUpdateContainer.setVisibility(View.VISIBLE);
-            binding.divider3.setVisibility(View.VISIBLE);
         }
 
 
