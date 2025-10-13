@@ -102,7 +102,7 @@
                                 android:textSize="16sp"
                                 android:textStyle="bold"
                                 app:chipCornerRadius="8dp"
-                                tools:text="7.8" />
+                                tools:text="0.0" />
 
                         </com.google.android.material.chip.ChipGroup>
                     </HorizontalScrollView>
@@ -236,7 +236,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Action"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Найти похожие фильмы" />
+                    android:text="Похожие фильмы" />
             </com.google.android.material.chip.ChipGroup>
 
         </LinearLayout>

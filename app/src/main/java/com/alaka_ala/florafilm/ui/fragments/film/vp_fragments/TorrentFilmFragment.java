@@ -11,7 +11,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,12 +21,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.alaka_ala.florafilm.R;
+import com.alaka_ala.florafilm.core.torrent.DigestUtils;
+import com.alaka_ala.florafilm.core.torrent.TorrentInfo;
+import com.alaka_ala.florafilm.core.torrent.TorrentManager;
 import com.alaka_ala.florafilm.databinding.FragmentTorrentFilmBinding;
 import com.alaka_ala.florafilm.ui.activities.PlayerExoActivity;
 import com.alaka_ala.florafilm.ui.fragments.film.MainFilmFragment;
@@ -32,12 +38,9 @@ import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
 import com.alaka_ala.florafilm.ui.util.api.jacred.JacredTor;
-import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.local.TorrentHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -59,7 +62,7 @@ public class TorrentFilmFragment extends Fragment {
     private boolean isCreateMenu = false;
     private long seekPosition = 0;
 
-
+    private TorrentManager torrentManager;
     private boolean isNotFoundTorrent = false;
     private LottieAnimationView lottieNotFoundTorrent;
     private FrameLayout rootNotFoundTorrent;
@@ -80,6 +83,8 @@ public class TorrentFilmFragment extends Fragment {
 
         rootNotFoundTorrent = binding.rootNotFoundTorrent;
         lottieNotFoundTorrent = binding.lottieNotFoundTorrent;
+
+        torrentManager = TorrentManager.getInstance();
 
         searchView = binding.svTorrents;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -117,7 +122,9 @@ public class TorrentFilmFragment extends Fragment {
                 data = datas;
                 dataFinal = data;
                 rvTorrentFilm.setAdapter(new AdapterTorrentFilm(data));
+                rvTorrentFilm.setItemViewCacheSize(50);
                 isNotFoundTorrent = data.isEmpty();
+                sortBySid();
             }
 
             @Override
@@ -141,8 +148,45 @@ public class TorrentFilmFragment extends Fragment {
             }
         });
 
+        torrentManager.getTorrentsLiveData().observe(getViewLifecycleOwner(), torrentsMap -> {
+            // Проверяем, что адаптер и его данные существуют
+            if (rvTorrentFilm.getAdapter() == null) {
+                return;
+            }
+            AdapterTorrentFilm adapter = (AdapterTorrentFilm) rvTorrentFilm.getAdapter();
+            List<JacredTor.JacredData> currentData = adapter.getData();
+            if (currentData == null || currentData.isEmpty()) {
+                return;
+            }
+
+            // Обновляем прогресс для элементов
+            updateProgressBarAdapter(torrentsMap, currentData, adapter);
+        });
+
 
         return binding.getRoot();
+    }
+
+    private static void updateProgressBarAdapter(Map<String, TorrentInfo> torrentsMap, List<JacredTor.JacredData> currentData, AdapterTorrentFilm adapter) {
+        for (Map.Entry<String, TorrentInfo> entry : torrentsMap.entrySet()) {
+            String hash = entry.getKey();
+            TorrentInfo torrentInfo = entry.getValue();
+
+            // Находим индекс элемента в списке адаптера по хешу
+            int index = -1;
+            for (int i = 0; i < currentData.size(); i++) {
+                if (DigestUtils.createMd5Digest(currentData.get(i).getMagnet()).equals(hash)) {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index != -1) {
+                // Уведомляем адаптер об изменении конкретного элемента,
+                // передавая новый прогресс в качестве payload.
+                adapter.notifyItemChanged(index, torrentInfo.getProgress());
+            }
+        }
     }
 
     private void printNotFoundTorrent() {
@@ -173,6 +217,10 @@ public class TorrentFilmFragment extends Fragment {
             this.data = data;
         }
 
+        public List<JacredTor.JacredData> getData() {
+            return data;
+        }
+
         private List<JacredTor.JacredData> data;
 
         @NonNull
@@ -181,8 +229,7 @@ public class TorrentFilmFragment extends Fragment {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_torrent_film, parent, false);
             return new MyViewHolder(view);
         }
-
-
+        
         @SuppressLint("SetTextI18n")
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
@@ -197,15 +244,31 @@ public class TorrentFilmFragment extends Fragment {
             holder.textViewPeers.setText(String.valueOf(jacredData.getPir()));
             holder.textViewSiders.setText(String.valueOf(jacredData.getSid()));
             holder.itemView.setId(position);
+
+            boolean isExistFile = torrentManager.existFileFromCache(getContext(), kinopoisk_id, jacredData.getMagnet());
+            if (isExistFile) holder.progressBarDownload.setVisibility(View.VISIBLE);
+
+            // Устанавливаем начальный прогресс
+            Map<String, TorrentInfo> torrentsMap = torrentManager.getTorrentsLiveData().getValue();
+            int progress = 0;
+            if (torrentsMap != null) {
+                TorrentInfo info = torrentsMap.get(DigestUtils.createMd5Digest(jacredData.getMagnet()));
+                if (info != null) {
+                    progress = info.getProgress();
+                }
+            }
+            holder.progressBarDownload.setProgress(progress);
+
             holder.itemView.findViewById(R.id.materialCardViewItem).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //String magnet = "magnet:?xt=urn:btih:9C38D68035F190F1953F758E5527DDE1C7563B72&tr=http%3A%2F%2Fbt2.t-ru.org%2Fann%3Fmagnet";
                     new MaterialAlertDialogBuilder(getContext())
                             .setTitle("Выберите действие")
-                            .setItems(new String[]{"Смотреть", "Открыть с помощью"}, new DialogInterface.OnClickListener() {
+                            .setItems(new String[]{"Смотреть", "Открыть с помощью", "Скачать"}, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
+                                    // Смотреть
                                     if (i == 0) {
 
                                         EPData.Film.Builder filmBuilder = new EPData.Film.Builder();
@@ -236,8 +299,14 @@ public class TorrentFilmFragment extends Fragment {
                                         getActivity().startActivity(intent);
 
 
-                                    } else if (i == 1) {
+                                    }
+                                    // Открыть с помощью
+                                    else if (i == 1) {
                                         TorrentHelper.openMagnetLink(view.getContext(), jacredData.getMagnet());
+                                    }
+                                    // Скачать
+                                    else if (i == 2) {
+                                        downloadTorrent(kinopoisk_id, jacredData.getMagnet());
                                     }
                                 }
                             }).show();
@@ -245,9 +314,27 @@ public class TorrentFilmFragment extends Fragment {
             });
         }
 
+        // 2. Переопределите этот метод для ЧАСТИЧНЫХ обновлений
+        @Override
+        public void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull List<Object> payloads) {
+            if (!payloads.isEmpty()) {
+                // Если есть payload, мы обновляем только ProgressBar
+                Object payload = payloads.get(0);
+                if (payload instanceof Integer) {
+                    int progress = (Integer) payload;
+                    holder.progressBarDownload.setProgress(progress);
+                }
+            } else {
+                // Если payload пуст, вызываем полное связывание
+                super.onBindViewHolder(holder, position, payloads);
+            }
+        }
+
+
         @Override
         public int getItemCount() {
-            return data.size();
+            if (data == null) return 0;
+            return Math.min(data.size(), 50);
         }
 
         private class MyViewHolder extends RecyclerView.ViewHolder {
@@ -255,6 +342,7 @@ public class TorrentFilmFragment extends Fragment {
             private final TextView textViewInformationTorrent;
             private final TextView textViewSiders;
             private final TextView textViewPeers;
+            private final ProgressBar progressBarDownload;
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -262,8 +350,22 @@ public class TorrentFilmFragment extends Fragment {
                 textViewInformationTorrent = itemView.findViewById(R.id.textViewInformationTorrent);
                 textViewSiders = itemView.findViewById(R.id.textViewSiders);
                 textViewPeers = itemView.findViewById(R.id.textViewPeers);
-
+                progressBarDownload = itemView.findViewById(R.id.progressBarTorrent);
             }
+        }
+    }
+
+    private void downloadTorrent(int kinopoisk_id, String magnetLink) {
+        String currentTorrentHash = torrentManager.addTorrent(getContext(), magnetLink, kinopoisk_id);
+        if (currentTorrentHash != null) {
+            if (currentTorrentHash.equals("Already added")) {
+                Toast.makeText(getContext(), "Дождитесь окончания предыдущей загрузки...", Toast.LENGTH_SHORT).show();
+            } else {
+                // Загрузка успешно добавлена в очередь
+                Toast.makeText(getContext(), "Загрузка добавлена в очередь", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Неверная magnet-ссылка", Toast.LENGTH_SHORT).show();
         }
     }
 

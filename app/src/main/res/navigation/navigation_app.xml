@@ -162,6 +162,6 @@
     <fragment
         android:id="@+id/changeLogAppFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.changelog.ChangeLogAppFragment"
-        android:label="fragment_change_log_app"
+        android:label="ChangeLog"
         tools:layout="@layout/fragment_change_log_app" />
 </navigation>

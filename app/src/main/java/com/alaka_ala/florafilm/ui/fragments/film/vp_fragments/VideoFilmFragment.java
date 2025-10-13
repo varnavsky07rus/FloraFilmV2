@@ -24,6 +24,10 @@ import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.BanCheker;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
+import com.alaka_ala.florafilm.ui.util.api.collapse.CollapseAPI;
+import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
+import com.alaka_ala.florafilm.ui.util.api.collapse.models.ApiResponse;
+import com.alaka_ala.florafilm.ui.util.api.collapse.models.PlayerData;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVB;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.HDVBSelector;
 import com.alaka_ala.florafilm.ui.util.api.hdvb.models.HDVBFilm;
@@ -75,6 +79,9 @@ public class VideoFilmFragment extends Fragment {
         chekBanFilm();
         printNotFoundFile();
 
+
+
+
         return binding.getRoot();
     }
 
@@ -83,33 +90,33 @@ public class VideoFilmFragment extends Fragment {
         BanCheker banCheker = new BanCheker(getContext());
         if (!banCheker.isBan(mainFilmViewModel.getKinopoiskId())) {
             if (SettingsUtils.getParamSearchVIBIX(getContext())) {
-                if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null) {
-                    VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmMutableLiveDataVibix().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                if (mainFilmViewModel.getFilmVibix(mainFilmViewModel.getKinopoiskId()) != null) {
+                    VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmVibix(mainFilmViewModel.getKinopoiskId()), mainFilmViewModel.getCurrentFilmInfo());
                     vibixSelector.buildSelector(getActivity());
-                } else if (mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
-                    VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialMutableLiveDataVibix().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                } else if (mainFilmViewModel.getSerialVibix(mainFilmViewModel.getKinopoiskId()) != null) {
+                    VibixSelector vibixSelector = new VibixSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialVibix(mainFilmViewModel.getKinopoiskId()), mainFilmViewModel.getCurrentFilmInfo());
                     vibixSelector.buildSelector(getActivity());
                 } else {
                     parseVibix();
                 }
             }
             if (SettingsUtils.getParamSeeachHDVB(getContext())) {
-                if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null) {
-                    HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                if (mainFilmViewModel.getFilmHDVB(mainFilmViewModel.getKinopoiskId()) != null) {
+                    HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmHDVB(mainFilmViewModel.getKinopoiskId()), mainFilmViewModel.getCurrentFilmInfo());
                     hdvbSelector.buildSelector(getActivity());
-                } else if (mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
-                    HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                } else if (mainFilmViewModel.getSerialHDVB(mainFilmViewModel.getKinopoiskId()) != null) {
+                    HDVBSelector hdvbSelector = new HDVBSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialHDVB(mainFilmViewModel.getKinopoiskId()), mainFilmViewModel.getCurrentFilmInfo());
                     hdvbSelector.buildSelector(getActivity());
                 } else {
                     parseHdvb();
                 }
             }
             if (SettingsUtils.getParamSearchLumex(getContext())) {
-                if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null) {
-                    LumexSelector lumexSelector = new LumexSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                if (mainFilmViewModel.getFilmLUMEX(mainFilmViewModel.getKinopoiskId()) != null) {
+                    LumexSelector lumexSelector = new LumexSelector(binding.linearLayoutRoot, mainFilmViewModel.getFilmLUMEX(mainFilmViewModel.getKinopoiskId()), mainFilmViewModel.getCurrentFilmInfo());
                     lumexSelector.buildSelector(getActivity());
-                } else if (mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
-                    LumexSelector lumexSelector = new LumexSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue(), mainFilmViewModel.getCurrentFilmInfo());
+                } else if (mainFilmViewModel.getSerialLUMEX(mainFilmViewModel.getKinopoiskId()) != null) {
+                    LumexSelector lumexSelector = new LumexSelector(binding.linearLayoutRoot, mainFilmViewModel.getSerialLUMEX(mainFilmViewModel.getKinopoiskId()), mainFilmViewModel.getCurrentFilmInfo());
                     lumexSelector.buildSelector(getActivity());
                 } else {
                     parseLumex();

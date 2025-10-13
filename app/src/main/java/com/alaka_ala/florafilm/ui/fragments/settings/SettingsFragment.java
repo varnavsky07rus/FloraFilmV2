@@ -31,6 +31,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.apache.commons.io.FileUtils;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -164,6 +165,37 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        Button buttonSetEffect = binding.buttonSetEffect;
+        buttonSetEffect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] items = {"CardFlip", "DepthPage", "SmoothScale"};
+                String currentTitle = SettingsUtils.getParamTitleScrollPageEffect(getContext()).name();
+                for (int i = 0; i < items.length; i++) {
+                    String title = items[i];
+                    if (title.equals(currentTitle)) {
+                        items[i] = title + "\t\t\t✅";
+                        break;
+                    }
+                }
+                new MaterialAlertDialogBuilder(view.getContext()).setItems(items, (dialogInterface, i) -> {
+                    String title = items[i];
+                    switch (title) {
+                        case "CardFlip":
+                            SettingsUtils.setParamTitleScrollPageEffect(getContext(), SettingsUtils.TitlesScrollPageEffect.CardFlip);
+                            break;
+                        case "DepthPage":
+                            SettingsUtils.setParamTitleScrollPageEffect(getContext(), SettingsUtils.TitlesScrollPageEffect.DepthPage);
+                            break;
+                        case "SmoothScale":
+                            SettingsUtils.setParamTitleScrollPageEffect(getContext(), SettingsUtils.TitlesScrollPageEffect.SmoothScale);
+                            break;
+                    }
+                }).show();
+            }
+        });
+
+
         // Инициализация и настройка переключателя для эффекта анимации
         MaterialSwitch switch_off_effect_animation = binding.switchOffEffectAnimation;
         boolean isActiveEffectAnimation = SettingsUtils.getParamPageEffectAnimation(getContext());
@@ -231,7 +263,6 @@ public class SettingsFragment extends Fragment {
         });
 
 
-
         if (isNtVersion()) {
             binding.frameLayoutUpdateContainer.setVisibility(View.VISIBLE);
         }
@@ -256,7 +287,9 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-    /** Получение буквенного обозначения версии приложения. Подробнее см. в gradle.app*/
+    /**
+     * Получение буквенного обозначения версии приложения. Подробнее см. в gradle.app
+     */
     private boolean isNtVersion() {
         String vName = getAppVersionName();
         Pattern symbolName = Pattern.compile("(?<=\\_)[a-zA-Z]+");

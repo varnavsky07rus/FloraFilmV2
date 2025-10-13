@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import com.alaka_ala.florafilm.databinding.FragmentMainFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.CardFlipPageTransformer;
+import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.DepthPageTransformer;
+import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.SmoothScalePageTransformer;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.ViewPagerFilmAdapter;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.VideoFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
@@ -53,7 +55,13 @@ public class MainFilmFragment extends Fragment {
         vpFilm.setAdapter(viewPagerFilmAdapter);
 
         if (SettingsUtils.getParamScrollPageEffect(getContext())) {
-            vpFilm.setPageTransformer(new CardFlipPageTransformer());
+            if (SettingsUtils.getParamTitleScrollPageEffect(getContext()) == SettingsUtils.TitlesScrollPageEffect.CardFlip) {
+                vpFilm.setPageTransformer(new CardFlipPageTransformer());
+            } else if (SettingsUtils.getParamTitleScrollPageEffect(getContext()) == SettingsUtils.TitlesScrollPageEffect.DepthPage) {
+                vpFilm.setPageTransformer(new DepthPageTransformer());
+            } else if (SettingsUtils.getParamTitleScrollPageEffect(getContext()) == SettingsUtils.TitlesScrollPageEffect.SmoothScale) {
+                vpFilm.setPageTransformer(new SmoothScalePageTransformer());
+            }
         }
 
         String[] tabTitles = {"Описание", "Видео", "Торрент"};
@@ -89,42 +97,42 @@ public class MainFilmFragment extends Fragment {
         VideoFilmFragment.addCallbackLoaderData(new VideoFilmFragment.CallbackLoaderData() {
             @Override
             public void successHDVBFilm(EPData.Film film) {
-                mainFilmViewModel.getFilmMutableLiveDataHDVB().setValue(film);
+                mainFilmViewModel.setFilmHDVB(kinopoisk_id, film);
                 isLoadingMap.put("HDVB", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successVibixFilm(EPData.Film film) {
-                mainFilmViewModel.getFilmMutableLiveDataVibix().setValue(film);
+                mainFilmViewModel.setFilmVibix(kinopoisk_id, film);
                 isLoadingMap.put("VIBIX", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successHDVBSerial(EPData.Serial serial) {
-                mainFilmViewModel.getSerialMutableLiveDataHDVB().setValue(serial);
+                mainFilmViewModel.setSerialHDVB(kinopoisk_id, serial);
                 isLoadingMap.put("HDVB", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successVibixSerial(EPData.Serial serial) {
-                mainFilmViewModel.getSerialMutableLiveDataVibix().setValue(serial);
+                mainFilmViewModel.setSerialVibix(kinopoisk_id, serial);
                 isLoadingMap.put("VIBIX", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successLumexFilm(EPData.Film film) {
-                mainFilmViewModel.getFilmMutableLiveDataLUMEX().setValue(film);
+                mainFilmViewModel.setFilmLUMEX(kinopoisk_id, film);
                 isLoadingMap.put("LUMEX", false);
                 checkAndHideProgressBar();
             }
 
             @Override
             public void successLumexSerial(EPData.Serial serial) {
-                mainFilmViewModel.getSerialMutableLiveDataLUMEX().setValue(serial);
+                mainFilmViewModel.setSerialLUMEX(kinopoisk_id, serial);
                 isLoadingMap.put("LUMEX", false);
                 checkAndHideProgressBar();
             }
@@ -144,13 +152,14 @@ public class MainFilmFragment extends Fragment {
     }
 
     private void checkCachedData() {
-        if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
+        int kinopoisk_id = mainFilmViewModel.getKinopoiskId();
+        if (mainFilmViewModel.getFilmHDVB(kinopoisk_id) != null || mainFilmViewModel.getSerialHDVB(kinopoisk_id) != null) {
             isLoadingMap.put("HDVB", false);
         }
-        if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
+        if (mainFilmViewModel.getFilmVibix(kinopoisk_id) != null || mainFilmViewModel.getSerialVibix(kinopoisk_id) != null) {
             isLoadingMap.put("VIBIX", false);
         }
-        if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
+        if (mainFilmViewModel.getFilmLUMEX(kinopoisk_id) != null || mainFilmViewModel.getSerialLUMEX(kinopoisk_id) != null) {
             isLoadingMap.put("LUMEX", false);
         }
         checkAndHideProgressBar();

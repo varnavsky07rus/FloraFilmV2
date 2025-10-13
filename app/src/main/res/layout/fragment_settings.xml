@@ -134,7 +134,8 @@
                     android:layout_height="wrap_content"
                     android:checked="false"
                     android:text="Включить поиск COLLAPSE"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switch_off_search_torrents"
@@ -173,6 +174,12 @@
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="Включить эффекты прокрутки страниц" />
+
+                <Button
+                    android:id="@+id/buttonSetEffect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Выбрать эффект" />
 
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/switch_off_effect_animation"

@@ -113,7 +113,7 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void successHDVBFilm(EPData.Film film) {
                 isLoadHDVB = true;
-                mainFilmViewModel.getFilmMutableLiveDataHDVB().setValue(film);
+                mainFilmViewModel.setFilmHDVB(kinopoisk_id, film);
                 if (balancer.equals("HDVB")) {
                     buttonResumeView.setEnabled(true);
                 }
@@ -122,7 +122,7 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void successVibixFilm(EPData.Film film) {
                 isLoadVibix = true;
-                mainFilmViewModel.getFilmMutableLiveDataVibix().setValue(film);
+                mainFilmViewModel.setFilmVibix(kinopoisk_id, film);
                 if (balancer.equals("VIBIX")) {
                     buttonResumeView.setEnabled(true);
                 }
@@ -131,7 +131,7 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void successHDVBSerial(EPData.Serial serial) {
                 isLoadHDVB = true;
-                mainFilmViewModel.getSerialMutableLiveDataHDVB().setValue(serial);
+                mainFilmViewModel.setSerialHDVB(kinopoisk_id, serial);
                 if (balancer.equals("HDVB")) {
                     buttonResumeView.setEnabled(true);
                 }
@@ -140,7 +140,7 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void successVibixSerial(EPData.Serial serial) {
                 isLoadVibix = true;
-                mainFilmViewModel.getSerialMutableLiveDataVibix().setValue(serial);
+                mainFilmViewModel.setSerialVibix(kinopoisk_id, serial);
                 if (balancer.equals("HDVB")) {
                     buttonResumeView.setEnabled(true);
                 }
@@ -149,7 +149,7 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void successLumexFilm(EPData.Film film) {
                 isLoadLumex = true;
-                mainFilmViewModel.getFilmMutableLiveDataLUMEX().setValue(film);
+                mainFilmViewModel.setFilmLUMEX(kinopoisk_id, film);
                 if (balancer.equals("LUMEX")) {
                     buttonResumeView.setEnabled(true);
                 }
@@ -158,7 +158,7 @@ public class DescriptionDeptFragment extends Fragment {
             @Override
             public void successLumexSerial(EPData.Serial serial) {
                 isLoadLumex = true;
-                mainFilmViewModel.getSerialMutableLiveDataLUMEX().setValue(serial);
+                mainFilmViewModel.setSerialLUMEX(kinopoisk_id, serial);
                 if (balancer.equals("LUMEX")) {
                     buttonResumeView.setEnabled(true);
                 }
@@ -181,19 +181,19 @@ public class DescriptionDeptFragment extends Fragment {
 
     private void checkCachedData() {
         String balancer = playbackPositionManager.getSavedBalancer(kinopoisk_id);
-        if (mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue() != null) {
+        if (mainFilmViewModel.getFilmHDVB(kinopoisk_id) != null || mainFilmViewModel.getSerialHDVB(kinopoisk_id) != null) {
             isLoadHDVB = true;
             if (balancer.equals("HDVB")) {
                 buttonResumeView.setEnabled(true);
             }
         }
-        if (mainFilmViewModel.getFilmMutableLiveDataVibix().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataVibix().getValue() != null) {
+        if (mainFilmViewModel.getFilmVibix(kinopoisk_id) != null || mainFilmViewModel.getSerialVibix(kinopoisk_id) != null) {
             isLoadVibix = true;
             if (balancer.equals("VIBIX")) {
                 buttonResumeView.setEnabled(true);
             }
         }
-        if (mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue() != null || mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue() != null) {
+        if (mainFilmViewModel.getFilmLUMEX(kinopoisk_id) != null || mainFilmViewModel.getSerialLUMEX(kinopoisk_id) != null) {
             isLoadLumex = true;
             if (balancer.equals("LUMEX")) {
                 buttonResumeView.setEnabled(true);
@@ -381,21 +381,21 @@ public class DescriptionDeptFragment extends Fragment {
                 if (itemFilmInfo == null) return;
                 if (balancer.equals("HDVB")) {
                     if (itemFilmInfo.isSerial()) {
-                        builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataHDVB().getValue());
+                        builderEPData.setSerial(mainFilmViewModel.getSerialHDVB(kinopoisk_id));
                     } else {
-                        builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataHDVB().getValue());
+                        builderEPData.setFilm(mainFilmViewModel.getFilmHDVB(kinopoisk_id));
                     }
                 } else if (balancer.equals("LUMEX")) {
                     if (itemFilmInfo.isSerial()) {
-                        builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataLUMEX().getValue());
+                        builderEPData.setSerial(mainFilmViewModel.getSerialLUMEX(kinopoisk_id));
                     } else {
-                        builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataLUMEX().getValue());
+                        builderEPData.setFilm(mainFilmViewModel.getFilmLUMEX(kinopoisk_id));
                     }
                 } else {
                     if (itemFilmInfo.isSerial()) {
-                        builderEPData.setSerial(mainFilmViewModel.getSerialMutableLiveDataVibix().getValue());
+                        builderEPData.setSerial(mainFilmViewModel.getSerialVibix(kinopoisk_id));
                     } else {
-                        builderEPData.setFilm(mainFilmViewModel.getFilmMutableLiveDataVibix().getValue());
+                        builderEPData.setFilm(mainFilmViewModel.getFilmVibix(kinopoisk_id));
                     }
                 }
                 builderEPData.setIndexTranslation(playbackPositionManager.getSavedIndexTranslation(kinopoisk_id));

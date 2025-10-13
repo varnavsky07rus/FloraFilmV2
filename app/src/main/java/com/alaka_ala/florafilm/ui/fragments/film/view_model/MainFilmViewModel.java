@@ -132,33 +132,88 @@ public class MainFilmViewModel extends ViewModel {
 
 
     // HDVB
-    private final MutableLiveData<EPData.Film> filmMutableLiveDataHDVB = new MutableLiveData<>();
-    private final MutableLiveData<EPData.Serial> serialMutableLiveDataHDVB = new MutableLiveData<>();
-    public MutableLiveData<EPData.Serial> getSerialMutableLiveDataHDVB() {
-        return serialMutableLiveDataHDVB;
+    private final MutableLiveData<Map<Integer, EPData.Film>> filmMutableLiveDataHDVB = new MutableLiveData<>(new HashMap<>());
+    private final MutableLiveData<Map<Integer, EPData.Serial>> serialMutableLiveDataHDVB = new MutableLiveData<>(new HashMap<>());
+
+    public EPData.Serial getSerialHDVB(int kinopoiskId) {
+        if (serialMutableLiveDataHDVB.getValue() == null) return null;
+        return serialMutableLiveDataHDVB.getValue().get(kinopoiskId);
     }
-    public MutableLiveData<EPData.Film> getFilmMutableLiveDataHDVB() {
-        return filmMutableLiveDataHDVB;
+
+    public void setSerialHDVB(int kinopoiskId, EPData.Serial serial) {
+        Map<Integer, EPData.Serial> map = serialMutableLiveDataHDVB.getValue();
+        if (map == null) map = new HashMap<>();
+        map.put(kinopoiskId, serial);
+        serialMutableLiveDataHDVB.setValue(map);
     }
+
+    public EPData.Film getFilmHDVB(int kinopoiskId) {
+        if (filmMutableLiveDataHDVB.getValue() == null) return null;
+        return filmMutableLiveDataHDVB.getValue().get(kinopoiskId);
+    }
+
+    public void setFilmHDVB(int kinopoiskId, EPData.Film film) {
+        Map<Integer, EPData.Film> map = filmMutableLiveDataHDVB.getValue();
+        if (map == null) map = new HashMap<>();
+        map.put(kinopoiskId, film);
+        filmMutableLiveDataHDVB.setValue(map);
+    }
+
 
     // VIBIX
-    private final MutableLiveData<EPData.Film> filmMutableLiveDataVibix = new MutableLiveData<>();
-    private final MutableLiveData<EPData.Serial> serialMutableLiveDataVibix = new MutableLiveData<>();
-    public MutableLiveData<EPData.Serial> getSerialMutableLiveDataVibix() {
-        return serialMutableLiveDataVibix;
+    private final MutableLiveData<Map<Integer, EPData.Film>> filmMutableLiveDataVibix = new MutableLiveData<>(new HashMap<>());
+    private final MutableLiveData<Map<Integer, EPData.Serial>> serialMutableLiveDataVibix = new MutableLiveData<>(new HashMap<>());
+
+    public EPData.Serial getSerialVibix(int kinopoiskId) {
+        if (serialMutableLiveDataVibix.getValue() == null) return null;
+        return serialMutableLiveDataVibix.getValue().get(kinopoiskId);
     }
-    public MutableLiveData<EPData.Film> getFilmMutableLiveDataVibix() {
-        return filmMutableLiveDataVibix;
+
+    public void setSerialVibix(int kinopoiskId, EPData.Serial serial) {
+        Map<Integer, EPData.Serial> map = serialMutableLiveDataVibix.getValue();
+        if (map == null) map = new HashMap<>();
+        map.put(kinopoiskId, serial);
+        serialMutableLiveDataVibix.setValue(map);
     }
+
+    public EPData.Film getFilmVibix(int kinopoiskId) {
+        if (filmMutableLiveDataVibix.getValue() == null) return null;
+        return filmMutableLiveDataVibix.getValue().get(kinopoiskId);
+    }
+
+    public void setFilmVibix(int kinopoiskId, EPData.Film film) {
+        Map<Integer, EPData.Film> map = filmMutableLiveDataVibix.getValue();
+        if (map == null) map = new HashMap<>();
+        map.put(kinopoiskId, film);
+        filmMutableLiveDataVibix.setValue(map);
+    }
+
 
     // LUMEX
-    private final MutableLiveData<EPData.Film> filmMutableLiveDataLUMEX = new MutableLiveData<>();
-    private final MutableLiveData<EPData.Serial> serialMutableLiveDataLUMEX = new MutableLiveData<>();
-    public MutableLiveData<EPData.Serial> getSerialMutableLiveDataLUMEX() {
-        return serialMutableLiveDataLUMEX;
-    }
-    public MutableLiveData<EPData.Film> getFilmMutableLiveDataLUMEX() {
-        return filmMutableLiveDataLUMEX;
+    private final MutableLiveData<Map<Integer, EPData.Film>> filmMutableLiveDataLUMEX = new MutableLiveData<>(new HashMap<>());
+    private final MutableLiveData<Map<Integer, EPData.Serial>> serialMutableLiveDataLUMEX = new MutableLiveData<>(new HashMap<>());
+
+    public EPData.Serial getSerialLUMEX(int kinopoiskId) {
+        if (serialMutableLiveDataLUMEX.getValue() == null) return null;
+        return serialMutableLiveDataLUMEX.getValue().get(kinopoiskId);
     }
 
+    public void setSerialLUMEX(int kinopoiskId, EPData.Serial serial) {
+        Map<Integer, EPData.Serial> map = serialMutableLiveDataLUMEX.getValue();
+        if (map == null) map = new HashMap<>();
+        map.put(kinopoiskId, serial);
+        serialMutableLiveDataLUMEX.setValue(map);
+    }
+
+    public EPData.Film getFilmLUMEX(int kinopoiskId) {
+        if (filmMutableLiveDataLUMEX.getValue() == null) return null;
+        return filmMutableLiveDataLUMEX.getValue().get(kinopoiskId);
+    }
+
+    public void setFilmLUMEX(int kinopoiskId, EPData.Film film) {
+        Map<Integer, EPData.Film> map = filmMutableLiveDataLUMEX.getValue();
+        if (map == null) map = new HashMap<>();
+        map.put(kinopoiskId, film);
+        filmMutableLiveDataLUMEX.setValue(map);
+    }
 }

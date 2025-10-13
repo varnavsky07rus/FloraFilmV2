@@ -45,8 +45,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0"
                         android:gravity="top"
-                        android:singleLine="false"
-                        android:textSize="24sp"
+                        android:singleLine="true"
+                        android:textSize="16sp"
                         tools:text="Форсаж 10 / Fast X (2023) WEB-DL 1080p от селезень | D | TS" />
 
                     <TextView
@@ -55,6 +55,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0"
                         android:textColor="@color/helperText"
+                        android:textSize="10sp"
                         tools:text="selezen 9.4 ГБ 2023-06-10" />
 
                 </LinearLayout>
@@ -103,14 +104,19 @@
 
             </LinearLayout>
 
-            <ProgressBar
-                android:id="@+id/progressBar2"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressBarTorrent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="8dp"
+                android:max="100"
+                android:progress="50"
+                android:visibility="gone"
+                app:indicatorColor="#5DA454"
+                app:trackColor="#6B61A260"
+                tools:visibility="visible" />
 
         </LinearLayout>
 

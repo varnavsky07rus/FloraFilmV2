@@ -27,6 +27,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.alaka_ala.florafilm.BuildConfig;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.ActivityPlayerExoBinding;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
@@ -35,12 +36,6 @@ import com.alaka_ala.florafilm.ui.util.api.lumex.LumexApi;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.alaka_ala.florafilm.ui.util.player.PlaybackPositionManager;
 import com.alaka_ala.florafilm.ui.util.player.PlayerGestureListener;
-import com.alaka_ala.florafilm.ui.util.torrents.listeners.TorrentListener;
-import com.alaka_ala.florafilm.ui.util.torrents.main.StreamStatus;
-import com.alaka_ala.florafilm.ui.util.torrents.main.Torrent;
-import com.alaka_ala.florafilm.ui.util.torrents.main.TorrentOptions;
-import com.alaka_ala.florafilm.ui.util.torrents.main.TorrentStream;
-import com.alaka_ala.florafilm.ui.util.torrents.server.LocalHttpServer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -56,7 +51,6 @@ public class PlayerExoActivity extends AppCompatActivity {
     private ExoPlayer exoPlayer;
     private PlaybackPositionManager playbackPositionManager;
     private EPData epData;
-    private TorrentStream torrentStream;
     private GestureDetector gestureDetector;
     private PlayerGestureListener gestureListener;
 
@@ -248,87 +242,7 @@ public class PlayerExoActivity extends AppCompatActivity {
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("magnet")) {
             String magnet = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
-            TorrentOptions torrentOptions = new TorrentOptions.Builder()
-                    .saveLocation(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
-                    .removeFilesAfterStop(true)
-                    .build();
-            torrentStream = TorrentStream.init(torrentOptions);
-            torrentStream.addListener(new TorrentListener() {
-                @Override
-                public void onStreamPrepared(Torrent torrent) {
-                    Log.d("Torrent", "Torrent prepared. File: " + torrent.getVideoFile().getName());
-                }
 
-                @Override
-                public void onStreamStarted(Torrent torrent) {
-                }
-
-                @Override
-                public void onStreamError(Torrent torrent, Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(PlayerExoActivity.this, "Ошибка торрента: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onStreamReady(Torrent torrent) {
-                    try {
-                        LocalHttpServer server = new LocalHttpServer(8080, torrent);
-                        server.start();
-
-                        MediaItem mediaItem = new MediaItem.Builder()
-                                .setUri("http://127.0.0.1:8080/" + torrent.getVideoFile().getName())
-                                .build();
-
-                        exoPlayer.setMediaItem(mediaItem);
-                        exoPlayer.prepare();
-                        exoPlayer.addAnalyticsListener(new AnalyticsListener() {
-                            @Override
-                            public void onIsLoadingChanged(@NonNull EventTime eventTime, boolean isLoading) {
-                                AnalyticsListener.super.onIsLoadingChanged(eventTime, isLoading);
-                            }
-
-                            @Override
-                            public void onIsPlayingChanged(@NonNull EventTime eventTime, boolean isPlaying) {
-                                AnalyticsListener.super.onIsPlayingChanged(eventTime, isPlaying);
-                            }
-
-                            @Override
-                            public void onPlaybackStateChanged(@NonNull EventTime eventTime, int state) {
-                                AnalyticsListener.super.onPlaybackStateChanged(eventTime, state);
-                                if (state == ExoPlayer.STATE_READY) {
-                                    exoPlayer.play();
-                                }
-                            }
-                        });
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(PlayerExoActivity.this, "Ошибка локального сервера: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                private int steps = 0;
-                private int maxSteps = 1500;
-
-                @Override
-                public void onStreamProgress(Torrent torrent, StreamStatus status) {
-                    if (steps == maxSteps) {
-                        Log.d("Torrent", "\n\n\nTorrent progress: " + status.progress);
-                        Log.d("Torrent", "Torrent buffer: " + status.bufferProgress);
-                        Log.d("Torrent", "Torrent seeds: " + status.seeds);
-                        Log.d("Torrent", "Torrent index piece: " + status.currentPieceDownload);
-                        Log.d("Torrent", "==============================================");
-                        steps = 0;
-                    }
-                    steps++;
-                }
-
-                @Override
-                public void onStreamStopped() {
-                    Log.d("Torrent", "Torrent stopped");
-                }
-            });
-            torrentStream.startStream(magnet);
 
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("HDVB")) {
@@ -515,10 +429,7 @@ public class PlayerExoActivity extends AppCompatActivity {
             saveCurrentPlaybackPosition();
             exoPlayer.stop();
             exoPlayer.release();
-        }
 
-        if (torrentStream != null) {
-            torrentStream.stopStream();
         }
     }
 }

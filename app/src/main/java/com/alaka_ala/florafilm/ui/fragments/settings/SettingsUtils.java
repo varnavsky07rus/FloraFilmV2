@@ -44,7 +44,10 @@ public class SettingsUtils {
     //==============================================================================================
     public static final boolean DEF_SEARCH_AUTO_UPDATE = false;
     public static final String KEY_SEARCH_AUTO_UPDATE = "KEY_SEARCH_AUTO_UPDATE_9x00000";
-
+    //==============================================================================================
+    public static final String DEF_SCROLL_PAGE_EFFECT = "DepthPage";                                // Стандартный эффект прокрутки страницы
+    public static final String KEY_SCROLL_PAGE_EFFECT = "KEY_SCROLL_PAGE_EFFECT_11x00000";
+    //==============================================================================================
 
 
     /**Взять параметр: Включен или отключен поиск сериалов по VIBIX*/
@@ -163,6 +166,34 @@ public class SettingsUtils {
         preferences.edit().putBoolean(KEY_SEARCH_AUTO_UPDATE, param).apply();
     }
 
+    //==============================================================================================
+    // Получение Название эффекта прокрутки страницы Если пользователь не выбирал эффекты то по умолчанию возвращается Дефолтное значение.
+    // Старый метод возвращал String, новый будет возвращать TitlesScrollPageEffect
+    public static TitlesScrollPageEffect getParamTitleScrollPageEffect(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        // Получаем сохраненное имя эффекта как строку
+        String effectName = preferences.getString(KEY_SCROLL_PAGE_EFFECT, DEF_SCROLL_PAGE_EFFECT);
+        try {
+            // Преобразуем строку обратно в enum.
+            return TitlesScrollPageEffect.valueOf(effectName);
+        } catch (IllegalArgumentException e) {
+            // На случай, если сохраненное значение некорректно (например, после обновления),
+            // возвращаем значение по умолчанию.
+            return TitlesScrollPageEffect.valueOf(DEF_SCROLL_PAGE_EFFECT);
+        }
+    }
+
+    // Ваш метод set уже идеален, так как принимает enum и сохраняет его имя.
+    public static void setParamTitleScrollPageEffect(Context context, TitlesScrollPageEffect param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putString(KEY_SCROLL_PAGE_EFFECT, param.name()).apply();
+    }
+
+    public enum TitlesScrollPageEffect {
+        CardFlip,
+        DepthPage,
+        SmoothScale
+    }
 
 
     public static String getSizeCacheApp(Context context) {
