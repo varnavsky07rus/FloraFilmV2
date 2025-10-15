@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -15,30 +14,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentHomeBinding;
-import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.ViewPagerFilmAdapter;
 import com.alaka_ala.florafilm.ui.fragments.home.vpager.adapters.ViewPagerAdapterHome;
-import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.util.adapters.AdapterRecyclerViewItem1;
-import com.alaka_ala.florafilm.ui.util.api.BanCheker;
-import com.alaka_ala.florafilm.ui.util.api.collapse.HlsProcessor;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.KinopoiskAPI;
 import com.alaka_ala.florafilm.ui.util.api.kinopoisk.models.Collection;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewItemTouchListener;
 import com.alaka_ala.florafilm.ui.util.listeners.MyRecyclerViewScrollListener;
-import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
@@ -694,6 +685,7 @@ public class HomeFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         menu.add("Избранное").setIcon(getContext().getDrawable(R.drawable.round_favorite_border_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add("Поиск").setIcon(getContext().getDrawable(R.drawable.rounded_search_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add("Загрузки").setIcon(getContext().getDrawable(R.drawable.outline_download_for_offline_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
     }
 
     @Override
@@ -704,6 +696,8 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_searchFragment);
         } else if (item.getTitle().equals("Избранное")) {
             Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_navFavoriteFilmFragment);
+        } else if (item.getTitle().equals("Загрузки")) {
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_downloadManagerFragment);
         }
         return super.onOptionsItemSelected(item);
     }

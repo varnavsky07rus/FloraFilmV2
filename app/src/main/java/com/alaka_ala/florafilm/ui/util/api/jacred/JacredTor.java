@@ -6,8 +6,6 @@ import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
-
-import com.alaka_ala.florafilm.core.torrent.DigestUtils;
 import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
@@ -198,7 +196,6 @@ public class JacredTor {
             this.voices = voices;
             this.seasons = seasons;
             this.types = types;
-            this.hashMD5 = DigestUtils.createMd5Digest(magnet);
         }
 
         private final String tracker;
@@ -217,11 +214,6 @@ public class JacredTor {
         private final int quality;
         private final ArrayList<String> voices;
         private final ArrayList<Integer> seasons;
-        private final String hashMD5;
-
-        public String getHashMD5() {
-            return hashMD5;
-        }
 
         public ArrayList<String> getTypes() {
             return types;

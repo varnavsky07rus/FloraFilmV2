@@ -6,6 +6,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
@@ -35,6 +36,7 @@ import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
 import com.alaka_ala.florafilm.ui.FFApp;
 import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
+import com.alaka_ala.florafilm.ui.util.coreTorrent.TorrentSessionService;
 import com.alaka_ala.florafilm.ui.util.local.PermissionManager;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.google.android.material.navigation.NavigationView;
@@ -111,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
             }
         }
 
-
         View header = navigationView.getHeaderView(0);
         ImageView donateButton = header.findViewById(R.id.imageViewDonate);
         donateButton.setOnClickListener(new View.OnClickListener() {
@@ -134,6 +135,9 @@ public class MainActivity extends AppCompatActivity implements PermissionManager
                 ResumeBottomSheetFragment.newInstance().show(getSupportFragmentManager(), ResumeBottomSheetFragment.TAG);
             }, 1100);
         }
+
+
+
     }
 
 

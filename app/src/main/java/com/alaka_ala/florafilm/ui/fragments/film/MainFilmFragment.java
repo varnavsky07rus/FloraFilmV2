@@ -15,10 +15,10 @@ import android.view.ViewGroup;
 
 import com.alaka_ala.florafilm.databinding.FragmentMainFilmBinding;
 import com.alaka_ala.florafilm.ui.fragments.film.view_model.MainFilmViewModel;
-import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.CardFlipPageTransformer;
-import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.DepthPageTransformer;
-import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.SmoothScalePageTransformer;
-import com.alaka_ala.florafilm.ui.fragments.film.vp_adapter.ViewPagerFilmAdapter;
+import com.alaka_ala.florafilm.ui.fragments.film.common.CardFlipPageTransformer;
+import com.alaka_ala.florafilm.ui.fragments.film.common.DepthPageTransformer;
+import com.alaka_ala.florafilm.ui.fragments.film.common.SmoothScalePageTransformer;
+import com.alaka_ala.florafilm.ui.fragments.film.common.ViewPagerFilmAdapter;
 import com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.VideoFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 import com.alaka_ala.florafilm.ui.util.api.EPData;
@@ -67,11 +67,7 @@ public class MainFilmFragment extends Fragment {
         String[] tabTitles = {"Описание", "Видео", "Торрент"};
         new TabLayoutMediator(tabLayoutFilm, vpFilm, (tab, position) -> {
             if (position < tabTitles.length) {
-                if (tabTitles[position].equals("Торрент") && !SettingsUtils.getParamSearchTorrent(getContext())) {
-                    tab.view.setVisibility(View.GONE);
-                } else {
-                    tab.setText(tabTitles[position]);
-                }
+                tab.setText(tabTitles[position]);
             }
         }).attach();
 
@@ -257,7 +253,7 @@ public class MainFilmFragment extends Fragment {
         void setPage(int page);
     }
 
-    public static void setTransition(int page){
+    public static void setTransition(int page) {
         if (viewPagerSetterPage == null) return;
         viewPagerSetterPage.setPage(page);
     }

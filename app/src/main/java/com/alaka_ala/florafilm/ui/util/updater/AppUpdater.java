@@ -2,7 +2,6 @@ package com.alaka_ala.florafilm.ui.util.updater;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
 import com.alaka_ala.florafilm.R;
@@ -31,12 +30,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -56,6 +53,13 @@ public class AppUpdater {
     private static final String VERSION_URL_BETA = "https://raw.githubusercontent.com/varnavsky07rus/FloraFilmV2/refs/heads/beta/app/release/output-metadata.json";
     private static final int REQUEST_INSTALL_PERMISSION = 1001;
     private static final String TEMP_APK_NAME = "update_temp.apk";
+
+    // Constants for SharedPreferences
+    private static final String PREFS_NAME = "AppUpdater";
+    private static final String KEY_NEW_VERSION_CODE = "new_version_code";
+    private static final String KEY_DOWNLOADED_APK_PATH = "downloaded_apk_path";
+    private static final String KEY_UPDATE_ACTION = "update_action";
+
 
     // Activity нужна для отображения диалогов.
     // Важно: если Activity будет уничтожена во время работы, возможны ошибки.
@@ -156,9 +160,11 @@ public class AppUpdater {
 
         if (latestVersionCode > currentVersionCode) {
             newVersionCode = latestVersionCode;
+            SharedPreferences preferences = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            preferences.edit().putInt(KEY_NEW_VERSION_CODE, newVersionCode).apply();
             showUpdateDialog();
         } else {
-            SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+            SharedPreferences preferences = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             preferences.edit().putBoolean("upd", false).apply();
             if (!isSilentFindUpdate) {
                 showMessageDialog("Обновлений не найдено!");
@@ -170,18 +176,31 @@ public class AppUpdater {
 
     private void showUpdateDialog() {
         if (!isSilentFindUpdate) {
-            new MaterialAlertDialogBuilder(activity)
+            MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(activity)
                     .setTitle("Доступно обновление").setMessage("Доступна новая версия приложения, установить сейчас?")
-                    .setPositiveButton("Да", (dialog, which) -> prepareDownload())
-                    .setNegativeButton("Позже", null)
-                    .show();
+                    .setPositiveButton("Да", (dialog, which) -> {
+                        if (canInstallApk()) {
+                            prepareDownload();
+                        } else {
+                            SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                            prefs.edit().putString(KEY_UPDATE_ACTION, "DOWNLOAD").apply();
+                            requestInstallPermission();
+                        }
+                    })
+                    .setNegativeButton("Позже", null);
+            AlertDialog alert = alertBuilder.create();
+            alert.show();
+            alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertCancel));
+            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertSubmit));
+
+
         }
-        SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         preferences.edit().putBoolean("upd", true).apply();
     }
 
     public boolean isAvailableUpdate() {
-        SharedPreferences preferences = activity.getSharedPreferences("AppUpdater", Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return preferences.getBoolean("upd", false);
     }
 
@@ -269,6 +288,8 @@ public class AppUpdater {
         }
 
         if (success && downloadedApk.exists()) {
+            SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putString(KEY_DOWNLOADED_APK_PATH, downloadedApk.getAbsolutePath()).apply();
             verifyAndInstall();
         } else {
             showErrorDialog("Ошибка загрузки!");
@@ -283,7 +304,7 @@ public class AppUpdater {
         progressText = dialogView.findViewById(R.id.progressText);
         statusText = dialogView.findViewById(R.id.statusText);
 
-        downloadDialog = new AlertDialog.Builder(activity)
+        downloadDialog = new MaterialAlertDialogBuilder(activity)
                 .setView(dialogView)
                 .setTitle("Загрузка обновлений")
                 .setCancelable(false)
@@ -299,8 +320,6 @@ public class AppUpdater {
     private void updateStatus(String status) {
         if (statusText != null) statusText.setText(status);
     }
-
-    // --- Остальные методы остаются без изменений ---
 
     private void verifyAndInstall() {
         try {
@@ -321,16 +340,21 @@ public class AppUpdater {
     }
 
     private void showInstallDialog() {
-        new MaterialAlertDialogBuilder(activity)
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(activity)
                 .setTitle("Установка обновления")
                 .setMessage("Обновление загружено. Установить сейчас?")
                 .setPositiveButton("Установить", (dialog, which) -> installApk())
-                .setNegativeButton("Позже", (dialog, which) -> cleanupTempFiles())
-                .show();
+                .setNegativeButton("Позже", (dialog, which) -> cleanupTempFiles());
+        AlertDialog alert = alertBuilder.create();
+        alert.show();
+        alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertCancel));
+        alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertSubmit));
     }
 
     private void installApk() {
         if (!canInstallApk()) {
+            SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putString(KEY_UPDATE_ACTION, "INSTALL").apply();
             requestInstallPermission();
             return;
         }
@@ -343,7 +367,7 @@ public class AppUpdater {
     }
 
     private void requestInstallPermission() {
-        new MaterialAlertDialogBuilder(activity)
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(activity)
                 .setTitle("Требуется разрешение")
                 .setMessage("Разрешите установку из неизвестных источников")
                 .setPositiveButton("К настройкам", (dialog, which) -> {
@@ -351,14 +375,23 @@ public class AppUpdater {
                     intent.setData(Uri.parse("package:" + activity.getPackageName()));
                     activity.startActivityForResult(intent, REQUEST_INSTALL_PERMISSION);
                 })
-                .setNegativeButton("Отмена", (dialog, which) -> cleanupTempFiles())
-                .show();
+                .setNegativeButton("Отмена", (dialog, which) -> cleanupTempFiles());
+        AlertDialog alert = alertBuilder.create();
+        alert.show();
+        alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertCancel));
+        alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertSubmit));
     }
 
     private void proceedWithInstallation() {
         if (downloadedApk == null || !downloadedApk.exists()) {
-            showErrorDialog("Файл обновления не найден");
-            return;
+            SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            String apkPath = prefs.getString(KEY_DOWNLOADED_APK_PATH, null);
+            if (apkPath != null) {
+                this.downloadedApk = new File(apkPath);
+            } else {
+                showErrorDialog("Файл обновления не найден");
+                return;
+            }
         }
 
         try {
@@ -394,6 +427,12 @@ public class AppUpdater {
                 if (downloadedApk != null && downloadedApk.exists()) {
                     downloadedApk.delete();
                 }
+                SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                prefs.edit()
+                        .remove(KEY_NEW_VERSION_CODE)
+                        .remove(KEY_DOWNLOADED_APK_PATH)
+                        .remove(KEY_UPDATE_ACTION)
+                        .apply();
             } catch (Exception e) {
                 Log.e(TAG, "Error cleaning temp files", e);
             }
@@ -401,28 +440,51 @@ public class AppUpdater {
     }
 
     private void showMessageDialog(String message) {
-        new MaterialAlertDialogBuilder(activity)
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(activity)
                 .setMessage(message)
-                .setPositiveButton("OK", null)
-                .show();
+                .setPositiveButton("OK", null);
+        AlertDialog alert = alertBuilder.create();
+        alert.show();
+        alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertSubmit));
+        alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertCancel));
     }
 
     private void showErrorDialog(String message) {
-        new MaterialAlertDialogBuilder(activity)
+        MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(activity)
                 .setTitle("Ошибка")
                 .setMessage(message)
-                .setPositiveButton("OK", null)
-                .show();
+                .setPositiveButton("OK", null);
+        AlertDialog alert = alertBuilder.create();
+        alert.show();
+        alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertSubmit));
+        alert.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(activity.getResources().getColor(R.color.buttonAlertCancel));
     }
 
     // Метод для обработки результата из Activity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_INSTALL_PERMISSION) {
+            // Всегда перезагружайте состояние, так как процесс мог быть убит.
+            SharedPreferences prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            this.newVersionCode = prefs.getInt(KEY_NEW_VERSION_CODE, 0);
+            String apkPath = prefs.getString(KEY_DOWNLOADED_APK_PATH, null);
+            if (apkPath != null) {
+                this.downloadedApk = new File(apkPath);
+            }
+
             if (canInstallApk()) {
-                proceedWithInstallation();
+                String action = prefs.getString(KEY_UPDATE_ACTION, null);
+                if ("DOWNLOAD".equals(action)) {
+                    prepareDownload();
+                } else if ("INSTALL".equals(action)) {
+                    proceedWithInstallation();
+                }
             } else {
                 showErrorDialog("Ошибка установки! Разрешения на установку из неизвестных источников не выданы!");
+                cleanupTempFiles(); // Это также очистит преференсы
             }
+
+            // Очистите ключ действия, но пока не остальные.
+            prefs.edit().remove(KEY_UPDATE_ACTION).apply();
         }
     }
 }

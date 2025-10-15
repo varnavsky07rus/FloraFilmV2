@@ -11,12 +11,12 @@ android {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
         targetSdk 35
-        versionCode 55
+        versionCode 56
         // 1.0.0_rs Версия RuStore
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.55_nt"
+        versionName "1.0.56_nt"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -102,9 +102,18 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-database:22.0.0' // Или актуальная версия
 
+    // Firebaseimplementation 'com.frostwire:jlibtorrent-android-arm:1.2.0.18'
 
-    implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.0.5-23")
-    implementation("org.libtorrent4j:libtorrent4j-android-x86:2.0.5-23")
-    implementation("org.libtorrent4j:libtorrent4j-android-x86_64:2.0.5-23")
-    implementation("org.libtorrent4j:libtorrent4j-android-arm:2.0.5-23")
+    def jlibtorrent_version = '2.0.12.5' // change version for latest
+
+    // ALL ARCHITECTURES need the java .class wrappers jlibtorrent.jar
+    implementation 'com.frostwire:jlibtorrent:' + jlibtorrent_version
+
+    // ANDROID (needs all of them for most projects if you want to maximize compatibility)
+    implementation 'com.frostwire:jlibtorrent-android-arm:' + jlibtorrent_version
+    implementation 'com.frostwire:jlibtorrent-android-arm64:' + jlibtorrent_version
+    implementation 'com.frostwire:jlibtorrent-android-x86:' + jlibtorrent_version
+    implementation 'com.frostwire:jlibtorrent-android-x86_64:' + jlibtorrent_version
+
+
 }

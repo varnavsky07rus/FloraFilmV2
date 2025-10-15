@@ -14,13 +14,13 @@
         android:orientation="horizontal">
 
         <androidx.cardview.widget.CardView
-            android:layout_width="100dp"
-            android:layout_height="150dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
-            app:cardCornerRadius="16dp">
+            app:cardCornerRadius="100dp">
 
             <ImageView
                 android:id="@+id/imageViewActor"

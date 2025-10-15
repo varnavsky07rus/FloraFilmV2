@@ -95,17 +95,7 @@ public class SettingsFragment extends Fragment {
         });
 
         // Инициализация и настройка переключателя для поиска торрентов
-        MaterialSwitch switch_off_search_torrents = binding.switchOffSearchTorrents;
-        boolean isActiveSearchTorrent = SettingsUtils.getParamSearchTorrent(getContext());
-        switch_off_search_torrents.setChecked(isActiveSearchTorrent);
-        switch_off_search_torrents.setText(isActiveSearchTorrent ? "Выключить поиск торрентов" : "Включить поиск торрентов");
-        switch_off_search_torrents.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SettingsUtils.setParamSearchTorrent(getContext(), isChecked);
-                switch_off_search_torrents.setText(isChecked ? "Выключить поиск торрентов" : "Включить поиск торрентов");
-            }
-        });
+
 
         // Инициализация и настройка кнопки для проверки обновлений
         Button buttonChekUpdate = binding.buttonChekUpdate;

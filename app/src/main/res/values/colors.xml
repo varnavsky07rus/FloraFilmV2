@@ -8,6 +8,10 @@
     <color name="colorPrimaryDark">#141218</color>
     <color name="helperText">#565656</color>
 
+    <color name="buttonAlertSubmit">#838383</color>
+    <color name="buttonAlertCancel">#52717171</color>
+
+
     <color name="iconsTintLight">#000000</color>
     <color name="iconsTintDark">#FFFFFF</color>
 

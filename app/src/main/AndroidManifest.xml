@@ -34,13 +34,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <service
-            android:name=".core.torrent.TorrentService"
+            android:name=".ui.util.coreTorrent.TorrentSessionService"
             android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".core.torrent.TorrentService"
-            android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
         <activity
             android:name=".ui.activities.SplahActivity"

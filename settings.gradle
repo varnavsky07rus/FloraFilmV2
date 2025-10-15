@@ -17,6 +17,14 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+
+        maven {
+            setUrl("https://dl.frostwire.com/maven")
+            content {
+                includeGroup("com.frostwire")
+            }
+        }
+
     }
 }
 

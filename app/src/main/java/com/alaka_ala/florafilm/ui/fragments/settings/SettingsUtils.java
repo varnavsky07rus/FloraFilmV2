@@ -24,8 +24,9 @@ public class SettingsUtils {
     public static final boolean DEF_BETA_VERSION_MODE = false;
     public static final String KEY_BETA_VERSION_MODE = "KEY_BETA_VERSION_MODE_3x00000";
     // =============================================================================================
-    public static final boolean DEF_SEARCH_MODE_TORRENT = false;
-    public static final String KEY_SEARCH_MODE_TORRENT = "KEY_SEARCH_MODE_TORRENT_4x00000";
+
+
+
     //==============================================================================================
     public static final boolean DEF_EFFECT_SCROLL_PAGE = true;
     public static final String KEY_EFFECT_SCROLL_PAGE = "KEY_EFFECT_SCROLL_PAGE_5x00000";
@@ -88,15 +89,9 @@ public class SettingsUtils {
 
     //==============================================================================================
 
-    public static boolean getParamSearchTorrent(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
-        return preferences.getBoolean(KEY_SEARCH_MODE_TORRENT, DEF_SEARCH_MODE_TORRENT);
-    }
 
-    public static void setParamSearchTorrent(Context context, boolean param) {
-        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
-        preferences.edit().putBoolean(KEY_SEARCH_MODE_TORRENT, param).apply();
-    }
+
+
 
     //==============================================================================================
     public static boolean getParamScrollPageEffect(Context context) {
