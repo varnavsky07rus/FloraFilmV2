@@ -4,6 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
     android:outlineSpotShadowColor="#B46A6A6A"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp"
@@ -17,6 +20,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Все остальные TextView и ProgressBar остаются без изменений -->
         <TextView
             android:id="@+id/tv_torrent_name"
             android:layout_width="match_parent"
@@ -75,25 +79,7 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Пуск" />
-
-            <Button
-                android:id="@+id/buttonRemove"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Удалить" />
-        </LinearLayout>
+        <!-- LinearLayout с кнопками удален -->
 
     </LinearLayout>
 

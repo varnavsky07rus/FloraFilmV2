@@ -1,46 +1,77 @@
 package com.alaka_ala.florafilm.ui.fragments.download_manager;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.alaka_ala.florafilm.databinding.FragmentDownloadManagerBinding;
 import com.alaka_ala.florafilm.ui.fragments.download_manager.adapter.AdapterTorrent;
-import com.alaka_ala.florafilm.ui.util.coreTorrent.TorrentSessionService;
+import com.alaka_ala.florafilm.ui.util.coreTorrent.db.TorrentDatabase;
+import com.alaka_ala.florafilm.ui.util.coreTorrent.models.Torrent;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DownloadManagerFragment extends Fragment {
     private FragmentDownloadManagerBinding binding;
     private RecyclerView rvDManger;
-    private TorrentSessionService torrentService;
+    private AdapterTorrent adapterTorrent;
+    private TorrentDatabase db;
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentDownloadManagerBinding.inflate(inflater, container, false);
-        rvDManger = binding.rvDManger;
-        torrentService = TorrentSessionService.getInstance();
-
-        AdapterTorrent adapterTorrent = new AdapterTorrent();
-        rvDManger.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvDManger.setAdapter(adapterTorrent);
-
-
-
-
-        String magnetLink = "magnet:?xt=urn:btih:6A9CF7AAD29EAFFBBA4135509525145DA673C4AE&xl=9419574865&dn=Fast.X.2023.MA.WEB-DL.1080p.seleZen.mkv.torrent&tr=http%3A%2F%2Fbt.desol.one%3A2710%2Fannounce&tr=udp%3A%2F%2Fopentor.net%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2770%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fretracker.lanta-net.ru%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.moeking.me%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2770%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2720%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2730%2Fannounce&tr=http%3A%2F%2Ftracker.grepler.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.com%3A6969%2Fannounce&tr=http%3A%2F%2Fh4.trakx.nibba.trade%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.bitsearch.to%3A1337%2Fannounce";
-
-
-
-
-
-
+        db = TorrentDatabase.getDatabase(getContext());
+        setupRecyclerView();
         return binding.getRoot();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        loadTorrentsFromDb();
+    }
+
+    private void setupRecyclerView() {
+        rvDManger = binding.rvDManger;
+        rvDManger.setLayoutManager(new LinearLayoutManager(getContext()));
+    }
+
+    private void loadTorrentsFromDb() {
+        dbExecutor.execute(() -> {
+            // Получаем все торренты из базы данных в фоновом потоке
+            List<Torrent> torrents = db.torrentDao().getAll();
+
+            // Возвращаемся в главный поток для обновления UI
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    // Создаем и устанавливаем адаптер с полученными данными
+                    adapterTorrent = new AdapterTorrent(torrents);
+                    rvDManger.setAdapter(adapterTorrent);
+                    // Регистрируем слушатель, чтобы получать живые обновления
+                    adapterTorrent.registerListener();
+                });
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // ОБЯЗАТЕЛЬНО отписываемся от обновлений, чтобы избежать утечек памяти
+        if (adapterTorrent != null) {
+            adapterTorrent.unregisterListener();
+        }
+        binding = null;
+    }
 }
