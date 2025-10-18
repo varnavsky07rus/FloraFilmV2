@@ -45,9 +45,6 @@
             app:exitAnim="@anim/exit_anim"
             app:popEnterAnim="@anim/enter_anim_right_to_left"
             app:popExitAnim="@anim/exit_anim_left_to_right" />
-        <action
-            android:id="@+id/action_navHomeFragment_to_downloadManagerFragment"
-            app:destination="@id/downloadManagerFragment" />
     </fragment>
     <fragment
         android:id="@+id/navSettingsFragment"
@@ -128,11 +125,6 @@
             app:destination="@id/mainFilmFragment" />
     </fragment>
     <fragment
-        android:id="@+id/instructionViewTorrent"
-        android:name="com.alaka_ala.florafilm.ui.fragments.instructions.InstructionViewTorrentFragment"
-        android:label="Инструкция просмотра торрентов"
-        tools:layout="@layout/fragment_instruction_view_torrent" />
-    <fragment
         android:id="@+id/imageViewerFragment"
         android:name="com.alaka_ala.florafilm.ui.fragments.imgViewer.ImageViewerFragment"
         android:label="Просмотр"
@@ -167,9 +159,4 @@
         android:name="com.alaka_ala.florafilm.ui.fragments.changelog.ChangeLogAppFragment"
         android:label="ChangeLog"
         tools:layout="@layout/fragment_change_log_app" />
-    <fragment
-        android:id="@+id/downloadManagerFragment"
-        android:name="com.alaka_ala.florafilm.ui.fragments.download_manager.DownloadManagerFragment"
-        android:label="Загрузки"
-        tools:layout="@layout/fragment_download_manager" />
 </navigation>

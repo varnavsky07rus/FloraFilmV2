@@ -16,38 +16,43 @@ public class SettingsUtils {
     private static final String KEY_PREFERENCES= "KEY_SETTINGS_NAME_PREFERENCES";
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_VIBIX = false;
-    public static final String KEY_SEARCH_MODE_VIBIX = "KEY_SEARCH_MODE_SERIAL_1x00000";
+    public static final String KEY_SEARCH_MODE_VIBIX = "KEY_SEARCH_MODE_VIBIX";
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_HDVB = true;
-    public static final String KEY_SEARCH_MODE_HDVB = "KEY_SEARCH_MODE_SERIAL_2x00000";
+    public static final String KEY_SEARCH_MODE_HDVB = "KEY_SEARCH_MODE_HDVB";
     // =============================================================================================
     public static final boolean DEF_BETA_VERSION_MODE = false;
-    public static final String KEY_BETA_VERSION_MODE = "KEY_BETA_VERSION_MODE_3x00000";
+    public static final String KEY_BETA_VERSION_MODE = "KEY_BETA_VERSION_MODE";
     // =============================================================================================
 
+    public static final boolean DEF_SEARCH_TORRENTS = false;
+    public static final String KEY_SEARCH_TORRENTS = "KEY_SEARCH_TORRENTS";
 
+    //==============================================================================================
+    public static final boolean DEF_AUTO_ON_SERVER = false;
+    public static final String KEY_AUTO_ON_SERVER = "KEY_AUTO_ON_SERVER";
 
     //==============================================================================================
     public static final boolean DEF_EFFECT_SCROLL_PAGE = true;
-    public static final String KEY_EFFECT_SCROLL_PAGE = "KEY_EFFECT_SCROLL_PAGE_5x00000";
+    public static final String KEY_EFFECT_SCROLL_PAGE = "KEY_EFFECT_SCROLL_PAGE";
     //==============================================================================================
     public static final boolean DEF_EFFECT_ANIMATION = true;
-    public static final String KEY_EFFECT_ANIMATION = "KEY_EFFECT_ANIMATION_6x00000";
+    public static final String KEY_EFFECT_ANIMATION = "KEY_EFFECT_ANIMATION";
     //==============================================================================================
     public static final boolean DEF_LAYOUT_DESCRIPTION_FILM = true; // Если TRUE то используется новый макет описания фильма
-    public static final String KEY_LAYOUT_DESCRIPTION_FILM = "KEY_LAYOUT_DESCRIPTION_FILM_7x00000";
+    public static final String KEY_LAYOUT_DESCRIPTION_FILM = "KEY_LAYOUT_DESCRIPTION_FILM";
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_LUMEX = false;
-    public static final String KEY_SEARCH_MODE_LUMEX = "KEY_SEARCH_MODE_LUMEX_8x00000";
+    public static final String KEY_SEARCH_MODE_LUMEX = "KEY_SEARCH_MODE_LUMEX";
     //==============================================================================================
     public static final boolean DEF_SEARCH_MODE_COLLAPSE = false;
-    public static final String KEY_SEARCH_MODE_COLLAPSE = "KEY_SEARCH_MODE_COLLAPSE_10x00000";
+    public static final String KEY_SEARCH_MODE_COLLAPSE = "KEY_SEARCH_MODE_COLLAPSE";
     //==============================================================================================
     public static final boolean DEF_SEARCH_AUTO_UPDATE = false;
-    public static final String KEY_SEARCH_AUTO_UPDATE = "KEY_SEARCH_AUTO_UPDATE_9x00000";
+    public static final String KEY_SEARCH_AUTO_UPDATE = "KEY_SEARCH_AUTO_UPDATE";
     //==============================================================================================
     public static final String DEF_SCROLL_PAGE_EFFECT = "DepthPage";                                // Стандартный эффект прокрутки страницы
-    public static final String KEY_SCROLL_PAGE_EFFECT = "KEY_SCROLL_PAGE_EFFECT_11x00000";
+    public static final String KEY_SCROLL_PAGE_EFFECT = "KEY_SCROLL_PAGE_EFFECT";
     //==============================================================================================
 
 
@@ -90,8 +95,26 @@ public class SettingsUtils {
     //==============================================================================================
 
 
+    public static boolean getParamSearchTorrents(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(KEY_SEARCH_TORRENTS, DEF_SEARCH_TORRENTS);
+    }
 
+    public static void setParamSearchTorrents(Context context, boolean param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(KEY_SEARCH_TORRENTS, param).apply();
+    }
+    //==============================================================================================
 
+    public static boolean getParamAutoOnServer(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        return preferences.getBoolean(KEY_AUTO_ON_SERVER, DEF_AUTO_ON_SERVER);
+    }
+
+    public static void setParamAutoOnServer(Context context, boolean param) {
+        SharedPreferences preferences = context.getSharedPreferences(KEY_PREFERENCES, MODE_PRIVATE);
+        preferences.edit().putBoolean(KEY_AUTO_ON_SERVER, param).apply();
+    }
 
     //==============================================================================================
     public static boolean getParamScrollPageEffect(Context context) {

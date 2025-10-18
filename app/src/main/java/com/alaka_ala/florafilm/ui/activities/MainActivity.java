@@ -36,7 +36,6 @@ import com.alaka_ala.florafilm.databinding.ActivityMainBinding;
 import com.alaka_ala.florafilm.ui.FFApp;
 import com.alaka_ala.florafilm.ui.fragments.resumeView.ResumeBottomSheetFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
-import com.alaka_ala.florafilm.ui.util.coreTorrent.TorrentSessionService;
 import com.alaka_ala.florafilm.ui.util.local.PermissionManager;
 import com.alaka_ala.florafilm.ui.util.local.ResumeLastMovie;
 import com.google.android.material.navigation.NavigationView;

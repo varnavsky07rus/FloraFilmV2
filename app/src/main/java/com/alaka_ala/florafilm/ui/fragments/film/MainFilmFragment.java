@@ -51,8 +51,7 @@ public class MainFilmFragment extends Fragment {
         vpFilm = binding.vpFilm;
         TabLayout tabLayoutFilm = binding.tabLayoutFilm;
 
-        ViewPagerFilmAdapter viewPagerFilmAdapter = new ViewPagerFilmAdapter(getChildFragmentManager(), getLifecycle(), getContext());
-        vpFilm.setAdapter(viewPagerFilmAdapter);
+
 
         if (SettingsUtils.getParamScrollPageEffect(getContext())) {
             if (SettingsUtils.getParamTitleScrollPageEffect(getContext()) == SettingsUtils.TitlesScrollPageEffect.CardFlip) {
@@ -64,10 +63,24 @@ public class MainFilmFragment extends Fragment {
             }
         }
 
-        String[] tabTitles = {"Описание", "Видео", "Торрент"};
+        String[] tabTitles = new String[]{"Описание", "Видео"};
+        boolean isSearchHDVB = SettingsUtils.getParamSeeachHDVB(getContext());
+        boolean isSearchVIBIX = SettingsUtils.getParamSearchVIBIX(getContext());
+        boolean isSearchLumex = SettingsUtils.getParamSearchLumex(getContext());
+        boolean isSearchTorrents = SettingsUtils.getParamSearchTorrents(getContext());
+        if (isSearchTorrents) {
+            tabTitles = new String[]{"Описание", "Видео", "Торрент"};
+        }
+
+
+        ViewPagerFilmAdapter viewPagerFilmAdapter = new ViewPagerFilmAdapter(getChildFragmentManager(), getLifecycle(), getContext(), tabTitles.length);
+        vpFilm.setAdapter(viewPagerFilmAdapter);
+
+
+        String[] finalTabTitles = tabTitles;
         new TabLayoutMediator(tabLayoutFilm, vpFilm, (tab, position) -> {
-            if (position < tabTitles.length) {
-                tab.setText(tabTitles[position]);
+            if (position < finalTabTitles.length) {
+                tab.setText(finalTabTitles[position]);
             }
         }).attach();
 

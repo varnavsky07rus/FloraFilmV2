@@ -22,13 +22,6 @@
         android:padding="16dp">
 
         <!-- Все остальные TextView и ProgressBar остаются без изменений -->
-        <TextView
-            android:id="@+id/tv_torrent_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Torrent Name"
-            android:textSize="20sp"
-            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,22 +29,20 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_torrent_status"
+                android:id="@+id/tv_torrent_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Status"
-                android:textColor="?android:attr/colorAccent"
-                android:textSize="16sp" />
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="Интерстеллар(1080p)" />
 
             <LinearLayout
-                android:id="@+id/llSeedersAndPeersState"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
                 android:layout_weight="0"
-                android:orientation="horizontal"
-                android:visibility="invisible"
-                tools:visibility="visible">
+                android:orientation="horizontal">
 
                 <ImageView
                     android:id="@+id/imageView"
@@ -82,59 +73,79 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
                     android:text="0" />
+
             </LinearLayout>
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/llProgress"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:text="35.1 Gb"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTracker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="RUTOR" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linVoices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
             android:orientation="vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:visibility="gone">
 
-            <ProgressBar
-                android:id="@+id/pb_torrent"
-                style="?android:attr/progressBarStyleHorizontal"
+            <View
+                android:id="@+id/divider12"
                 android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:background="?android:attr/listDivider" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPlay"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:max="100" />
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="Воспроизвести"
+                app:chipIcon="@drawable/rounded_play_circle_24"
+                app:chipIconTint="#686868" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/btnVisibleVoicer"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="Озвучки"
+                app:chipIcon="@drawable/sharp_eye_24"
+                app:chipIconTint="#686868" />
 
-                <TextView
-                    android:id="@+id/tv_torrent_progress"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="0%"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tv_torrent_speed"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="0 B/s"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tv_torrent_size"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:text="0 B"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
         </LinearLayout>
 
         <!-- LinearLayout с кнопками удален -->

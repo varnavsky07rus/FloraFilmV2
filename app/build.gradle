@@ -10,13 +10,14 @@ android {
     defaultConfig {
         applicationId "com.alaka_ala.florafilm"
         minSdk 28
-        targetSdk 35
-        versionCode 56
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk 28
+        versionCode 57
         // 1.0.0_rs Версия RuStore
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.56_nt"
+        versionName "1.0.57_nt"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -86,7 +87,7 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"   // Обновление экрана (потянуть сверху вниз для обновления)
 
 
-    implementation 'jp.wasabeef:blurry:4.0.1'   // эффект размытия
+    implementation 'jp.wasabeef:blurry:4.0.1'    // эффект размытия
 
 
     implementation 'com.airbnb.android:lottie:6.6.4'    // Анимации lottie
@@ -114,6 +115,10 @@ dependencies {
     implementation 'com.frostwire:jlibtorrent-android-arm64:' + jlibtorrent_version
     implementation 'com.frostwire:jlibtorrent-android-x86:' + jlibtorrent_version
     implementation 'com.frostwire:jlibtorrent-android-x86_64:' + jlibtorrent_version
+
+    // libsu for robust shell commands
+    def libsuVersion = '3.2.1'
+    implementation "com.github.topjohnwu.libsu:core:${libsuVersion}"
 
 
 }

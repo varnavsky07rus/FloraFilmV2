@@ -8,9 +8,12 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +26,8 @@ import android.widget.Toast;
 import com.alaka_ala.florafilm.R;
 import com.alaka_ala.florafilm.databinding.FragmentSettingsBinding;
 import com.alaka_ala.florafilm.ui.activities.MainActivity;
+import com.alaka_ala.florafilm.ui.util.coreMatrix.MatrixManager;
+import com.alaka_ala.florafilm.ui.util.coreMatrix.services.TorServerService;
 import com.alaka_ala.florafilm.ui.util.updater.AppUpdater;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -54,6 +59,7 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
+
 
         // Инициализация и настройка переключателя для поиска на Vibix
         MaterialSwitch switch_off_search_vibix = binding.switchOffSearchVibix;
@@ -224,6 +230,100 @@ public class SettingsFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 SettingsUtils.setParamSearchCollapse(getContext(), isChecked);
                 switch_off_search_collapse.setText(isChecked ? "Выключить поиск по COLLAPSE" : "Включить поиск по COLLAPSE");
+            }
+        });
+
+        // Поиск торрентов
+        MaterialSwitch switch_off_search_torrents = binding.switchOffSearchTorrents;
+        boolean isActiveSearchTorrents = SettingsUtils.getParamSearchTorrents(getContext());
+        switch_off_search_torrents.setChecked(isActiveSearchTorrents);
+        switch_off_search_torrents.setText(isActiveSearchTorrents ? "Выключить поиск торрентов" : "Включить поиск торрентов");
+        switch_off_search_torrents.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                SettingsUtils.setParamSearchTorrents(getContext(), b);
+                switch_off_search_torrents.setText(b ? "Выключить поиск торрентов" : "Включить поиск торрентов");
+            }
+        });
+
+
+        // СЕРВЕР
+        boolean isServerRunning = MatrixManager.isServerRunning();
+        boolean isExistFileServer = MatrixManager.isServerDownloaded(getContext());
+        TextView tvStateServer = binding.tvStateServer;
+        tvStateServer.setText(isExistFileServer ? (isServerRunning ? "\uD83D\uDFE2 Сервер запущен" : "\uD83D\uDD34 Сервер остановлен") : "\uD83D\uDFE3 Файл сервера не найден");
+
+        MaterialSwitch switchTurnOnServerApp = binding.switchTurnOnServerApp;
+        boolean isOnAutoStartServer = SettingsUtils.getParamAutoOnServer(getContext());
+        switchTurnOnServerApp.setChecked(isOnAutoStartServer);
+        switchTurnOnServerApp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                SettingsUtils.setParamAutoOnServer(getContext(), b);
+            }
+        });
+
+
+
+        Button btnStartServer = binding.btnStartServer;
+        btnStartServer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MatrixManager.isServerDownloaded(view.getContext())) {
+                    if (getActivity() == null) return;
+                    Intent serviceIntent = new Intent(getContext(), TorServerService.class);
+                    getActivity().startService(serviceIntent);
+                } else {
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(view.getContext(), R.style.MyThemeOverlay_MaterialAlertDialog_PrimaryColor);
+                    builder
+                            .setTitle("Исполняемый файл не найден")
+                            .setMessage("Скачать исполняемый файл и запустить?");
+                    AlertDialog alert = builder.create();
+                    alert.setButton(DialogInterface.BUTTON_POSITIVE, "Скачать", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            MatrixManager.downloadServer(getContext(), new MatrixManager.DownloadCallback() {
+                                @Override
+                                public void onProgress(int progress) {
+                                    updateUiStatus(progress);
+                                }
+
+                                private void updateUiStatus(int progress) {
+                                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            tvStateServer.setText("Загрузка: " + progress + "%");
+                                        }
+                                    });
+                                }
+
+                                private void updateUiStatus(String msg) {
+                                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            tvStateServer.setText(msg);
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onComplete(boolean success, String message) {
+                                    updateUiStatus(message);
+                                    if (getActivity() == null) return;
+                                    Intent serviceIntent = new Intent(getContext(), TorServerService.class);
+                                    getActivity().startService(serviceIntent);
+                                }
+                            });
+                        }
+                    });
+                    alert.setButton(DialogInterface.BUTTON_NEGATIVE, "Позже", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    });
+                    alert.show();
+                }
             }
         });
 

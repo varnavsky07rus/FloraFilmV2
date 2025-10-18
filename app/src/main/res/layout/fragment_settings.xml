@@ -15,8 +15,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="vertical">
 
         <!-- Update Section -->
@@ -64,6 +64,13 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/textView36"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Если выбираете обновлять до beta версий, это значит, что приложение будет обновлять приложение исключительно по beta ветке, Рекомендуется оставлять функцию отключенной для обновления до стабильных версий." />
 
                 <View
                     android:id="@+id/divider3"
@@ -118,6 +125,13 @@
                     android:layout_marginBottom="8dp"
                     android:text="Поиск" />
 
+                <TextView
+                    android:id="@+id/textView33"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Функции отлючения определенного сервиса для просмотра фильмов, реализовано, на случай непредвиденного поведения приложения при входе на страницу фильма, или плеерa. \nЛибо если хотите ускорить загрузку данных. \n\nКаждый сервис отличается своей базой фильмов, где то есть болше, где-то меньше.\n\nРекомендуем оставлять настройки от разрабочтика." />
+
                 <View
                     android:id="@+id/divider7"
                     android:layout_width="match_parent"
@@ -160,8 +174,8 @@
                     android:layout_height="wrap_content"
                     android:checked="false"
                     android:text="Включить поиск Torrent"
-                    android:visibility="gone"
                     tools:visibility="visible" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -186,6 +200,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Эффекты" />
+
+                <TextView
+                    android:id="@+id/textView31"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Выключив эффекты прокрутки страницы, они отключатся где это достпуно\nПри изменении настроек прокрутки страницы приложение перезапустится.\n\nАнимации LOTTIE это интерактивные анимации в интерфейсе приложения, например: Когда нет доступных файлов выводится анимированное изображение" />
 
                 <View
                     android:id="@+id/divider8"
@@ -212,6 +233,7 @@
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="Включить анимации LOTTIE" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -237,6 +259,13 @@
                     android:layout_marginBottom="8dp"
                     android:text="Экраны" />
 
+                <TextView
+                    android:id="@+id/textView30"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Есть несколько экранов, старый или он же &quot;упрощенный&quot; и более современный и новый" />
+
                 <View
                     android:id="@+id/divider9"
                     android:layout_width="match_parent"
@@ -252,7 +281,67 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Memory Section -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.Material3.CardView.Elevated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/textView261"
+                    style="@style/TextAppearance.Material3.TitleLarge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Сервер" />
+
+                <TextView
+                    android:id="@+id/textView29"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="FloraFilm реализует просмотр торрента внутри приложения, но для этого требуется локальный сервер.\n\nФильмы на торрентах имеют отличительное свойтсво - они без рекламы и в хорошем качестве. \n\nИспользование торрента рекомендуется с VPN сервисами" />
+
+                <View
+                    android:id="@+id/divider101"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
+
+                <TextView
+                    android:id="@+id/tvStateServer"
+                    style="@style/TextAppearance.Material3.BodyLarge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Статус: Отключён" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchTurnOnServerApp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Включать сервер при запуске приложения" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStartServer"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Включить" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.Material3.CardView.Elevated"
             android:layout_width="match_parent"
@@ -272,6 +361,7 @@
                     style="@style/TextAppearance.Material3.TitleLarge"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
                     android:text="Память" />
 
                 <View

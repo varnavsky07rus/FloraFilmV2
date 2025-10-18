@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyThemeOverlay.MaterialAlertDialog.PrimaryColor" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/my_dialog_button_color</item>
+    </style>
+
+
+</resources>

@@ -685,7 +685,6 @@ public class HomeFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         menu.add("Избранное").setIcon(getContext().getDrawable(R.drawable.round_favorite_border_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
         menu.add("Поиск").setIcon(getContext().getDrawable(R.drawable.rounded_search_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        menu.add("Загрузки").setIcon(getContext().getDrawable(R.drawable.outline_download_for_offline_24)).setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
     }
 
     @Override
@@ -696,8 +695,6 @@ public class HomeFragment extends Fragment {
             Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_searchFragment);
         } else if (item.getTitle().equals("Избранное")) {
             Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_navFavoriteFilmFragment);
-        } else if (item.getTitle().equals("Загрузки")) {
-            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_navHomeFragment_to_downloadManagerFragment);
         }
         return super.onOptionsItemSelected(item);
     }

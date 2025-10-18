@@ -242,7 +242,13 @@ public class PlayerExoActivity extends AppCompatActivity {
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("magnet")) {
             String magnet = epData.getFilm().getTranslations().get(0).getVideoData().get(0).getValue();
-
+            MediaItem mediaItem = new MediaItem.Builder()
+                    .setUri(magnet)
+                    .build();
+            mediaItems.add(mediaItem);
+            exoPlayer.setMediaItems(mediaItems, epData.getIndexEpisode(), 0);
+            exoPlayer.prepare();
+            exoPlayer.play();
 
         }
         else if (Objects.equals(epData.getTypeContent(), EPData.TYPE_CONTENT_FILM) && epData.getBalancer().equals("HDVB")) {

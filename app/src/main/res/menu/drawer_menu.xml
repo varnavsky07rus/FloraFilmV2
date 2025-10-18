@@ -23,10 +23,6 @@
         <item android:title="Другое" >
             <menu >
                 <item
-                    android:id="@+id/instructionViewTorrent"
-                    android:icon="@drawable/baseline_apps_24"
-                    android:title="Просмотр торрентов" />
-                <item
                     android:id="@+id/contactFragment"
                     android:icon="@drawable/outline_contact_support_24"
                     android:title="Контакты" />

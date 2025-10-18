@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -15,8 +16,15 @@ import com.alaka_ala.florafilm.ui.fragments.film.vp_fragments.VideoFilmFragment;
 import com.alaka_ala.florafilm.ui.fragments.settings.SettingsUtils;
 
 public class ViewPagerFilmAdapter extends FragmentStateAdapter {
+
     private int countFragments;
     private boolean deptDescriptionLayout;
+
+    public ViewPagerFilmAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, Context context, int countItems) {
+        super(fragmentManager, lifecycle);
+        countFragments = countItems;
+        deptDescriptionLayout = SettingsUtils.getParamLayoutDescriptionFilm(context);
+    }
 
     public ViewPagerFilmAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, Context context) {
         super(fragmentManager, lifecycle);

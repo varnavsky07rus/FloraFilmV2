@@ -23,7 +23,7 @@
     <color name="buttonResumeEnabled">#5564A9</color>
     <color name="buttonResumeDisabled">#575757</color>
 
-
+    <color name="my_dialog_button_color">#FF007BFF</color>
 
 
 </resources>
