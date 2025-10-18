@@ -44,7 +44,8 @@
 # Сохраняем классы моделей, используемые LumexApi, от обфускации и сжатия.
 -keep class com.alaka_ala.florafilm.ui.util.api.collapse.** { *; }
 
-
+# Сохраняем классы моделей, используемые CoreMatrix, от обфускации и сжатия.
+-keep class com.alaka_ala.florafilm.ui.util.coreMatrix.** { *; }
 
 
 # Это самое важное правило для TypeToken.
@@ -67,5 +68,3 @@
 
 # Также рекомендуется сохранить сам класс, чтобы он не был удален, если R8 посчитает его неиспользуемым.
 -keep class com.alaka_ala.florafilm.ui.util.api.firebase.FilmDataModel
-
--keep class org.libtorrent4j.swig.libtorrent_jni {*;}
