@@ -2,6 +2,7 @@ package com.alaka_ala.florafilm.ui.fragments.download_manager.adapter;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -17,6 +18,9 @@ public class TorrentItemViewHolder extends RecyclerView.ViewHolder {
     private final TextView torrentProgress;
     private final TextView torrentSpeed;
     private final TextView torrentSize;
+    private final TextView seeders;
+    private final TextView peers;
+    private final LinearLayout llProgress;
     private String btih; // Для идентификации холдера
 
     public TorrentItemViewHolder(@NonNull View itemView) {
@@ -27,9 +31,20 @@ public class TorrentItemViewHolder extends RecyclerView.ViewHolder {
         torrentProgress = itemView.findViewById(R.id.tv_torrent_progress);
         torrentSpeed = itemView.findViewById(R.id.tv_torrent_speed);
         torrentSize = itemView.findViewById(R.id.tv_torrent_size);
+        seeders = itemView.findViewById(R.id.tvSeedersUp);
+        peers = itemView.findViewById(R.id.tvPeersDown);
+        llProgress = itemView.findViewById(R.id.llProgress);
     }
 
-    // Геттеры для доступа из адаптера
+    public LinearLayout getLlProgress() {
+        return llProgress;
+    }
+    public TextView getSeeders() {
+        return seeders;
+    }
+    public TextView getPeers() {
+        return peers;
+    }
     public TextView getTorrentName() { return torrentName; }
     public TextView getTorrentStatus() { return torrentStatus; }
     public ProgressBar getProgressBarTorrent() { return progressBarTorrent; }

@@ -13,8 +13,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,6 +48,7 @@ public class JacredTor {
                 } else {
                     Object objData = bundle.getSerializable("data");
                     if (objData instanceof ArrayList) {
+                        @SuppressWarnings("unchecked")
                         ArrayList<JacredData> jacredDataArrayList = (ArrayList<JacredData>) objData;
                         sc.onSuccess(jacredDataArrayList);
                     } else {
@@ -77,6 +83,15 @@ public class JacredTor {
                     try {
                         JSONArray jsonArray = new JSONArray(res);
                         int count = jsonArray.length();
+                        if (count == 0) {
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("loading", false);
+                            bundle.putSerializable("data", new ArrayList<JacredData>());
+                            Message message = new Message();
+                            message.setData(bundle);
+                            handlerProgress.sendMessage(message);
+                            return;
+                        }
                         for (int i = 0; i < count; i++) {
                             JSONObject jsonObject = jsonArray.getJSONObject(i);
                             String tracker = jsonObject.has("tracker") ? jsonObject.getString("tracker") : "Неизвестный трекер";
@@ -138,8 +153,37 @@ public class JacredTor {
                             bundle.putBoolean("finish", i == count - 1);
                             bundle.putBoolean("loading", true);
                             if (i == count - 1) {
+                                // --- Start of processing logic ---
+
+                                // 1. Remove duplicates and filter inactive torrents
+                                Map<String, JacredData> uniqueTorrentsMap = new LinkedHashMap<>();
+                                for (JacredData torrent : jacredDataArrayList) {
+                                    // Active torrents have at least 1 seed.
+                                    // We use the magnet link to identify unique torrents.
+                                    if (torrent.getSid() > 0 && torrent.getMagnet() != null && !torrent.getMagnet().isEmpty()) {
+                                        uniqueTorrentsMap.putIfAbsent(torrent.getMagnet(), torrent);
+                                    }
+                                }
+                                ArrayList<JacredData> processedList = new ArrayList<>(uniqueTorrentsMap.values());
+
+                                // 2. Sort the list
+                                // We sort by seeds (sid) in descending order, as they are most important for download health.
+                                // If seeds are equal, we sort by peers (pir) in descending order.
+                                Collections.sort(processedList, new Comparator<JacredData>() {
+                                    @Override
+                                    public int compare(JacredData t1, JacredData t2) {
+                                        int sidCompare = Integer.compare(t2.getSid(), t1.getSid());
+                                        if (sidCompare != 0) {
+                                            return sidCompare;
+                                        }
+                                        return Integer.compare(t2.getPir(), t1.getPir());
+                                    }
+                                });
+
+                                // --- End of processing logic ---
+
                                 bundle.putBoolean("loading", false);
-                                bundle.putSerializable("data", jacredDataArrayList);
+                                bundle.putSerializable("data", processedList);
                             }
                             Message message = new Message();
                             message.setData(bundle);
@@ -177,7 +221,7 @@ public class JacredTor {
         void onError(String msgError, SearchCallback sc);
     }
 
-    public static class JacredData {
+    public static class JacredData implements Serializable {
         public JacredData(String tracker, String url, String title, long size, String sizeName, String createTime, int sid, int pir, String magnet, String name, String originalname, int relased, String videotype, int quality, ArrayList<String> voices, ArrayList<Integer> seasons, ArrayList<String> types) {
             this.tracker = tracker;
             this.url = url;

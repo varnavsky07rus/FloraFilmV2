@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
@@ -9,7 +10,7 @@
     android:foreground="?attr/selectableItemBackground"
     android:outlineSpotShadowColor="#B46A6A6A"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
+    app:cardElevation="8dp"
     app:strokeColor="#40646464"
     app:strokeWidth="1dp">
 
@@ -29,54 +30,111 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tv_torrent_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Status"
-            android:textColor="?android:attr/colorAccent"
-            android:textSize="12sp" />
-
-        <ProgressBar
-            android:id="@+id/pb_torrent"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:max="100" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_height="match_parent"
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_torrent_progress"
-                android:layout_width="0dp"
+                android:id="@+id/tv_torrent_status"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0%"
-                android:textSize="12sp" />
+                android:text="Status"
+                android:textColor="?android:attr/colorAccent"
+                android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/tv_torrent_speed"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/llSeedersAndPeersState"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:orientation="horizontal"
+                android:visibility="invisible"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:tint="#7E7E7E"
+                    app:srcCompat="@drawable/rounded_arrow_drop_up_24" />
+
+                <TextView
+                    android:id="@+id/tvSeedersUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="0" />
+
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:tint="#7E7E7E"
+                    app:srcCompat="@drawable/rounded_arrow_drop_down_24" />
+
+                <TextView
+                    android:id="@+id/tvPeersDown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:text="0" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llProgress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:id="@+id/pb_torrent"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="0 B/s"
-                android:textSize="12sp" />
+                android:layout_marginTop="8dp"
+                android:max="100" />
 
-            <TextView
-                android:id="@+id/tv_torrent_size"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="end"
-                android:text="0 B"
-                android:textSize="12sp" />
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
+                <TextView
+                    android:id="@+id/tv_torrent_progress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0%"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_torrent_speed"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="0 B/s"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_torrent_size"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="0 B"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
         </LinearLayout>
 
         <!-- LinearLayout с кнопками удален -->

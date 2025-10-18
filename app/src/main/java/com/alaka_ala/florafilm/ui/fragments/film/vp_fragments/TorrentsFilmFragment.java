@@ -24,9 +24,9 @@ import com.alaka_ala.florafilm.ui.util.coreTorrent.TorrentSessionService;
 import com.alaka_ala.florafilm.ui.util.coreTorrent.interfaces.UpdateDataListener;
 import com.alaka_ala.florafilm.ui.util.coreTorrent.models.Torrent;
 import com.alaka_ala.florafilm.ui.util.coreTorrent.utils.MagnetLinkParser;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +35,6 @@ public class TorrentsFilmFragment extends Fragment {
     private FragmentTorrentsFilmBinding binding;
     private RecyclerView rvTorrentsFilm;
     private static int kinopoisk_id;
-    // Убираем ссылку на сервис отсюда, она будет в адаптере
-
     private AdapterTorrentsFilm adapterTorrentsFilm;
 
     @Override
@@ -55,7 +53,6 @@ public class TorrentsFilmFragment extends Fragment {
     private void setupRecyclerView() {
         rvTorrentsFilm = binding.rvTorrentsFilm;
         rvTorrentsFilm.setLayoutManager(new LinearLayoutManager(getContext()));
-        // Не создаем адаптер здесь, а только после получения данных
     }
 
     private void loadTorrents() {
@@ -63,11 +60,9 @@ public class TorrentsFilmFragment extends Fragment {
         jacredTor.query("kp" + kinopoisk_id, new JacredTor.SearchCallback() {
             @Override
             public void onSuccess(List<JacredTor.JacredData> data) {
-                if (getContext() == null) return; // Проверка, что фрагмент еще жив
-                // Создаем и устанавливаем адаптер
+                if (getContext() == null) return;
                 adapterTorrentsFilm = new AdapterTorrentsFilm(data);
                 rvTorrentsFilm.setAdapter(adapterTorrentsFilm);
-                // Регистрируем слушатель ПОСЛЕ создания адаптера
                 adapterTorrentsFilm.registerListener();
             }
 
@@ -85,11 +80,9 @@ public class TorrentsFilmFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Отписываемся от обновлений, чтобы избежать утечек памяти
         if (adapterTorrentsFilm != null) {
             adapterTorrentsFilm.unregisterListener();
         }
-        // Обнуляем ссылки
         if (rvTorrentsFilm != null) {
             rvTorrentsFilm.setAdapter(null);
         }
@@ -97,12 +90,9 @@ public class TorrentsFilmFragment extends Fragment {
         binding = null;
     }
 
-    // Внутренний класс адаптера
     private static class AdapterTorrentsFilm extends RecyclerView.Adapter<TorrentItemViewHolder> implements UpdateDataListener {
         private final List<JacredTor.JacredData> data;
-        // Хранит последние актуальные данные для каждого торрента
         private final Map<String, Torrent> torrentsState = new ConcurrentHashMap<>();
-        // Хранит активные (видимые на экране) ViewHolder'ы
         private final Map<String, TorrentItemViewHolder> activeHolders = new ConcurrentHashMap<>();
         private final String LISTENER_KEY = "AdapterTorrentsFilm";
 
@@ -122,13 +112,14 @@ public class TorrentsFilmFragment extends Fragment {
             if (service != null) {
                 service.removeListener(LISTENER_KEY);
             }
-            activeHolders.clear(); // Очищаем холдеры при уничтожении
+            activeHolders.clear();
         }
 
         @NonNull
         @Override
         public TorrentItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_torrent, parent, false);
+            view.findViewById(R.id.llSeedersAndPeersState).setVisibility(View.VISIBLE);
             return new TorrentItemViewHolder(view);
         }
 
@@ -136,22 +127,36 @@ public class TorrentsFilmFragment extends Fragment {
         public void onBindViewHolder(@NonNull TorrentItemViewHolder holder, int position) {
             JacredTor.JacredData item = data.get(position);
             String btih = MagnetLinkParser.extractBtih(item.getMagnet());
-            holder.setBtih(btih); // Важно для идентификации холдера
+            holder.setBtih(btih);
 
-            // Устанавливаем статические данные из JacredData
-            holder.getTorrentName().setText(item.getName());
-            holder.getTorrentSize().setText(formatFileSize(item.getSize()));
+            // Статические данные
+            holder.getTorrentName().setText(item.getName() + " (" + formatFileSize(item.getSize()) + ")");
+            holder.getTorrentSize().setText("");
+            holder.getPeers().setText(String.valueOf(item.getPir()));
+            holder.getSeeders().setText(String.valueOf(item.getSid()));
 
-            // Получаем "живое" состояние торрента, если оно есть
+            // Динамические данные
             Torrent currentTorrentState = torrentsState.get(btih);
+            updateDynamicViews(holder, currentTorrentState);
 
-            // Обновляем UI на основе "живых" данных или ставим по умолчанию
-            updateHolderViews(holder, currentTorrentState);
-
-            // Устанавливаем слушатель на весь элемент списка
             holder.itemView.setOnClickListener(v -> {
-                showActionDialog(v.getContext(), item, currentTorrentState);
+                showActionDialog(v.getContext(), item, torrentsState.get(btih));
             });
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull TorrentItemViewHolder holder, int position, @NonNull List<Object> payloads) {
+            if (payloads.isEmpty()) {
+                onBindViewHolder(holder, position);
+            } else {
+                for (Object payload : payloads) {
+                    if (payload instanceof Torrent) {
+                        updateDynamicViews(holder, (Torrent) payload);
+                    } else if (payload == null) {
+                        updateDynamicViews(holder, null);
+                    }
+                }
+            }
         }
 
         private void showActionDialog(android.content.Context context, JacredTor.JacredData item, @Nullable Torrent currentTorrentState) {
@@ -162,21 +167,25 @@ public class TorrentsFilmFragment extends Fragment {
             ArrayList<String> options = new ArrayList<>();
 
             if (currentTorrentState != null) {
-                // Если торрент уже в сессии, показываем опции управления
                 String state = currentTorrentState.getState();
-                if ("DOWNLOADING".equals(state) || "SEEDING".equals(state)) {
-                    options.add("Поставить на паузу");
-                } else {
+                if ("PAUSED".equalsIgnoreCase(state) || "FINISHED".equalsIgnoreCase(state)) {
                     options.add("Возобновить");
+                } else if ("DOWNLOADING".equalsIgnoreCase(state) ||
+                        "SEEDING".equalsIgnoreCase(state) ||
+                        "DOWNLOADING_METADATA".equalsIgnoreCase(state) ||
+                        "CONNECTING...".equalsIgnoreCase(state) ||
+                        "CHECKING_FILES".equalsIgnoreCase(state) ||
+                        "ALLOCATING".equalsIgnoreCase(state) ||
+                        "CHECKING_RESUME_DATA".equalsIgnoreCase(state)) {
+                    options.add("Поставить на паузу");
                 }
                 options.add("Удалить торрент");
                 options.add("Удалить торрент и файлы");
             } else {
-                // Если торрента нет в сессии, предлагаем скачать
                 options.add("Скачать");
             }
 
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+            new MaterialAlertDialogBuilder(context)
                     .setTitle(item.getName())
                     .setItems(options.toArray(new String[0]), (dialog, which) -> {
                         String selectedOption = options.get(which);
@@ -186,9 +195,11 @@ public class TorrentsFilmFragment extends Fragment {
                                 break;
                             case "Поставить на паузу":
                                 service.pauseTorrent(btih);
+                                updateTorrentStateOptimistically(btih, "PAUSED");
                                 break;
                             case "Возобновить":
                                 service.resumeTorrent(btih);
+                                updateTorrentStateOptimistically(btih, "DOWNLOADING");
                                 break;
                             case "Удалить торрент":
                                 confirmAndRemove(context, service, btih, false);
@@ -201,48 +212,61 @@ public class TorrentsFilmFragment extends Fragment {
                     .show();
         }
 
+        private void updateTorrentStateOptimistically(String btih, String newState) {
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Torrent oldTorrent = torrentsState.get(btih);
+                int index = findIndexOfBtih(btih);
+
+                if (index != -1) {
+                    Torrent optimisticTorrent = new Torrent(
+                            oldTorrent != null ? oldTorrent.getName() : "",
+                            oldTorrent != null ? oldTorrent.getSize() : 0,
+                            oldTorrent != null ? oldTorrent.getMagnet() : "",
+                            btih,
+                            oldTorrent != null ? oldTorrent.getPathFile() : "",
+                            oldTorrent != null ? oldTorrent.getProgress() : 0,
+                            newState,
+                            newState.equals("PAUSED") ? 0 : (oldTorrent != null ? oldTorrent.getDownloadRate() : 0),
+                            newState.equals("PAUSED") ? 0 : (oldTorrent != null ? oldTorrent.getUploadRate() : 0),
+                            oldTorrent != null ? oldTorrent.getBenCode() : new byte[0]
+                    );
+                    torrentsState.put(btih, optimisticTorrent);
+                    notifyItemChanged(index, optimisticTorrent);
+                }
+            });
+        }
+
         private void confirmAndRemove(android.content.Context context, TorrentSessionService service, String btih, boolean deleteFiles) {
             String message = deleteFiles ? "Вы уверены, что хотите удалить этот торрент вместе со всеми скачанными файлами?" : "Вы уверены, что хотите удалить этот торрент из списка?";
-            new com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+            new MaterialAlertDialogBuilder(context)
                     .setTitle("Подтверждение")
                     .setMessage(message)
                     .setNegativeButton("Отмена", null)
                     .setPositiveButton("Удалить", (dialog, which) -> {
                         service.removeTorrent(btih, deleteFiles);
-                        // После удаления, сервис перестанет присылать обновления для этого btih.
-                        // Мы можем просто сбросить состояние в нашем адаптере.
                         torrentsState.remove(btih);
-                        // И обновить конкретный холдер, если он видим
-                        TorrentItemViewHolder holder = activeHolders.get(btih);
-                        if (holder != null) {
-                            updateHolderViews(holder, null);
+                        int index = findIndexOfBtih(btih);
+                        if (index != -1) {
+                            notifyItemChanged(index, null);
                         }
                     })
                     .show();
         }
 
-
-        /**
-         * Вызывается, когда ViewHolder появляется на экране.
-         */
         @Override
         public void onViewAttachedToWindow(@NonNull TorrentItemViewHolder holder) {
             super.onViewAttachedToWindow(holder);
             if (holder.getBtih() != null) {
                 activeHolders.put(holder.getBtih(), holder);
-                // Сразу обновляем вид, как только он появился
-                updateHolderViews(holder, torrentsState.get(holder.getBtih()));
+                updateDynamicViews(holder, torrentsState.get(holder.getBtih()));
             }
         }
 
-        /**
-         * Вызывается, когда ViewHolder уходит с экрана (скроллится).
-         */
         @Override
         public void onViewDetachedFromWindow(@NonNull TorrentItemViewHolder holder) {
             super.onViewDetachedFromWindow(holder);
             if (holder.getBtih() != null) {
-                activeHolders.remove(holder.getBtih()); // Удаляем из активных
+                activeHolders.remove(holder.getBtih());
             }
         }
 
@@ -254,74 +278,73 @@ public class TorrentsFilmFragment extends Fragment {
         @Override
         public void onUpdatedTorrent(Torrent torrent) {
             if (torrent == null || torrent.getHashBtih() == null) return;
-
-            // 1. Сохраняем последнее известное состояние торрента
             torrentsState.put(torrent.getHashBtih(), torrent);
 
-            // 2. Ищем активный (видимый) холдер для этого торрента
-            TorrentItemViewHolder holder = activeHolders.get(torrent.getHashBtih());
+            int index = findIndexOfBtih(torrent.getHashBtih());
 
-            // 3. Если холдер найден (т.е. он на экране), обновляем его напрямую
-            if (holder != null) {
-                new Handler(Looper.getMainLooper()).post(() -> updateHolderViews(holder, torrent));
+            if (index != -1) {
+                new Handler(Looper.getMainLooper()).post(() -> notifyItemChanged(index, torrent));
             }
         }
 
-        /**
-         * Централизованный метод для обновления View внутри ViewHolder.
-         * @param holder ViewHolder для обновления.
-         * @param torrent Данные для отображения.
-         */
+        private int findIndexOfBtih(String btih) {
+            if (btih == null) return -1;
+            for (int i = 0; i < data.size(); i++) {
+                String itemBtih = MagnetLinkParser.extractBtih(data.get(i).getMagnet());
+                if (btih.equals(itemBtih)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         @SuppressLint("SetTextI18n")
-        private void updateHolderViews(@NonNull TorrentItemViewHolder holder, @Nullable Torrent torrent) {
+        private void updateDynamicViews(@NonNull TorrentItemViewHolder holder, @Nullable Torrent torrent) {
             if (torrent != null) {
-                // Обновляем UI из "живых" данных, если они есть
+                String state = torrent.getState();
+                boolean showProgress =
+                        "DOWNLOADING".equalsIgnoreCase(state) ||
+                                "SEEDING".equalsIgnoreCase(state) ||
+                                "PAUSED".equalsIgnoreCase(state) ||
+                                "FINISHED".equalsIgnoreCase(state) ||
+                                "CHECKING_FILES".equalsIgnoreCase(state);
+                holder.getLlProgress().setVisibility(showProgress ? View.VISIBLE : View.GONE);
+
+                String speedText = "";
+                String statusText;
+
+                if ("DOWNLOADING".equalsIgnoreCase(state)) {
+                    statusText = "Загрузка";
+                    speedText = formatFileSize(torrent.getDownloadRate()) + "/с";
+                } else if ("SEEDING".equalsIgnoreCase(state)) {
+                    statusText = "Раздача";
+                    speedText = formatFileSize(torrent.getUploadRate()) + "/с";
+                } else if ("CHECKING_FILES".equalsIgnoreCase(state)) {
+                    statusText = "Проверка";
+                } else if ("PAUSED".equalsIgnoreCase(state)) {
+                    statusText = "На паузе";
+                } else if ("FINISHED".equalsIgnoreCase(state)) {
+                    statusText = "Завершен";
+                } else if ("DOWNLOADING_METADATA".equalsIgnoreCase(state)) {
+                    statusText = "Загрузка метаданных";
+                } else if ("CONNECTING...".equalsIgnoreCase(state)) {
+                    statusText = "Соединение...";
+                } else {
+                    statusText = state;
+                }
+
                 holder.getTorrentProgress().setText(torrent.getProgress() + "%");
                 holder.getProgressBarTorrent().setProgress(torrent.getProgress());
-                holder.getTorrentStatus().setText(formatStatus(torrent));
-                holder.getTorrentSpeed().setText(formatSpeed(torrent));
+                holder.getTorrentStatus().setText(statusText);
+                holder.getTorrentSpeed().setText(speedText);
             } else {
-                // Состояние по умолчанию, если торрент не скачивается
+                // Состояние по умолчанию
+                holder.getLlProgress().setVisibility(View.GONE);
                 holder.getTorrentProgress().setText("");
                 holder.getProgressBarTorrent().setProgress(0);
-                holder.getTorrentStatus().setText("Нажмите, чтобы скачать");
+                holder.getTorrentStatus().setText("");
                 holder.getTorrentSpeed().setText("");
             }
-        }
-
-        /**
-         * Форматирует статус для отображения.
-         */
-        private String formatStatus(Torrent torrent) {
-            String state = torrent.getState();
-            switch (state) {
-                case "DOWNLOADING":
-                    return "Загрузка";
-                case "SEEDING":
-                    return "Раздача";
-                case "CHECKING_FILES":
-                    return "Проверка";
-                case "PAUSED":
-                    return "На паузе";
-                case "FINISHED":
-                    return "Завершен";
-                default:
-                    return state;
-            }
-        }
-
-        /**
-         * Форматирует скорость для отображения.
-         */
-        private String formatSpeed(Torrent torrent) {
-            String state = torrent.getState();
-            if ("DOWNLOADING".equals(state)) {
-                return formatFileSize(torrent.getDownloadRate()) + "/с";
-            }
-            if ("SEEDING".equals(state)) {
-                return formatFileSize(torrent.getUploadRate()) + "/с";
-            }
-            return ""; // Не показывать скорость для других состояний
         }
 
         private String formatFileSize(long bytes) {
@@ -333,11 +356,4 @@ public class TorrentsFilmFragment extends Fragment {
             return String.format("%.1f %s", bytes / Math.pow(unit, exp), units[exp - 1]);
         }
     }
-
-
-
-
-
-
-
 }
