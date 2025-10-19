@@ -45,6 +45,10 @@ public class ChangeLogAppFragment extends Fragment {
     }
 
     private void putUpdatesData() {
+        changelogItems.add(new ChangelogItem(
+                "v1.0.59_nt",
+                "19.10.2025 at 12^28",
+                        "◻️- Lumex захромал. Исправил немного код."));
 
         changelogItems.add(new ChangelogItem(
                 "v1.0.57_nt_beta",

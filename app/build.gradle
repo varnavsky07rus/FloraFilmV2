@@ -12,12 +12,12 @@ android {
         minSdk 28
         //noinspection ExpiredTargetSdkVersion
         targetSdk 28
-        versionCode 58
+        versionCode 59
         // 1.0.0_rs Версия RuStore
         // 1.0.0_pm - PlayMarket
         // 1.0.0_app - AppStore
         // 1.0.0_nt - Нативное (прямое) обновление через встроенный менеджер в приложении
-        versionName "1.0.58_nt"
+        versionName "1.0.59_nt"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,6 +29,10 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

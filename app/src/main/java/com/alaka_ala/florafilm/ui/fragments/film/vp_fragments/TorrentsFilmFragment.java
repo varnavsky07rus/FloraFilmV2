@@ -92,11 +92,16 @@ public class TorrentsFilmFragment extends Fragment {
             public void finish() {}
 
             @Override
-            public void onError(String msgError, JacredTor.SearchCallback sc) {}
+            public void onError(String msgError, JacredTor.SearchCallback sc) {
+
+            }
         });
+
     }
 
     private static class AdapterTorrentsFilm extends ListAdapter<JacredTor.JacredData, AdapterTorrentsFilm.ViewHolderTorrentsFilm> {
+
+
 
         public AdapterTorrentsFilm() {
             super(new JacredDataDiffCallback());

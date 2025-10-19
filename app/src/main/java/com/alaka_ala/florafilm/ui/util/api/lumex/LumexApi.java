@@ -118,7 +118,12 @@ public class LumexApi {
                     if (getContentId != null) {
                         if (getContentId.body() != null) {
                             String body = getContentId.body().string();
+                            if (body.startsWith("<html>")) {
+                                callbackLumex.error("Босс, У нас ошибка:" + getContentId.message() + " | " + getContentId.code());
+                                return;
+                            }
                             ApiRespInfo apiRespInfo = new Gson().fromJson(body, ApiRespInfo.class);
+
                             if (apiRespInfo.getData() == null) {
                                 callbackLumex.error("Фильм отсутствует в базе");
                                 return;

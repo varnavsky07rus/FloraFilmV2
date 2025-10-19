@@ -47,6 +47,7 @@
 # Сохраняем классы моделей, используемые CoreMatrix, от обфускации и сжатия.
 -keep class com.alaka_ala.florafilm.ui.util.coreMatrix.** { *; }
 
+-keep class com.alaka_ala.florafilm.ui.util.api.jacred.** { *; }
 
 # Это самое важное правило для TypeToken.
 # Оно сохраняет generic-сигнатуры, которые R8 может удалить.
