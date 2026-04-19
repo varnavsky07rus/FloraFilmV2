@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.alaka_ala.florafilm" />
+                  <option name="mobileSdkAppId" value="1:50128289891:android:bd3836bf09b1508ab2f856" />
+                  <option name="projectId" value="filmix-70688" />
+                  <option name="projectNumber" value="50128289891" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
